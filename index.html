@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="public, max-age=86400">
+    <meta name="theme-color" content="#000000">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <title>NoolShy Fame</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="black-theme">
+    
+    <div class="snow-container"></div>
+
+    <nav class="top-nav">
+        <div class="nav-left">
+            <button class="menu-btn" id="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="logo text-neon-flow">NoolShy Fame</h1>
+        </div>
+        
+        <div class="nav-center">
+            <button class="nav-tab active" data-section="main">Главная</button>
+            <a href="https://t.me/NOOLSHY" class="nav-tab channel-link" target="_blank">
+                <i class="fab fa-telegram"></i> Мой канал
+            </a>
+        </div>
+        
+        <div class="nav-right">
+            <!-- Кнопка авторизации -->
+            <button class="auth-btn" id="auth-btn">
+                <i class="fab fa-telegram"></i> Войти
+            </button>
+            
+            <!-- Профиль пользователя (скрыт по умолчанию) -->
+            <div class="user-profile" id="user-profile" style="display: none;">
+                <div class="profile-dropdown">
+                    <button class="profile-toggle" id="profile-toggle">
+                        <img id="user-avatar" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9IiMzMzMiPjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiByeD0iNTAiLz48dGV4dCB4PSI1MCIgeT0iNTUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSI0MCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+QTwvdGV4dD48L3N2Zz4=" 
+                             alt="Аватар" class="user-avatar">
+                        <span class="user-name" id="user-name">Гость</span>
+                    </button>
+                    <div class="dropdown-menu" id="dropdown-menu">
+                        <div class="dropdown-header">
+                            <img id="dropdown-avatar" src="" alt="Аватар" class="dropdown-avatar">
+                            <div class="dropdown-user-info">
+                                <strong id="dropdown-name">Гость</strong>
+                                <small id="dropdown-username">@username</small>
+                                <small id="dropdown-id">ID: 0</small>
+                            </div>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item" id="my-profile-btn">
+                            <i class="fas fa-user"></i> Мой профиль
+                        </a>
+                        <a href="#" class="dropdown-item" id="settings-profile-btn">
+                            <i class="fas fa-cog"></i> Настройки профиля
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <button class="dropdown-item logout-btn" id="logout-btn">
+                            <i class="fas fa-sign-out-alt"></i> Выйти
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <a href="https://t.me/nooIshy_bot" class="apply-btn neon-apply" target="_blank" title="Отправить заявку">
+                <i class="fas fa-paper-plane"></i> Отправить заявку
+            </a>
+            
+            <button class="nav-icon" id="faq-btn" title="FAQ">
+                <i class="fas fa-question-circle"></i>
+            </button>
+            <button class="nav-icon" id="settings-btn" title="Настройки">
+                <i class="fas fa-cog"></i>
+            </button>
+        </div>
+    </nav>
+    
+    <div class="side-menu" id="side-menu">
+        <div class="menu-header">
+            <h3>Меню</h3>
+            <button class="close-menu" id="close-menu">&times;</button>
+        </div>
+        <div class="menu-items">
+            <a href="#main" class="menu-item active" data-section="main">
+                <i class="fas fa-home"></i> Главная
+            </a>
+            <a href="#faq" class="menu-item">
+                <i class="fas fa-question-circle"></i> FAQ
+            </a>
+            <a href="https://t.me/nooIshy_bot" class="menu-item" target="_blank">
+                <i class="fas fa-paper-plane"></i> Отправить заявку
+            </a>
+            
+            <!-- Пункты меню для авторизованного пользователя -->
+            <div class="menu-auth-section" id="menu-auth-section" style="display: none;">
+                <div class="menu-divider"></div>
+                <a href="#" class="menu-item" id="side-my-profile">
+                    <i class="fas fa-user-circle"></i> Мой профиль
+                </a>
+                <a href="#" class="menu-item" id="side-settings">
+                    <i class="fas fa-user-cog"></i> Настройки профиля
+                </a>
+                <button class="menu-item" id="side-logout">
+                    <i class="fas fa-sign-out-alt"></i> Выйти
+                </button>
+            </div>
+            
+            <div class="menu-divider"></div>
+            <button class="menu-item" id="menu-settings">
+                <i class="fas fa-sliders-h"></i> Настройки
+            </button>
+        </div>
+    </div>
+    
+    <!-- Секция профиля пользователя -->
+    <section id="user-profile-section" class="section">
+        <div class="container">
+            <div class="profile-container" id="user-profile-container">
+                <!-- Контент будет заполняться динамически -->
+            </div>
+        </div>
+    </section>
+    
+    <!-- Основной контент -->
+    <section id="main" class="section active-section">
+        <div class="container">
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="search-input" placeholder="Поиск по имени, описанию...">
+                </div>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-category="all">Все</button>
+                    <button class="filter-btn" data-category="Владелец">Владелец</button>
+                    <button class="filter-btn" data-category="Модераторы">Модераторы</button>
+                    <button class="filter-btn" data-category="Медийки">Медийки</button>
+                    <button class="filter-btn" data-category="Высокий фейм">Высокий фейм</button>
+                    <button class="filter-btn" data-category="Средний фейм">Средний фейм</button>
+                    <button class="filter-btn" data-category="Малый фейм">Малый фейм</button>
+                    <button class="filter-btn" data-category="Кодеры">Кодеры</button>
+                    <button class="filter-btn" data-category="Скам">Скам</button>
+                </div>
+            </div>
+
+            <div class="members-grid" id="members-container">
+                <!-- Участники будут загружены через JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <section id="profile-details" class="section">
+        <div class="container" id="profile-content">
+            <!-- Контент профиля участника -->
+        </div>
+    </section>
+
+    <section id="faq-section" class="section">
+        <div class="container">
+            <div class="faq-content">
+                <h2 class="text-neon-flow">FAQ</h2>
+                <p>По всем вопросам обращайтесь:</p>
+                <a href="https://t.me/NOOLSHY" class="profile-link" target="_blank">
+                    <i class="fab fa-telegram"></i> @NOOLSHY
+                </a>
+                <div class="price-info">
+                    <h3>Услуги и цены:</h3>
+                    <p>Вход в фейм-лист: <strong>бесплатно зв</strong></p>
+                    <p>Галочка (верификация): <strong>50 зв</strong></p>
+                    <p>Закреп профиля: <strong>50 зв</strong></p>
+                    <p><em>Оплата только через Telegram</em></p>
+                    <div class="apply-section">
+                        <h3>Хочешь попасть в фейм-лист?</h3>
+                        <a href="https://t.me/nooIshy_bot" class="apply-btn-large" target="_blank">
+                            <i class="fas fa-paper-plane"></i> Отправить заявку
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Модальное окно авторизации -->
+    <div class="modal" id="auth-modal">
+        <div class="modal-content neon-flow auth-modal">
+            <div class="modal-header">
+                <h2 class="text-neon-flow"><i class="fab fa-telegram"></i> Вход через Telegram</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            
+            <div class="auth-content">
+                <div class="auth-info">
+                    <p>Для доступа к дополнительным функциям и персонализации требуется авторизация через Telegram.</p>
+                    <p>После входа вы сможете:</p>
+                    <ul>
+                        <li>Создать свой профиль</li>
+                        <li>Сохранять избранные профили</li>
+                        <li>Настраивать внешний вид сайта</li>
+                        <li>Получать уведомления</li>
+                    </ul>
+                </div>
+                
+                <div class="auth-buttons">
+                    <button class="auth-telegram-btn" id="telegram-login-btn">
+                        <i class="fab fa-telegram"></i> Войти через Telegram
+                    </button>
+                    <p class="auth-note">* Бот для авторизации будет добавлен позже</p>
+                    
+                    <!-- Демо-режим для тестирования -->
+                    <div class="demo-login">
+                        <p class="demo-title">Демо-режим (для тестирования):</p>
+                        <button class="demo-login-btn" id="demo-login-btn">
+                            <i class="fas fa-user-secret"></i> Войти как демо-пользователь
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно настроек профиля -->
+    <div class="modal" id="profile-settings-modal">
+        <div class="modal-content neon-flow">
+            <div class="modal-header">
+                <h2 class="text-neon-flow"><i class="fas fa-user-cog"></i> Настройки профиля</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            
+            <div class="profile-settings-content">
+                <div class="profile-settings-form">
+                    <div class="form-group">
+                        <label for="profile-nickname">Имя для отображения:</label>
+                        <input type="text" id="profile-nickname" placeholder="Введите ваше имя">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="profile-bio">О себе:</label>
+                        <textarea id="profile-bio" rows="4" placeholder="Расскажите о себе..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="profile-category">Категория:</label>
+                        <select id="profile-category">
+                            <option value="">Не выбрано</option>
+                            <option value="Медийки">Медийки</option>
+                            <option value="Высокий фейм">Высокий фейм</option>
+                            <option value="Средний фейм">Средний фейм</option>
+                            <option value="Малый фейм">Малый фейм</option>
+                            <option value="Кодеры">Кодеры</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Уведомления:</label>
+                        <div class="switch-group">
+                            <label class="switch">
+                                <input type="checkbox" id="notifications-enabled" checked>
+                                <span class="slider"></span>
+                            </label>
+                            <span>Получать уведомления</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="save-profile-btn" id="save-profile-btn">
+                            <i class="fas fa-save"></i> Сохранить изменения
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Остальные модальные окна (настройки и т.д.) остаются без изменений -->
+    <div class="modal" id="settings-modal">
+        <!-- ... существующий код ... -->
+    </div>
+    
+    <script src="script.js"></script>
+    <!-- Подключаем скрипт Telegram Widget API -->
+    <script src="https://telegram.org/js/telegram-widget.js?22" async></script>
+</body>
+</html>

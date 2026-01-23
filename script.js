@@ -1030,3 +1030,820 @@ function copyProfileLink(username) {
 function initAllAvatars() {
     // Инициализация аватаров
 }
+function initMembers() {
+    console.log('Инициализация участников...');
+    loadMembers();
+    
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    if (filterBtns.length > 0) {
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const category = this.dataset.category;
+                console.log('Фильтр:', category);
+                filterMembers(category);
+            });
+        });
+    } else {
+        console.error('Кнопки фильтра не найдены');
+    }
+    
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            console.log('Поиск:', searchTerm);
+            searchMembers(searchTerm);
+        });
+    } else {
+        console.error('Поле поиска не найдено');
+    }
+}
+
+
+function loadMembers() {
+    const container = document.getElementById('members-container');
+    if (!container) {
+        console.error('Контейнер участников не найден');
+        return;
+    }
+    
+    container.innerHTML = '';
+    
+    if (members.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #888; padding: 40px;">Нет участников для отображения</p>';
+        console.log('Нет участников для отображения');
+        return;
+    }
+    
+    const sortedMembers = [...members].sort((a, b) => {
+        if (a.pinned && !b.pinned) return -1;
+        if (!a.pinned && b.pinned) return 1;
+        if (a.verified && !b.verified) return -1;
+        if (!a.verified && b.verified) return 1;
+        return 0;
+    });
+    
+    sortedMembers.forEach(member => {
+        const card = createMemberCard(member);
+        container.appendChild(card);
+    });
+    
+   
+    document.querySelectorAll('.member-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const memberId = this.dataset.id;
+            console.log('Клик по участнику:', memberId);
+            showProfile(memberId);
+        });
+    });
+    
+    console.log('Участники загружены:', sortedMembers.length);
+}
+
+
+function createMemberCard(member) {
+    const card = document.createElement('div');
+    card.className = 'member-card';
+    card.dataset.id = member.id;
+    card.dataset.category = member.category;
+    
+    if (member.scam) card.classList.add('scam');
+    else if (member.pinned) card.classList.add('pinned');
+    if (member.verified && !member.scam) card.classList.add('verified');
+  
+    const avatarId = `avatar-${member.id}`;
+    
+card.innerHTML = `
+    <div class="member-avatar" data-initial="${member.nickname.charAt(0).toUpperCase()}">
+        <img id="${avatarId}" 
+             src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9IiMzMzMzMzMiPjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiByeD0iNTAiLz48dGV4dCB4PSI5MCIgeT0iNTAiIGR5PSIwLjM1ZW0iIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSI0MCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiNmZmYiPk48L3RleHQ+PC9zdmc+" 
+             alt="${member.nickname}"
+             loading="lazy">
+    </div>
+    
+    <div class="member-info">
+        <h3>${member.nickname} ${member.scam ? '⚠️' : (member.verified ? '✓' : '')}</h3>
+        <div class="member-role">${member.role}</div>
+        <p class="member-description">${member.description}</p>
+        <div class="member-badges">
+            ${member.scam ? '⚠️ ' : ''}${member.pinned ? '📍 ' : ''}${member.verified ? '✓ ' : ''}${member.category}
+        </div>
+    </div>
+`;
+    
+  
+    setTimeout(() => {
+        const img = card.querySelector(`#${avatarId}`);
+        if (img) {
+            loadAvatarWithFallback(img, `img/avatar${member.id}.png`, member.nickname);
+        }
+    }, 10);
+    
+    return card;
+}
+
+
+function filterMembers(category) {
+    const cards = document.querySelectorAll('.member-card');
+    console.log('Фильтрация участников по категории:', category, 'найдено карточек:', cards.length);
+    
+    cards.forEach(card => {
+        if (category === 'all' || card.dataset.category === category) {
+            card.style.display = 'block';
+            setTimeout(() => {
+                card.style.opacity = '1';
+            }, 10);
+        } else {
+            card.style.opacity = '0';
+            setTimeout(() => {
+                card.style.display = 'none';
+            }, 300);
+        }
+    });
+}
+
+function searchMembers(term) {
+    const cards = document.querySelectorAll('.member-card');
+    const activeFilter = document.querySelector('.filter-btn.active')?.dataset.category || 'all';
+    
+    cards.forEach(card => {
+        const nickname = card.querySelector('h3').textContent.toLowerCase();
+        const description = card.querySelector('.member-description').textContent.toLowerCase();
+        
+        const matchesSearch = nickname.includes(term) || description.includes(term);
+        const matchesFilter = activeFilter === 'all' || card.dataset.category === activeFilter;
+        
+        if (matchesSearch && matchesFilter) {
+            card.style.display = 'block';
+            setTimeout(() => {
+                card.style.opacity = '1';
+            }, 10);
+        } else {
+            card.style.opacity = '0';
+            setTimeout(() => {
+                card.style.display = 'none';
+            }, 300);
+        }
+    });
+}
+
+function createSocialButton(icon, text, url, className = '') {
+    if (!url) return '';
+    return `
+        <a href="${url}" class="action-btn ${className}" target="_blank">
+            <i class="${icon}"></i> ${text}
+        </a>
+    `;
+}
+
+
+function showProfile(memberId) {
+    const member = members.find(m => m.id == memberId);
+    if (!member) {
+        console.error('Участник не найден:', memberId);
+        return;
+    }
+    
+    const container = document.getElementById('profile-content');
+    if (!container) {
+        console.error('Контейнер профиля не найден');
+        return;
+    }
+    
+    const joinDate = new Date(member.joinDate);
+    const formattedDate = joinDate.toLocaleDateString('ru-RU', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    
+ 
+let badgesHtml = '';
+if (member.scam) {
+    badgesHtml += '<span class="badge scam">⚠️ Скам (Осторожно!)</span>';
+} else if (member.verified) {
+    badgesHtml += '<span class="badge verified">✓ Верифицирован</span>';
+}
+if (member.pinned) badgesHtml += '<span class="badge pinned">📌 Закреплён</span>';
+badgesHtml += `<span class="badge category">${member.category}</span>`;
+    
+
+    let mainButtons = createSocialButton('fab fa-telegram', 'Написать в ЛС', `https://t.me/${member.telegram}`, 'telegram');
+    if (member.project) mainButtons += createSocialButton('fas fa-external-link-alt', 'Основной канал', member.project, 'telegram');
+    if (member.forum) mainButtons += createSocialButton('fas fa-userst', 'Форум', member.forum, 'telegram');
+    if (member.chat) mainButtons += createSocialButton('fas fa-comments', 'Чат', member.chat, 'telegram');
+    if (member.market) mainButtons += createSocialButton('fas fa-shopping-cart', 'Маркет', member.market);
+    if (member.fameList) mainButtons += createSocialButton('fas fa-list', 'Фейм лист', member.fameList);
+    if (member.github) mainButtons += createSocialButton('fab fa-github', 'GitHub', member.github);
+    
+  
+    let extraButtons = '';
+    
+   
+    const allPossibleLinks = {
+        'price': {icon: 'fas fa-tag', text: 'Прайс'},
+        'priceList': {icon: 'fas fa-tags', text: 'Прайс-лист'},
+        'market': {icon: 'fas fa-shopping-cart', text: 'Маркет'},
+        'tiktok': {icon: 'fab fa-tiktok', text: 'TikTok'},
+        'youtube': {icon: 'fab fa-youtube', text: 'YouTube'},
+        'yt': {icon: 'fab fa-youtube', text: 'YouTube'},
+        'discord': {icon: 'fab fa-discord', text: 'Discord'},
+        'vk': {icon: 'fab fa-vk', text: 'VK'},
+        'gift': {icon: 'fas fa-gift', text: 'Подарок'},
+        'website': {icon: 'fas fa-globe', text: 'Сайт'},
+        'reputation': {icon: 'fas fa-star', text: 'Репутация'},
+        'work': {icon: 'fas fa-briefcase', text: 'Ворк'},
+        'forum': {icon: 'fas fa-users', text: 'Форум'},
+        'def': {icon: 'fas fa-shield-alt', text: 'Деф'},
+        'whitelist': {icon: 'fas fa-list', text: 'White List'},
+        'blog': {icon: 'fas fa-blog', text: 'Блог'},
+        'private': {icon: 'fas fa-lock', text: 'Приват'}
+    };
+    
+    Object.keys(allPossibleLinks).forEach(key => {
+        if (member[key]) {
+            extraButtons += createSocialButton(allPossibleLinks[key].icon, allPossibleLinks[key].text, member[key]);
+        }
+    });
+    
+
+    const stats = {
+        'Статус': member.role,
+        'Верификация': member.verified ? '✓ Подтверждён' : '✗ Не подтверждён',
+        'Закреп': member.pinned ? '📌 Включён' : '✗ Выключен',
+        'Дата регистрации': formattedDate,
+        'Активность': member.activity,
+        'Подписчики': member.followers,
+        'ID': member.id
+    };
+    
+    if (member.priceEntry) stats['Цена входа'] = member.priceEntry;
+    if (member.priceVerified) stats['Цена галочки'] = member.priceVerified;
+    if (member.pricePinned) stats['Цена закрепа'] = member.pricePinned;
+    
+    let statsHtml = '';
+    Object.entries(stats).forEach(([label, value]) => {
+        if (value) {
+            statsHtml += `
+                <div class="stat-item">
+                    <span class="stat-label">${label}:</span>
+                    <span class="stat-value">${value}</span>
+                </div>
+            `;
+        }
+    });
+    
+    const profileAvatarId = `profile-avatar-${member.id}`;
+    
+    container.innerHTML = `
+        <div class="profile-header">
+            <div class="profile-avatar" data-initial="${member.nickname.charAt(0).toUpperCase()}">
+                <img id="${profileAvatarId}" 
+                     src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9IiMzMzMzMzMiPjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiByeD0iNTAiLz48dGV4dCB4PSI1MCIgeT0iNTAiIGR5PSIwLjM1ZW0iIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSI0MCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiNmZmYiPk48L3RleHQ+PC9zdmc+" 
+                     alt="${member.nickname}"
+                     loading="eager">
+            </div>
+            
+            <h1 class="profile-title">${member.nickname}</h1>
+            <p class="profile-username">${member.username}</p>
+            
+            <div class="profile-badges">
+                ${badgesHtml}
+            </div>
+            
+            <div class="profile-actions">
+                ${mainButtons}
+                <button class="action-btn" onclick="copyProfileLink('${member.nickname}')">
+                    <i class="fas fa-share"></i> Поделиться
+                </button>
+            </div>
+        </div>
+        
+        <div class="profile-content">
+            <div class="profile-description">
+                <h3>Описание</h3>
+                <p>${member.description || 'Нет описания'}</p>
+                
+                ${member.details ? `
+                    <h3 style="margin-top: 30px;">Детали</h3>
+                    <p>${member.details}</p>
+                ` : ''}
+                
+                ${member.skills && member.skills.length > 0 ? `
+                    <h3 style="margin-top: 30px;">Навыки и специализация</h3>
+                    <p>${member.skills.join(' • ')}</p>
+                ` : ''}
+                
+                ${extraButtons ? `
+                    <h3 style="margin-top: 30px;">Дополнительные ссылки</h3>
+                    <div class="profile-actions">
+                        ${extraButtons}
+                    </div>
+                ` : ''}
+            </div>
+            
+            <div class="profile-stats">
+                <h3>Статистика</h3>
+                ${statsHtml}
+            </div>
+        </div>
+    `;
+    
+
+    setTimeout(() => {
+        const img = document.getElementById(profileAvatarId);
+        if (img) {
+            loadAvatarWithFallback(img, `img/avatar${member.id}.png`, member.nickname);
+        }
+    }, 10);
+    
+    switchSection('profile-details');
+}
+
+
+function initSnow() {
+    const snowContainer = document.querySelector('.snow-container');
+    if (!snowContainer) return;
+    
+    createSnowflakes();
+    
+    const snowToggle = document.getElementById('snow-effect');
+    if (snowToggle) {
+        snowToggle.addEventListener('change', function() {
+            if (this.checked) {
+                snowContainer.style.display = 'block';
+                createSnowflakes();
+            } else {
+                snowContainer.style.display = 'none';
+                snowContainer.innerHTML = '';
+            }
+        });
+    }
+}
+
+
+function createSnowflakes() {
+    const snowContainer = document.querySelector('.snow-container');
+    if (!snowContainer) return;
+    
+    snowContainer.innerHTML = '';
+    
+    for (let i = 0; i < 60; i++) {
+        const snowflake = document.createElement('div');
+        snowflake.className = 'snowflake';
+        
+        const size = Math.random() * 4 + 2;
+        const startX = Math.random() * 100;
+        const duration = Math.random() * 5 + 5;
+        const opacity = Math.random() * 0.5 + 0.3;
+        
+        snowflake.style.width = `${size}px`;
+        snowflake.style.height = `${size}px`;
+        snowflake.style.left = `${startX}vw`;
+        snowflake.style.opacity = opacity;
+        snowflake.style.animationDuration = `${duration}s`;
+        snowflake.style.animationDelay = `${Math.random() * 5}s`;
+        snowflake.style.backgroundColor = `rgba(255, 255, 255, ${opacity})`;
+        
+        snowContainer.appendChild(snowflake);
+    }
+}
+
+
+function initSettings() {
+    const settingsTabs = document.querySelectorAll('.settings-tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    settingsTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const tabId = this.dataset.tab + '-tab';
+            
+            settingsTabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+                if (content.id === tabId) {
+                    content.classList.add('active');
+                }
+            });
+        });
+    });
+    
+    const themeOptions = document.querySelectorAll('.theme-option');
+    
+    themeOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            const theme = this.dataset.theme;
+            
+            themeOptions.forEach(opt => opt.classList.remove('active'));
+            this.classList.add('active');
+            
+            applyTheme(theme);
+        });
+    });
+    
+    const bgUpload = document.getElementById('bg-upload');
+    const bgPreview = document.getElementById('bg-preview');
+    
+    if (bgUpload) {
+        bgUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    bgPreview.innerHTML = `<img src="${e.target.result}" alt="Фон">`;
+                    bgPreview.style.display = 'block';
+                    
+                    localStorage.setItem('fame_background', e.target.result);
+                    document.body.style.backgroundImage = `url(${e.target.result})`;
+                    document.body.style.backgroundSize = 'cover';
+                    document.body.style.backgroundAttachment = 'fixed';
+                    document.body.style.backgroundPosition = 'center';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+    
+    const neonFlowEffect = document.getElementById('neon-flow-effect');
+    if (neonFlowEffect) {
+        neonFlowEffect.addEventListener('change', function() {
+            if (this.checked) {
+                initDynamicNeon();
+            } else {
+                removeNeonFlow();
+            }
+        });
+    }
+}
+
+
+function initNeonControls() {
+    const neonColor = document.getElementById('neon-color');
+    const neonIntensity = document.getElementById('neon-intensity');
+    const neonSpeed = document.getElementById('neon-speed');
+    const applyNeonBtn = document.getElementById('apply-neon');
+    const intensityValue = document.getElementById('intensity-value');
+    const speedValue = document.getElementById('speed-value');
+    const colorPreview = document.getElementById('neon-color-preview');
+    
+    if (neonColor && colorPreview) {
+        neonColor.addEventListener('input', function() {
+            colorPreview.style.backgroundColor = this.value;
+        });
+        colorPreview.style.backgroundColor = neonColor.value;
+    }
+    
+    if (neonIntensity && intensityValue) {
+        neonIntensity.addEventListener('input', function() {
+            intensityValue.textContent = this.value + '%';
+        });
+        intensityValue.textContent = neonIntensity.value + '%';
+    }
+    
+    if (neonSpeed && speedValue) {
+        const speedLabels = {
+            1: 'Очень медленно',
+            2: 'Медленно',
+            3: 'Немного медленно',
+            4: 'Ниже средней',
+            5: 'Средняя',
+            6: 'Выше средней',
+            7: 'Быстро',
+            8: 'Очень быстро',
+            9: 'Супер быстро',
+            10: 'Максимальная'
+        };
+        
+        neonSpeed.addEventListener('input', function() {
+            speedValue.textContent = speedLabels[this.value] || 'Средняя';
+        });
+        speedValue.textContent = speedLabels[neonSpeed.value] || 'Средняя';
+    }
+    
+    if (applyNeonBtn) {
+        applyNeonBtn.addEventListener('click', function() {
+            const color = neonColor.value;
+            const intensity = parseInt(neonIntensity.value) / 100;
+            const speed = parseInt(neonSpeed.value);
+            
+            applyNeonSettings(color, intensity, speed);
+        });
+    }
+}
+
+
+function applyNeonSettings(color, intensity, speed) {
+    currentNeonColor = color;
+    currentNeonIntensity = intensity;
+    currentNeonSpeed = speed;
+    
+    localStorage.setItem('fame_neon_color', color);
+    localStorage.setItem('fame_neon_intensity', intensity);
+    localStorage.setItem('fame_neon_speed', speed);
+    
+    initDynamicNeon();
+}
+
+
+function initDynamicNeon() {
+    const oldStyle = document.getElementById('dynamic-neon-style');
+    if (oldStyle) oldStyle.remove();
+    
+    const hex = currentNeonColor;
+    const r = parseInt(hex.slice(1,3), 16);
+    const g = parseInt(hex.slice(3,5), 16);
+    const b = parseInt(hex.slice(5,7), 16);
+    
+    const duration = (11 - currentNeonSpeed) + 's';
+    
+    const style = document.createElement('style');
+    style.id = 'dynamic-neon-style';
+    
+    style.textContent = `
+        @keyframes neonFlow {
+            0%, 100% { 
+                box-shadow: 0 0 ${10 * currentNeonIntensity}px rgba(${r}, ${g}, ${b}, ${0.8 * currentNeonIntensity}),
+                          0 0 ${20 * currentNeonIntensity}px rgba(${r}, ${g}, ${b}, ${0.6 * currentNeonIntensity}),
+                          0 0 ${30 * currentNeonIntensity}px rgba(${r}, ${g}, ${b}, ${0.4 * currentNeonIntensity}),
+                          inset 0 0 ${10 * currentNeonIntensity}px rgba(${r}, ${g}, ${b}, ${0.5 * currentNeonIntensity}); 
+            }
+            50% { 
+                box-shadow: 0 0 ${15 * currentNeonIntensity}px rgba(${r}, ${g}, ${b}, ${0.9 * currentNeonIntensity}),
+                          0 0 ${25 * currentNeonIntensity}px rgba(${r}, ${g}, ${b}, ${0.7 * currentNeonIntensity}),
+                          0 0 ${35 * currentNeonIntensity}px rgba(${r}, ${g}, ${b}, ${0.5 * currentNeonIntensity}),
+                          inset 0 0 ${15 * currentNeonIntensity}px rgba(${r}, ${g}, ${b}, ${0.6 * currentNeonIntensity}); 
+            }
+        }
+        
+        @keyframes textNeonFlow {
+            0%, 100% { 
+                text-shadow: 0 0 ${5 * currentNeonIntensity}px rgba(${r}, ${g}, ${b}, ${0.8 * currentNeonIntensity}),
+                           0 0 ${10 * currentNeonIntensity}px rgba(${r}, ${g}, ${b}, ${0.6 * currentNeonIntensity}); 
+            }
+            50% { 
+                text-shadow: 0 0 ${8 * currentNeonIntensity}px rgba(${r}, ${g}, ${b}, ${0.9 * currentNeonIntensity}),
+                           0 0 ${15 * currentNeonIntensity}px rgba(${r}, ${g}, ${b}, ${0.7 * currentNeonIntensity}); 
+            }
+        }
+        
+        .neon-flow {
+            animation: neonFlow ${duration} ease-in-out infinite !important;
+        }
+        
+        .text-neon-flow {
+            animation: textNeonFlow ${duration} ease-in-out infinite !important;
+        }
+    `;
+    
+    document.head.appendChild(style);
+    
+    const neonFlowEffect = document.getElementById('neon-flow-effect');
+    if (neonFlowEffect && neonFlowEffect.checked) {
+        applyNeonToElements();
+    }
+}
+
+
+function applyNeonToElements() {
+    document.querySelectorAll('.member-card').forEach(card => {
+        card.classList.add('neon-flow');
+    });
+    
+    document.querySelectorAll('.modal-content').forEach(modal => {
+        modal.classList.add('neon-flow');
+    });
+    
+    document.querySelectorAll('.upload-btn').forEach(btn => {
+        btn.classList.add('neon-flow');
+    });
+    
+    const profileHeader = document.querySelector('.profile-header');
+    if (profileHeader) {
+        profileHeader.classList.add('neon-flow');
+    }
+}
+
+function removeNeonFlow() {
+    document.querySelectorAll('.neon-flow').forEach(el => {
+        el.classList.remove('neon-flow');
+    });
+    document.querySelectorAll('.text-neon-flow').forEach(el => {
+        el.classList.remove('text-neon-flow');
+    });
+}
+
+function initAnimatedBg() {
+    const bgSpeed = document.getElementById('bg-speed');
+    const bgOpacity = document.getElementById('bg-opacity');
+    const applyBgBtn = document.getElementById('apply-animated-bg');
+    
+    if (bgSpeed) {
+        bgSpeed.addEventListener('input', function() {
+            currentBgSpeed = parseInt(this.value);
+        });
+    }
+    
+    if (bgOpacity) {
+        bgOpacity.addEventListener('input', function() {
+            currentBgOpacity = parseInt(this.value) / 100;
+        });
+    }
+    
+    if (applyBgBtn) {
+        applyBgBtn.addEventListener('click', applyAnimatedBg);
+    }
+}
+
+
+function applyAnimatedBg() {
+    const bgElement = document.getElementById('animated-bg');
+    if (!bgElement) return;
+
+    allBackgrounds.forEach(bg => {
+        bgElement.classList.remove(`${bg}-bg`);
+    });
+    
+    
+    bgElement.classList.add(`${currentAnimatedBg}-bg`);
+    
+
+    const speed = currentBgSpeed / 10;
+    bgElement.style.animationDuration = `${20 / speed}s`;
+    
+    
+    bgElement.style.opacity = currentBgOpacity;
+    
+ 
+    localStorage.setItem('fame_animated_bg', currentAnimatedBg);
+    localStorage.setItem('fame_bg_speed', currentBgSpeed);
+    localStorage.setItem('fame_bg_opacity', currentBgOpacity);
+    
+    console.log('Фон применен:', currentAnimatedBg);
+}
+
+
+function initModals() {
+    console.log('Инициализация модальных окон...');
+    
+    document.querySelectorAll('.close-modal').forEach(btn => {
+        btn.addEventListener('click', function() {
+            closeModal(this.closest('.modal'));
+        });
+    });
+    
+    window.addEventListener('click', function(event) {
+        if (event.target.classList.contains('modal')) {
+            closeModal(event.target);
+        }
+    });
+    
+    console.log('Модальные окна инициализированы');
+}
+
+
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        console.log('Модальное окно открыто:', modalId);
+    } else {
+        console.error('Модальное окно не найдено:', modalId);
+    }
+}
+
+
+function closeModal(modal) {
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+        console.log('Модальное окно закрыто');
+    }
+}
+
+
+function loadSavedSettings() {
+    console.log('Загрузка сохраненных настроек...');
+   
+    const savedTheme = localStorage.getItem('fame_theme') || 'black'; 
+    if (savedTheme) {
+        const themeOption = document.querySelector(`.theme-option[data-theme="${savedTheme}"]`);
+        if (themeOption) {
+            themeOption.click();
+        } else {
+          
+            applyTheme('black');
+        }
+    } else {
+     
+        applyTheme('black');
+    }
+    
+   
+    const savedBg = localStorage.getItem('fame_background');
+    if (savedBg) {
+        document.body.style.backgroundImage = `url(${savedBg})`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundAttachment = 'fixed';
+        document.body.style.backgroundPosition = 'center';
+    }
+    
+   
+    const savedNeonColor = localStorage.getItem('fame_neon_color') || '#808080';
+    const savedNeonIntensity = parseFloat(localStorage.getItem('fame_neon_intensity')) || 0.5;
+    const savedNeonSpeed = parseInt(localStorage.getItem('fame_neon_speed')) || 5;
+    
+    const neonColor = document.getElementById('neon-color');
+    const neonIntensity = document.getElementById('neon-intensity');
+    const neonSpeed = document.getElementById('neon-speed');
+    
+    if (neonColor) neonColor.value = savedNeonColor;
+    if (neonIntensity) neonIntensity.value = savedNeonIntensity * 100;
+    if (neonSpeed) neonSpeed.value = savedNeonSpeed;
+    
+    applyNeonSettings(savedNeonColor, savedNeonIntensity, savedNeonSpeed);
+         
+    const savedNeonFlow = localStorage.getItem('fame_neon_flow');
+    const neonFlowCheckbox = document.getElementById('neon-flow-effect');
+    if (neonFlowCheckbox) {
+        if (savedNeonFlow === 'disabled') {
+            neonFlowCheckbox.checked = false;
+            removeNeonFlow();
+        } else {
+            neonFlowCheckbox.checked = true;
+        }
+    }
+    
+   
+    const savedSnow = localStorage.getItem('fame_snow');
+    const snowCheckbox = document.getElementById('snow-effect');
+    if (snowCheckbox) {
+        if (savedSnow === 'disabled') {
+            snowCheckbox.checked = false;
+            const snowContainer = document.querySelector('.snow-container');
+            if (snowContainer) snowContainer.style.display = 'none';
+        } else {
+            snowCheckbox.checked = true;
+        }
+    }
+}
+
+function applyTheme(theme) {
+    currentTheme = theme;
+    
+    const themeClasses = ['dark-theme', 'black-theme', 'red-theme', 'red-black-theme', 
+                         'red-gray-theme', 'purple-theme', 'blue-theme', 'green-theme', 
+                         'orange-theme', 'pink-theme'];
+    
+    document.body.classList.remove(...themeClasses);
+    document.body.classList.add(theme + '-theme');
+    
+    localStorage.setItem('fame_theme', theme);
+}
+
+
+window.copyProfileLink = function(username) {
+    const link = `https://t.me/NOOLSHY?text=Профиль%20${encodeURIComponent(username)}%20на%20NoolShy%20Fame`;
+    navigator.clipboard.writeText(link).then(() => {
+        alert('Ссылка на профиль скопирована в буфер обмена!');
+    });
+};
+
+
+document.getElementById('snow-effect')?.addEventListener('change', function() {
+    localStorage.setItem('fame_snow', this.checked ? 'enabled' : 'disabled');
+});
+
+document.getElementById('neon-flow-effect')?.addEventListener('change', function() {
+    localStorage.setItem('fame_neon_flow', this.checked ? 'enabled' : 'disabled');
+    if (this.checked) {
+        initDynamicNeon();
+    } else {
+        removeNeonFlow();
+    }
+});
+
+function switchSection(sectionId) {
+    console.log('Переключение секции:', sectionId);
+    
+    document.querySelectorAll('.section').forEach(section => {
+        section.classList.remove('active-section');
+    });
+    
+    const targetSection = document.getElementById(sectionId);
+    if (targetSection) {
+        targetSection.classList.add('active-section');
+    }
+    
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.classList.remove('active');
+        if (tab.dataset.section === sectionId) {
+            tab.classList.add('active');
+        }
+    });
+}

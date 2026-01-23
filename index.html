@@ -38,7 +38,7 @@
                 <i class="fab fa-telegram"></i> Войти
             </button>
             
-            <!-- Профиль пользователя (скрыт по умолчанию) -->
+            <!-- Профиль пользователя -->
             <div class="user-profile" id="user-profile" style="display: none;">
                 <div class="profile-dropdown">
                     <button class="profile-toggle" id="profile-toggle">
@@ -83,6 +83,7 @@
         </div>
     </nav>
     
+    <!-- Боковое меню -->
     <div class="side-menu" id="side-menu">
         <div class="menu-header">
             <h3>Меню</h3>
@@ -156,12 +157,14 @@
         </div>
     </section>
 
+    <!-- Секция деталей профиля -->
     <section id="profile-details" class="section">
         <div class="container" id="profile-content">
             <!-- Контент профиля участника -->
         </div>
     </section>
 
+    <!-- FAQ секция -->
     <section id="faq-section" class="section">
         <div class="container">
             <div class="faq-content">
@@ -204,20 +207,33 @@
                         <li>Сохранять избранные профили</li>
                         <li>Настраивать внешний вид сайта</li>
                         <li>Получать уведомления</li>
+                        <li>Комментировать профили</li>
                     </ul>
                 </div>
                 
                 <div class="auth-buttons">
-                    <button class="auth-telegram-btn" id="telegram-login-btn">
-                        <i class="fab fa-telegram"></i> Войти через Telegram
-                    </button>
-                    <p class="auth-note">* Бот для авторизации будет добавлен позже</p>
+                    <a href="https://t.me/noolshy_test_bot" class="auth-telegram-btn" target="_blank">
+                        <i class="fab fa-telegram"></i> Войти через @noolshy_test_bot
+                    </a>
                     
-                    <!-- Демо-режим для тестирования -->
+                    <p class="auth-note">* Откроется Telegram, нажмите START в боте</p>
+                    
+                    <!-- Форма для ввода токена -->
+                    <div class="token-form">
+                        <h3><i class="fas fa-key"></i> Уже получили токен?</h3>
+                        <div class="form-group">
+                            <input type="text" id="token-input" placeholder="Вставьте токен из бота...">
+                        </div>
+                        <button class="demo-login-btn" id="token-submit-btn">
+                            <i class="fas fa-sign-in-alt"></i> Войти по токену
+                        </button>
+                    </div>
+                    
+                    <!-- Демо-режим -->
                     <div class="demo-login">
-                        <p class="demo-title">Демо-режим (для тестирования):</p>
+                        <p class="demo-title">Тестовый режим:</p>
                         <button class="demo-login-btn" id="demo-login-btn">
-                            <i class="fas fa-user-secret"></i> Войти как демо-пользователь
+                            <i class="fas fa-user-secret"></i> Быстрый тестовый вход
                         </button>
                     </div>
                 </div>
@@ -246,18 +262,6 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="profile-category">Категория:</label>
-                        <select id="profile-category">
-                            <option value="">Не выбрано</option>
-                            <option value="Медийки">Медийки</option>
-                            <option value="Высокий фейм">Высокий фейм</option>
-                            <option value="Средний фейм">Средний фейм</option>
-                            <option value="Малый фейм">Малый фейм</option>
-                            <option value="Кодеры">Кодеры</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
                         <label>Уведомления:</label>
                         <div class="switch-group">
                             <label class="switch">
@@ -278,13 +282,36 @@
         </div>
     </div>
 
-    <!-- Остальные модальные окна (настройки и т.д.) остаются без изменений -->
+    <!-- Модальное окно настроек сайта -->
     <div class="modal" id="settings-modal">
-        <!-- ... существующий код ... -->
+        <div class="modal-content neon-flow">
+            <div class="modal-header">
+                <h2 class="text-neon-flow"><i class="fas fa-cog"></i> Настройки</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            
+            <div class="settings-content">
+                <div class="settings-tabs">
+                    <button class="settings-tab active" data-tab="appearance">Внешний вид</button>
+                    <button class="settings-tab" data-tab="effects">Эффекты</button>
+                    <button class="settings-tab" data-tab="background">Фон</button>
+                </div>
+                
+                <div class="tab-content active" id="appearance-tab">
+                    <!-- Содержимое настроек внешнего вида -->
+                </div>
+                
+                <div class="tab-content" id="effects-tab">
+                    <!-- Содержимое настроек эффектов -->
+                </div>
+                
+                <div class="tab-content" id="background-tab">
+                    <!-- Содержимое настроек фона -->
+                </div>
+            </div>
+        </div>
     </div>
-    
+
     <script src="script.js"></script>
-    <!-- Подключаем скрипт Telegram Widget API -->
-    <script src="https://telegram.org/js/telegram-widget.js?22" async></script>
 </body>
 </html>

@@ -30,18 +30,16 @@
             <a href="https://t.me/NOOLSHY" class="nav-tab channel-link" target="_blank">
                 <i class="fab fa-telegram"></i> Мой канал
             </a>
-<a href="https://t.me/NOOLSHY" class="nav-tab channel-link" target="_blank">
-    <i class="fab fa-telegram"></i> Мой канал
-</a>
+            <button class="nav-tab" data-section="apply">Отправить заявку</button>
         </div>
         
         <div class="nav-right">
- 
+
             <button class="auth-btn" id="auth-btn">
                 <i class="fab fa-telegram"></i> Войти
             </button>
             
-  
+          
             <div class="user-profile" id="user-profile" style="display: none;">
                 <div class="profile-dropdown">
                     <button class="profile-toggle" id="profile-toggle">
@@ -65,6 +63,10 @@
                         <a href="#" class="dropdown-item" id="settings-profile-btn">
                             <i class="fas fa-cog"></i> Настройки профиля
                         </a>
+                     
+                        <a href="#" class="dropdown-item" id="admin-panel-btn" style="display: none;">
+                            <i class="fas fa-shield-alt"></i> Админ-панель
+                        </a>
                         <div class="dropdown-divider"></div>
                         <button class="dropdown-item logout-btn" id="logout-btn">
                             <i class="fas fa-sign-out-alt"></i> Выйти
@@ -72,10 +74,6 @@
                     </div>
                 </div>
             </div>
-
-            <a href="https://t.me/nooIshy_bot" class="apply-btn neon-apply" target="_blank" title="Отправить заявку">
-                <i class="fas fa-paper-plane"></i> Отправить заявку
-            </a>
             
             <button class="nav-icon" id="faq-btn" title="FAQ">
                 <i class="fas fa-question-circle"></i>
@@ -86,7 +84,7 @@
         </div>
     </nav>
     
-
+  
     <div class="side-menu" id="side-menu">
         <div class="menu-header">
             <h3>Меню</h3>
@@ -96,14 +94,14 @@
             <a href="#main" class="menu-item active" data-section="main">
                 <i class="fas fa-home"></i> Главная
             </a>
+            <a href="#apply" class="menu-item" data-section="apply">
+                <i class="fas fa-paper-plane"></i> Отправить заявку
+            </a>
             <a href="#faq" class="menu-item">
                 <i class="fas fa-question-circle"></i> FAQ
             </a>
-<a href="https://t.me/nooIshy_bot" class="menu-item" target="_blank">
-    <i class="fas fa-paper-plane"></i> Отправить заявку
-</a>
             
-
+        
             <div class="menu-auth-section" id="menu-auth-section" style="display: none;">
                 <div class="menu-divider"></div>
                 <a href="#" class="menu-item" id="side-my-profile">
@@ -111,6 +109,10 @@
                 </a>
                 <a href="#" class="menu-item" id="side-settings">
                     <i class="fas fa-user-cog"></i> Настройки профиля
+                </a>
+        
+                <a href="#" class="menu-item" id="side-admin-panel" style="display: none;">
+                    <i class="fas fa-shield-alt"></i> Админ-панель
                 </a>
                 <button class="menu-item" id="side-logout">
                     <i class="fas fa-sign-out-alt"></i> Выйти
@@ -128,7 +130,7 @@
     <section id="user-profile-section" class="section">
         <div class="container">
             <div class="profile-container" id="user-profile-container">
-  
+         
             </div>
         </div>
     </section>
@@ -154,7 +156,204 @@
                 </div>
             </div>
 
+            <div class="members-grid" id="members-container">
+            
+            </div>
+        </div>
+    </section>
 
+
+    <section id="apply" class="section">
+        <div class="container">
+            <div class="apply-section-form">
+                <h2 class="text-neon-flow">Отправить заявку</h2>
+                <p class="apply-description">Заполните форму ниже, чтобы попасть в фейм-лист. Все поля обязательны для заполнения.</p>
+                
+                <form id="apply-form" class="apply-form">
+                    <div class="form-grid">
+                      
+                        <div class="form-column">
+                            
+                            <div class="form-group">
+                                <label for="apply-avatar">
+                                    <i class="fas fa-image"></i> Аватар
+                                </label>
+                                <div class="avatar-upload">
+                                    <div class="avatar-preview" id="avatar-preview">
+                                        <div class="avatar-preview-placeholder">
+                                            <i class="fas fa-user"></i>
+                                            <span>Загрузить фото</span>
+                                        </div>
+                                    </div>
+                                    <input type="file" id="apply-avatar" accept="image/*" style="display: none;">
+                                    <button type="button" class="upload-btn" id="avatar-upload-btn">
+                                        <i class="fas fa-upload"></i> Выбрать файл
+                                    </button>
+                                    <small class="form-hint">JPG, PNG, GIF. Макс. 5MB</small>
+                                </div>
+                            </div>
+                            
+                           
+                            <div class="form-group">
+                                <label for="apply-nickname">
+                                    <i class="fas fa-user"></i> Никнейм *
+                                </label>
+                                <input type="text" id="apply-nickname" placeholder="Введите ваш никнейм" required>
+                            </div>
+                            
+                            
+                            <div class="form-group">
+                                <label for="apply-telegram">
+                                    <i class="fab fa-telegram"></i> Telegram *
+                                </label>
+                                <input type="text" id="apply-telegram" placeholder="@username или t.me/username" required>
+                            </div>
+                        </div>
+                        
+                      
+                        <div class="form-column">
+
+                            <div class="form-group">
+                                <label for="apply-category">
+                                    <i class="fas fa-tag"></i> Категория *
+                                </label>
+                                <select id="apply-category" required>
+                                    <option value="">Выберите категорию</option>
+                                    <option value="Владелец">Владелец</option>
+                                    <option value="Модераторы">Модераторы</option>
+                                    <option value="Медийки">Медийки</option>
+                                    <option value="Высокий фейм">Высокий фейм</option>
+                                    <option value="Средний фейм">Средний фейм</option>
+                                    <option value="Малый фейм">Малый фейм</option>
+                                    <option value="Кодеры">Кодеры</option>
+                                    <option value="Другое">Другое</option>
+                                </select>
+                            </div>
+                            
+                           
+                            <div class="form-group">
+                                <label for="apply-description">
+                                    <i class="fas fa-file-alt"></i> Описание *
+                                </label>
+                                <textarea id="apply-description" rows="4" placeholder="Расскажите о себе, ваших проектах, достижениях..." required></textarea>
+                                <small class="form-hint">Минимум 50 символов</small>
+                            </div>
+                            
+                       
+                            <div class="form-group">
+                                <label for="apply-main-link">
+                                    <i class="fas fa-link"></i> Ссылка на проект *
+                                </label>
+                                <input type="url" id="apply-main-link" placeholder="https://example.com" required>
+                                <small class="form-hint">Обязательная ссылка на ваш основной проект</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+               
+                    <div class="form-group">
+                        <label for="apply-extra-links">
+                            <i class="fas fa-external-link-alt"></i> Дополнительные ссылки
+                        </label>
+                        <div class="links-container" id="links-container">
+                            <div class="link-input-group">
+                                <input type="url" class="extra-link" placeholder="https://example.com">
+                                <button type="button" class="remove-link-btn" style="display: none;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button type="button" class="add-link-btn" id="add-link-btn">
+                            <i class="fas fa-plus"></i> Добавить ссылку
+                        </button>
+                        <small class="form-hint">Можно добавить до 7 дополнительных ссылок</small>
+                    </div>
+                    
+               
+                    <div class="form-actions">
+                        <button type="submit" class="submit-btn">
+                            <i class="fas fa-paper-plane"></i> Отправить заявку
+                        </button>
+                        <button type="reset" class="reset-btn">
+                            <i class="fas fa-redo"></i> Очистить форму
+                        </button>
+                    </div>
+                    
+                    <div class="form-footer">
+                        <p><small>* Поля, отмеченные звездочкой, обязательны для заполнения</small></p>
+                        <p><small>Заявка будет отправлена на модерацию. Обычно ответ приходит в течение 24 часов.</small></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+  
+    <section id="admin-panel" class="section">
+        <div class="container">
+            <div class="admin-panel-container">
+                <h2 class="text-neon-flow">Админ-панель</h2>
+                <p class="admin-description">Управление заявками пользователей</p>
+                
+                <div class="admin-controls">
+                    <div class="admin-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="pending-count">0</h3>
+                                <p>Ожидают</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="approved-count">0</h3>
+                                <p>Принято</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-times-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="rejected-count">0</h3>
+                                <p>Отклонено</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="total-count">0</h3>
+                                <p>Всего</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="admin-filters">
+                        <button class="filter-btn active" data-filter="all">Все</button>
+                        <button class="filter-btn" data-filter="pending">Ожидают</button>
+                        <button class="filter-btn" data-filter="approved">Принятые</button>
+                        <button class="filter-btn" data-filter="rejected">Отклоненные</button>
+                        <button class="filter-btn" id="delete-rejected-btn">
+                            <i class="fas fa-trash"></i> Удалить отклоненные
+                        </button>
+                    </div>
+                    
+                    <div class="search-box admin-search">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="admin-search-input" placeholder="Поиск по имени, telegram, описанию...">
+                    </div>
+                </div>
+                
+                <div class="applications-list" id="applications-list">
+         
+                </div>
             </div>
         </div>
     </section>
@@ -162,10 +361,9 @@
 
     <section id="profile-details" class="section">
         <div class="container" id="profile-content">
-
+  
         </div>
     </section>
-
 
     <section id="faq-section" class="section">
         <div class="container">
@@ -183,15 +381,16 @@
                     <p><em>Оплата только через Telegram</em></p>
                     <div class="apply-section">
                         <h3>Хочешь попасть в фейм-лист?</h3>
-                        <a href="https://t.me/nooIshy_bot" class="apply-btn-large" target="_blank">
+                        <button class="apply-btn-large" data-section="apply">
                             <i class="fas fa-paper-plane"></i> Отправить заявку
-                        </a>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </section>
-
+    
+  
     <div class="modal" id="auth-modal">
         <div class="modal-content neon-flow auth-modal">
             <div class="modal-header">
@@ -219,7 +418,7 @@
                     
                     <p class="auth-note">* Откроется Telegram, нажмите START в боте</p>
                     
-    
+               
                     <div class="token-form">
                         <h3><i class="fas fa-key"></i> Уже получили токен?</h3>
                         <div class="form-group">
@@ -230,7 +429,7 @@
                         </button>
                     </div>
                     
-    
+             
                     <div class="demo-login">
                         <p class="demo-title">Тестовый режим:</p>
                         <button class="demo-login-btn" id="demo-login-btn">
@@ -242,6 +441,18 @@
         </div>
     </div>
 
+    <div class="modal" id="application-modal">
+        <div class="modal-content neon-flow application-modal">
+            <div class="modal-header">
+                <h2 class="text-neon-flow"><i class="fas fa-file-alt"></i> Детали заявки</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            
+            <div class="modal-body" id="application-modal-body">
+
+            </div>
+        </div>
+    </div>
 
     <div class="modal" id="profile-settings-modal">
         <div class="modal-content neon-flow">
@@ -299,15 +510,15 @@
                 </div>
                 
                 <div class="tab-content active" id="appearance-tab">
-       
+  
                 </div>
                 
                 <div class="tab-content" id="effects-tab">
-      
+     
                 </div>
                 
                 <div class="tab-content" id="background-tab">
-   
+      
                 </div>
             </div>
         </div>

@@ -662,6 +662,129 @@ function initNavigation() {
         });
     }
 }
+// Инициализация формы заявки
+function initApplyForm() {
+    const applyForm = document.getElementById('apply-form');
+    if (!applyForm) return;
+    
+    applyForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Собираем данные формы
+        const formData = {
+            nickname: document.getElementById('apply-nickname').value.trim(),
+            telegram: document.getElementById('apply-telegram').value.trim(),
+            category: document.getElementById('apply-category').value,
+            description: document.getElementById('apply-description').value.trim(),
+            links: document.getElementById('apply-links').value.trim().split('\n').filter(link => link),
+            contacts: document.getElementById('apply-contacts').value.trim(),
+            date: new Date().toISOString(),
+            timestamp: Date.now()
+        };
+        
+        // Проверка заполнения обязательных полей
+        if (!formData.nickname || !formData.telegram || !formData.category || !formData.description) {
+            showNotification('Заполните все обязательные поля!', 'error');
+            return;
+        }
+        
+        // Сохраняем заявку в localStorage (в реальном проекте отправляем на сервер)
+        saveApplication(formData);
+        
+        // Показываем подтверждение
+        showApplicationSuccess(formData);
+        
+        // Очищаем форму
+        applyForm.reset();
+    });
+}
+
+// Сохранение заявки
+function saveApplication(formData) {
+    try {
+        // Получаем существующие заявки или создаем новый массив
+        let applications = JSON.parse(localStorage.getItem('fame_applications') || '[]');
+        
+        // Добавляем новую заявку
+        applications.push(formData);
+        
+        // Сохраняем (максимум 50 заявок)
+        if (applications.length > 50) {
+            applications = applications.slice(-50);
+        }
+        
+        localStorage.setItem('fame_applications', JSON.stringify(applications));
+        
+        console.log('Заявка сохранена:', formData);
+        return true;
+    } catch (error) {
+        console.error('Ошибка сохранения заявки:', error);
+        return false;
+    }
+}
+
+// Показать сообщение об успешной отправке
+function showApplicationSuccess(formData) {
+    // Создаем модальное окно
+    const modal = document.createElement('div');
+    modal.className = 'modal active apply-success-modal';
+    modal.id = 'apply-success-modal';
+    
+    modal.innerHTML = `
+        <div class="modal-content neon-flow">
+            <div class="modal-header">
+                <h2 class="text-neon-flow">Заявка отправлена!</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 40px 30px; text-align: center;">
+                <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3 style="color: #fff; margin-bottom: 20px;">Спасибо за заявку, ${formData.nickname}!</h3>
+                <p style="color: #aaa; margin-bottom: 25px; line-height: 1.6;">
+                    Ваша заявка принята и отправлена на модерацию.<br>
+                    Мы свяжемся с вами в Telegram в течение 24 часов.
+                </p>
+                <div style="background: rgba(0, 170, 0, 0.1); padding: 15px; border-radius: 10px; border: 1px solid rgba(0, 170, 0, 0.3); margin: 20px 0;">
+                    <p style="color: #0f0; margin: 5px 0;">
+                        <strong>Telegram для связи:</strong><br>
+                        <a href="https://t.me/NOOLSHY" target="_blank" style="color: #0af;">@NOOLSHY</a>
+                    </p>
+                </div>
+                <button class="action-btn telegram" onclick="copyTelegramLink()" style="margin-top: 20px;">
+                    <i class="fab fa-telegram"></i> Скопировать ссылку
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Добавляем в DOM
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+    
+    // Обработчик закрытия
+    const closeBtn = modal.querySelector('.close-modal');
+    closeBtn.addEventListener('click', () => {
+        modal.remove();
+        document.body.style.overflow = 'auto';
+    });
+    
+    // Закрытие при клике вне модалки
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.remove();
+            document.body.style.overflow = 'auto';
+        }
+    });
+}
+
+// Копирование ссылки на Telegram
+function copyTelegramLink() {
+    const link = 'https://t.me/NOOLSHY';
+    navigator.clipboard.writeText(link).then(() => {
+        showNotification('Ссылка скопирована в буфер обмена!', 'success');
+    });
+}
 
 // Участники
 const members = [

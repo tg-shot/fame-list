@@ -1,18 +1,17 @@
-// ============================================
-// СИСТЕМА АВТОРИЗАЦИИ ЧЕРЕЗ TELEGRAM
-// ============================================
 
-// Текущий пользователь
+
 let currentUser = null;
 
-// Функции авторизации
+const ADMIN_ID = '287265398';
+
+
 function initAuthSystem() {
     console.log('Инициализация системы авторизации...');
     
-    // Проверяем токен из URL
+
     checkUrlToken();
     
-    // Проверяем, есть ли сохраненный пользователь
+
     const savedUser = localStorage.getItem('fame_current_user');
     if (savedUser) {
         try {
@@ -24,37 +23,37 @@ function initAuthSystem() {
         }
     }
     
-    // Кнопка входа
+
     const authBtn = document.getElementById('auth-btn');
     if (authBtn) {
         authBtn.addEventListener('click', openAuthModal);
     }
     
-    // Кнопка входа по токену
+
     const tokenSubmitBtn = document.getElementById('token-submit-btn');
     if (tokenSubmitBtn) {
         tokenSubmitBtn.addEventListener('click', loginWithToken);
     }
     
-    // Демо-вход
+ 
     const demoLoginBtn = document.getElementById('demo-login-btn');
     if (demoLoginBtn) {
         demoLoginBtn.addEventListener('click', demoLogin);
     }
     
-    // Кнопка выхода
+ 
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', logout);
     }
     
-    // Кнопка выхода в боковом меню
+
     const sideLogout = document.getElementById('side-logout');
     if (sideLogout) {
         sideLogout.addEventListener('click', logout);
     }
     
-    // Мой профиль
+    
     const myProfileBtn = document.getElementById('my-profile-btn');
     if (myProfileBtn) {
         myProfileBtn.addEventListener('click', showMyProfile);
@@ -65,7 +64,7 @@ function initAuthSystem() {
         sideMyProfile.addEventListener('click', showMyProfile);
     }
     
-    // Настройки профиля
+   
     const settingsProfileBtn = document.getElementById('settings-profile-btn');
     if (settingsProfileBtn) {
         settingsProfileBtn.addEventListener('click', openProfileSettings);
@@ -76,14 +75,523 @@ function initAuthSystem() {
         sideSettings.addEventListener('click', openProfileSettings);
     }
     
-    // Сохранение настроек
+ 
+    const adminPanelBtn = document.getElementById('admin-panel-btn');
+    if (adminPanelBtn) {
+        adminPanelBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            showAdminPanel();
+        });
+    }
+    
+    const sideAdminPanel = document.getElementById('side-admin-panel');
+    if (sideAdminPanel) {
+        sideAdminPanel.addEventListener('click', function(e) {
+            e.preventDefault();
+            showAdminPanel();
+            const sideMenu = document.getElementById('side-menu');
+            if (sideMenu) sideMenu.classList.remove('active');
+        });
+    }
+    
+
     const saveProfileBtn = document.getElementById('save-profile-btn');
     if (saveProfileBtn) {
         saveProfileBtn.addEventListener('click', saveProfileSettings);
     }
 }
 
-// Проверка токена из URL
+
+function isAdmin() {
+    return currentUser && currentUser.id.toString() === ADMIN_ID;
+}
+
+
+function updateUserInterface() {
+    const authBtn = document.getElementById('auth-btn');
+    const userProfile = document.getElementById('user-profile');
+    const menuAuthSection = document.getElementById('menu-auth-section');
+    const adminPanelBtn = document.getElementById('admin-panel-btn');
+    const sideAdminPanel = document.getElementById('side-admin-panel');
+    
+    if (currentUser) {
+        if (authBtn) authBtn.style.display = 'none';
+        if (userProfile) userProfile.style.display = 'block';
+        if (menuAuthSection) menuAuthSection.style.display = 'block';
+        
+       
+        if (isAdmin()) {
+            if (adminPanelBtn) adminPanelBtn.style.display = 'flex';
+            if (sideAdminPanel) sideAdminPanel.style.display = 'flex';
+        } else {
+            if (adminPanelBtn) adminPanelBtn.style.display = 'none';
+            if (sideAdminPanel) sideAdminPanel.style.display = 'none';
+        }
+        
+        updateUserProfileData();
+    } else {
+        if (authBtn) authBtn.style.display = 'flex';
+        if (userProfile) userProfile.style.display = 'none';
+        if (menuAuthSection) menuAuthSection.style.display = 'none';
+        if (adminPanelBtn) adminPanelBtn.style.display = 'none';
+        if (sideAdminPanel) sideAdminPanel.style.display = 'none';
+    }
+}
+
+
+function showAdminPanel() {
+    if (!currentUser) {
+        openAuthModal();
+        return;
+    }
+    
+    if (!isAdmin()) {
+        showNotification('Доступ запрещен. Только для администратора.', 'error');
+        return;
+    }
+    
+    loadApplications();
+    switchSection('admin-panel');
+}
+
+
+function loadApplications() {
+    try {
+        const applications = JSON.parse(localStorage.getItem('fame_applications') || '[]');
+        const container = document.getElementById('applications-list');
+        
+        if (!container) return;
+        
+      
+        applications.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        
+    
+        updateAdminStats(applications);
+        
+      
+        const activeFilter = document.querySelector('.admin-filters .filter-btn.active')?.dataset.filter || 'all';
+        
+  
+        const searchQuery = document.getElementById('admin-search-input')?.value.toLowerCase() || '';
+        
+     
+        const filteredApplications = applications.filter(app => {
+    
+            if (activeFilter !== 'all' && app.status !== activeFilter) {
+                return false;
+            }
+            
+  
+            if (searchQuery) {
+                const searchText = [
+                    app.nickname,
+                    app.telegram,
+                    app.description,
+                    app.category
+                ].join(' ').toLowerCase();
+                
+                if (!searchText.includes(searchQuery)) {
+                    return false;
+                }
+            }
+            
+            return true;
+        });
+        
+     
+        if (filteredApplications.length === 0) {
+            container.innerHTML = `
+                <div class="no-applications">
+                    <i class="fas fa-inbox"></i>
+                    <h3>Заявки не найдены</h3>
+                    <p>${searchQuery ? 'Попробуйте изменить поисковый запрос' : 'Нет заявок для отображения'}</p>
+                </div>
+            `;
+        } else {
+            container.innerHTML = filteredApplications.map(application => createApplicationCard(application)).join('');
+            
+    
+            document.querySelectorAll('.application-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const appId = this.dataset.id;
+                    const application = applications.find(app => app.timestamp.toString() === appId);
+                    if (application) {
+                        showApplicationDetails(application);
+                    }
+                });
+            });
+            
+   
+            document.querySelectorAll('.approve-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const appId = this.dataset.id;
+                    approveApplication(appId);
+                });
+            });
+            
+            document.querySelectorAll('.reject-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const appId = this.dataset.id;
+                    rejectApplication(appId);
+                });
+            });
+            
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const appId = this.dataset.id;
+                    const application = applications.find(app => app.timestamp.toString() === appId);
+                    if (application) {
+                        showApplicationDetails(application);
+                    }
+                });
+            });
+        }
+    } catch (error) {
+        console.error('Ошибка загрузки заявок:', error);
+        showNotification('Ошибка загрузки заявок', 'error');
+    }
+}
+
+
+function updateAdminStats(applications) {
+    const stats = {
+        pending: applications.filter(app => app.status === 'pending').length,
+        approved: applications.filter(app => app.status === 'approved').length,
+        rejected: applications.filter(app => app.status === 'rejected').length,
+        total: applications.length
+    };
+    
+    document.getElementById('pending-count').textContent = stats.pending;
+    document.getElementById('approved-count').textContent = stats.approved;
+    document.getElementById('rejected-count').textContent = stats.rejected;
+    document.getElementById('total-count').textContent = stats.total;
+}
+
+
+function createApplicationCard(application) {
+    const statusClass = `status-${application.status}`;
+    const statusText = {
+        pending: 'Ожидает',
+        approved: 'Принята',
+        rejected: 'Отклонена'
+    }[application.status] || 'Неизвестно';
+    
+    const date = new Date(application.timestamp).toLocaleDateString('ru-RU', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+  
+    const shortDescription = application.description.length > 100 
+        ? application.description.substring(0, 100) + '...' 
+        : application.description;
+    
+   
+    const telegram = application.telegram.startsWith('@') 
+        ? application.telegram 
+        : `@${application.telegram}`;
+    
+    return `
+        <div class="application-card ${application.status}" data-id="${application.timestamp}">
+            <div class="application-header">
+                <div class="application-avatar">
+                    ${application.avatar_data ? 
+                        `<img src="${application.avatar_data}" alt="${application.nickname}">` :
+                        `<div style="width:100%;height:100%;background:#2a2a2a;display:flex;align-items:center;justify-content:center;color:#666;">
+                            <i class="fas fa-user"></i>
+                        </div>`
+                    }
+                </div>
+                <div class="application-info">
+                    <h3 class="application-name">
+                        ${application.nickname}
+                        <span class="application-category">${application.category}</span>
+                    </h3>
+                    <p class="application-telegram">
+                        <i class="fab fa-telegram"></i> ${telegram}
+                    </p>
+                    <p class="application-description">${shortDescription}</p>
+                    
+                    ${application.extra_links && application.extra_links.length > 0 ? `
+                        <div class="application-links">
+                            <div class="link-badge">
+                                <i class="fas fa-link"></i> ${application.extra_links.length} ссылок
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+            
+            <div class="application-footer">
+                <div class="application-date">
+                    <i class="far fa-clock"></i> ${date}
+                </div>
+                <div class="application-actions">
+                    <span class="application-status ${statusClass}">${statusText}</span>
+                    
+                    ${application.status === 'pending' ? `
+                        <button class="action-btn-small approve-btn" data-id="${application.timestamp}">
+                            <i class="fas fa-check"></i> Принять
+                        </button>
+                        <button class="action-btn-small reject-btn" data-id="${application.timestamp}">
+                            <i class="fas fa-times"></i> Отклонить
+                        </button>
+                    ` : ''}
+                    
+                    <button class="action-btn-small view-btn" data-id="${application.timestamp}">
+                        <i class="fas fa-eye"></i> Просмотр
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+
+function showApplicationDetails(application) {
+    const modalBody = document.getElementById('application-modal-body');
+    if (!modalBody) return;
+    
+    const date = new Date(application.timestamp).toLocaleDateString('ru-RU', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    const telegram = application.telegram.startsWith('@') 
+        ? application.telegram 
+        : `@${application.telegram}`;
+    
+    const statusText = {
+        pending: 'Ожидает рассмотрения',
+        approved: 'Принята',
+        rejected: 'Отклонена'
+    }[application.status] || 'Неизвестно';
+    
+    const statusColor = {
+        pending: '#ff9900',
+        approved: '#0f0',
+        rejected: '#ff4444'
+    }[application.status] || '#888';
+    
+    modalBody.innerHTML = `
+        <div class="application-details">
+            <div class="avatar-preview-large">
+                ${application.avatar_data ? 
+                    `<img src="${application.avatar_data}" alt="${application.nickname}">` :
+                    `<div style="width:100%;height:100%;background:#2a2a2a;display:flex;align-items:center;justify-content:center;color:#666;font-size:3rem;">
+                        <i class="fas fa-user"></i>
+                    </div>`
+                }
+            </div>
+            
+            <div class="detail-group">
+                <span class="detail-label">Статус:</span>
+                <div class="detail-value" style="color: ${statusColor}; font-weight: bold;">${statusText}</div>
+            </div>
+            
+            <div class="detail-group">
+                <span class="detail-label">Никнейм:</span>
+                <div class="detail-value">${application.nickname}</div>
+            </div>
+            
+            <div class="detail-group">
+                <span class="detail-label">Telegram:</span>
+                <div class="detail-value">
+                    <a href="https://t.me/${telegram.replace('@', '')}" target="_blank">
+                        <i class="fab fa-telegram"></i> ${telegram}
+                    </a>
+                </div>
+            </div>
+            
+            <div class="detail-group">
+                <span class="detail-label">Категория:</span>
+                <div class="detail-value">${application.category}</div>
+            </div>
+            
+            <div class="detail-group">
+                <span class="detail-label">Дата подачи:</span>
+                <div class="detail-value">${date}</div>
+            </div>
+            
+            <div class="detail-group">
+                <span class="detail-label">Описание:</span>
+                <div class="detail-value">${application.description}</div>
+            </div>
+            
+            <div class="detail-group">
+                <span class="detail-label">Основная ссылка:</span>
+                <div class="detail-value">
+                    <a href="${application.main_link}" target="_blank">${application.main_link}</a>
+                </div>
+            </div>
+            
+            ${application.extra_links && application.extra_links.length > 0 ? `
+                <div class="detail-group">
+                    <span class="detail-label">Дополнительные ссылки (${application.extra_links.length}):</span>
+                    <div class="links-grid">
+                        ${application.extra_links.map(link => `
+                            <div class="link-item">
+                                <a href="${link}" target="_blank">${link}</a>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : ''}
+            
+            <div class="detail-group">
+                <span class="detail-label">ID пользователя:</span>
+                <div class="detail-value">${application.user_id}</div>
+            </div>
+            
+            <div class="modal-actions">
+                ${application.status === 'pending' ? `
+                    <button class="action-btn approve-btn" data-id="${application.timestamp}" onclick="approveApplication('${application.timestamp}')">
+                        <i class="fas fa-check"></i> Принять заявку
+                    </button>
+                    <button class="action-btn reject-btn" data-id="${application.timestamp}" onclick="rejectApplication('${application.timestamp}')">
+                        <i class="fas fa-times"></i> Отклонить заявку
+                    </button>
+                ` : ''}
+                
+                <button class="action-btn" onclick="closeModal(document.getElementById('application-modal'))">
+                    <i class="fas fa-times"></i> Закрыть
+                </button>
+            </div>
+        </div>
+    `;
+    
+    openModal('application-modal');
+}
+
+
+function approveApplication(appId) {
+    if (!confirm('Вы уверены, что хотите принять эту заявку?')) return;
+    
+    try {
+        let applications = JSON.parse(localStorage.getItem('fame_applications') || '[]');
+        const application = applications.find(app => app.timestamp.toString() === appId);
+        
+        if (application) {
+            application.status = 'approved';
+            localStorage.setItem('fame_applications', JSON.stringify(applications));
+            
+            showNotification('Заявка принята!', 'success');
+            
+        
+            loadApplications();
+            
+      
+            closeModal(document.getElementById('application-modal'));
+            
+     
+            addApprovedMember(application);
+        }
+    } catch (error) {
+        console.error('Ошибка принятия заявки:', error);
+        showNotification('Ошибка принятия заявки', 'error');
+    }
+}
+
+
+function rejectApplication(appId) {
+    if (!confirm('Вы уверены, что хотите отклонить эту заявку?')) return;
+    
+    try {
+        let applications = JSON.parse(localStorage.getItem('fame_applications') || '[]');
+        const application = applications.find(app => app.timestamp.toString() === appId);
+        
+        if (application) {
+            application.status = 'rejected';
+            localStorage.setItem('fame_applications', JSON.stringify(applications));
+            
+            showNotification('Заявка отклонена!', 'success');
+            
+       
+            loadApplications();
+            
+      
+            closeModal(document.getElementById('application-modal'));
+        }
+    } catch (error) {
+        console.error('Ошибка отклонения заявки:', error);
+        showNotification('Ошибка отклонения заявки', 'error');
+    }
+}
+
+
+function addApprovedMember(application) {
+
+    console.log('Добавление участника:', application);
+    showNotification(`${application.nickname} добавлен в список участников`, 'success');
+}
+
+
+function deleteRejectedApplications() {
+    if (!confirm('Вы уверены, что хотите удалить все отклоненные заявки? Это действие нельзя отменить.')) return;
+    
+    try {
+        let applications = JSON.parse(localStorage.getItem('fame_applications') || '[]');
+        const filteredApplications = applications.filter(app => app.status !== 'rejected');
+        
+        const deletedCount = applications.length - filteredApplications.length;
+        
+        localStorage.setItem('fame_applications', JSON.stringify(filteredApplications));
+        
+        showNotification(`Удалено ${deletedCount} отклоненных заявок`, 'success');
+        
+       
+        loadApplications();
+    } catch (error) {
+        console.error('Ошибка удаления заявок:', error);
+        showNotification('Ошибка удаления заявок', 'error');
+    }
+}
+
+
+function initAdminPanel() {
+    console.log('Инициализация админ-панели...');
+    
+   
+    document.querySelectorAll('.admin-filters .filter-btn').forEach(btn => {
+        if (btn.id !== 'delete-rejected-btn') {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.admin-filters .filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                loadApplications();
+            });
+        }
+    });
+    
+
+    const deleteRejectedBtn = document.getElementById('delete-rejected-btn');
+    if (deleteRejectedBtn) {
+        deleteRejectedBtn.addEventListener('click', deleteRejectedApplications);
+    }
+    
+
+    const adminSearchInput = document.getElementById('admin-search-input');
+    if (adminSearchInput) {
+        adminSearchInput.addEventListener('input', function() {
+            clearTimeout(this.searchTimeout);
+            this.searchTimeout = setTimeout(() => {
+                loadApplications();
+            }, 300);
+        });
+    }
+}
+
+
+
+
 function checkUrlToken() {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
@@ -92,13 +600,12 @@ function checkUrlToken() {
         console.log('Найден токен в URL:', token);
         processTelegramLogin(token);
         
-        // Убираем токен из URL
         const newUrl = window.location.pathname;
         window.history.replaceState({}, document.title, newUrl);
     }
 }
 
-// Вход по токену вручную
+
 function loginWithToken() {
     const tokenInput = document.getElementById('token-input');
     const token = tokenInput.value.trim();
@@ -112,10 +619,10 @@ function loginWithToken() {
     tokenInput.value = '';
 }
 
-// Обработка логина через Telegram
+
 function processTelegramLogin(token) {
     try {
-        // Декодируем токен (формат: id_username_firstname_lastname)
+
         const parts = token.split('_');
         
         if (parts.length >= 2) {
@@ -139,7 +646,7 @@ function processTelegramLogin(token) {
                 }
             };
             
-            // Получаем реальный аватар из Telegram
+     
             getTelegramAvatar(userId, username).then(avatarUrl => {
                 if (avatarUrl) {
                     currentUser.photo_url = avatarUrl;
@@ -158,20 +665,19 @@ function processTelegramLogin(token) {
     }
 }
 
-// Получение аватара из Telegram
+
 async function getTelegramAvatar(userId, username) {
     try {
-        // Для реального аватара нужно использовать Telegram API
-        // Пока возвращаем заглушку
+
         return `https://t.me/i/userpic/320/${username}.jpg`;
     } catch (error) {
         return null;
     }
 }
 
-// Завершение логина
+
 function completeLogin() {
-    // Генерируем аватар если нет фото
+ 
     generateColorAvatar(currentUser);
     
     saveUser();
@@ -181,10 +687,10 @@ function completeLogin() {
     showNotification('Успешный вход через Telegram!', 'success');
 }
 
-// Демо-вход
+
 function demoLogin() {
     currentUser = {
-        id: 287265398,
+        id: 287265398, 
         first_name: "Зорф",
         last_name: "",
         username: "tgzorf",
@@ -193,7 +699,7 @@ function demoLogin() {
         photo_url: "https://t.me/i/userpic/320/tgzorf.jpg",
         profile: {
             nickname: "Зорф",
-            bio: "Владелец NoolShy Fame",
+            bio: "Владелец dark Fame",
             notifications: true,
             joined: new Date().toISOString().split('T')[0]
         }
@@ -205,10 +711,10 @@ function demoLogin() {
     updateUserInterface();
     closeModal(document.getElementById('auth-modal'));
     
-    showNotification('Демо-вход как Зорф', 'success');
+    showNotification('Демо-вход как Зорф (Администратор)', 'success');
 }
 
-// Генерация цветного аватара
+
 function generateColorAvatar(user) {
     if (!user.photo_url) {
         const name = user.first_name || user.profile?.nickname || 'User';
@@ -234,33 +740,14 @@ function generateColorAvatar(user) {
     }
 }
 
-// Сохранение пользователя
+
 function saveUser() {
     if (currentUser) {
         localStorage.setItem('fame_current_user', JSON.stringify(currentUser));
     }
 }
 
-// Обновление интерфейса
-function updateUserInterface() {
-    const authBtn = document.getElementById('auth-btn');
-    const userProfile = document.getElementById('user-profile');
-    const menuAuthSection = document.getElementById('menu-auth-section');
-    
-    if (currentUser) {
-        if (authBtn) authBtn.style.display = 'none';
-        if (userProfile) userProfile.style.display = 'block';
-        if (menuAuthSection) menuAuthSection.style.display = 'block';
-        
-        updateUserProfileData();
-    } else {
-        if (authBtn) authBtn.style.display = 'flex';
-        if (userProfile) userProfile.style.display = 'none';
-        if (menuAuthSection) menuAuthSection.style.display = 'none';
-    }
-}
 
-// Обновление данных профиля
 function updateUserProfileData() {
     if (!currentUser) return;
     
@@ -283,7 +770,7 @@ function updateUserProfileData() {
     updateUserAvatar();
 }
 
-// Обновление аватара
+
 function updateUserAvatar() {
     if (!currentUser) return;
     
@@ -300,12 +787,12 @@ function updateUserAvatar() {
     }
 }
 
-// Открытие модального окна авторизации
+
 function openAuthModal() {
     openModal('auth-modal');
 }
 
-// Настройки профиля
+
 function openProfileSettings() {
     if (!currentUser) {
         openAuthModal();
@@ -333,7 +820,7 @@ function openProfileSettings() {
     openModal('profile-settings-modal');
 }
 
-// Сохранение настроек
+
 function saveProfileSettings() {
     if (!currentUser) return;
     
@@ -360,7 +847,7 @@ function saveProfileSettings() {
     showNotification('Настройки профиля сохранены!', 'success');
 }
 
-// Показать профиль
+
 function showMyProfile() {
     if (!currentUser) {
         openAuthModal();
@@ -381,6 +868,9 @@ function showMyProfile() {
         day: 'numeric'
     });
     
+  
+    const isAdminUser = isAdmin();
+    
     container.innerHTML = `
         <div class="user-profile-header">
             <div class="user-profile-avatar">
@@ -394,6 +884,7 @@ function showMyProfile() {
             
             <div class="user-profile-info">
                 <h1>${displayName}</h1>
+                ${isAdminUser ? '<span style="color:#0f0;font-size:0.9rem;"><i class="fas fa-shield-alt"></i> Администратор</span>' : ''}
                 <p><strong>Telegram ID:</strong> ${currentUser.id}</p>
                 <p><strong>Username:</strong> @${currentUser.username || 'не указан'}</p>
                 <p><strong>Дата регистрации:</strong> ${formattedDate}</p>
@@ -404,8 +895,8 @@ function showMyProfile() {
                         <span class="stat-label">Профиль</span>
                     </div>
                     <div class="stat-box">
-                        <span class="stat-number">✓</span>
-                        <span class="stat-label">Верифицирован</span>
+                        <span class="stat-number">${isAdminUser ? '🛡️' : '✓'}</span>
+                        <span class="stat-label">${isAdminUser ? 'Админ' : 'Верифицирован'}</span>
                     </div>
                 </div>
             </div>
@@ -422,6 +913,11 @@ function showMyProfile() {
                 <button class="action-btn" onclick="copyProfileLink('${currentUser.username || currentUser.id}')">
                     <i class="fas fa-share"></i> Поделиться профилем
                 </button>
+                ${isAdminUser ? `
+                    <button class="action-btn" onclick="showAdminPanel()">
+                        <i class="fas fa-shield-alt"></i> Админ-панель
+                    </button>
+                ` : ''}
             </div>
         </div>
     `;
@@ -430,7 +926,7 @@ function showMyProfile() {
     closeAllDropdowns();
 }
 
-// Выход
+
 function logout() {
     if (confirm('Вы уверены, что хотите выйти?')) {
         currentUser = null;
@@ -441,7 +937,7 @@ function logout() {
     }
 }
 
-// Закрытие выпадающих меню
+
 function closeAllDropdowns() {
     const dropdowns = document.querySelectorAll('.dropdown-menu');
     dropdowns.forEach(dropdown => {
@@ -449,7 +945,7 @@ function closeAllDropdowns() {
     });
 }
 
-// Уведомления
+
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
@@ -516,51 +1012,106 @@ function showNotification(message, type = 'info') {
     document.head.appendChild(style);
 }
 
-// ============================================
-// ОСНОВНАЯ ИНИЦИАЛИЗАЦИЯ
-// ============================================
+
+function initApplyForm() {
+
+}
+
+
+function saveApplication(formData) {
+    try {
+        let applications = JSON.parse(localStorage.getItem('fame_applications') || '[]');
+        
+       
+        applications.push(formData);
+        
+   
+        if (applications.length > 100) {
+            applications = applications.slice(-100);
+        }
+        
+        localStorage.setItem('fame_applications', JSON.stringify(applications));
+        
+        console.log('Заявка сохранена:', formData);
+        
+   
+        showNotification('Заявка успешно сохранена и отправлена на модерацию!', 'success');
+        
+        return true;
+    } catch (error) {
+        console.error('Ошибка сохранения заявки:', error);
+        showNotification('Ошибка при сохранении заявки', 'error');
+        return false;
+    }
+}
+
+
+function showApplicationSuccess(formData) {
+
+}
+
+
+function closeApplySuccessModal() {
+
+}
+
+
+function copyTelegramLink() {
+    const link = 'https://t.me/NOOLSHY';
+    navigator.clipboard.writeText(link).then(() => {
+        showNotification('Ссылка скопирована в буфер обмена!', 'success');
+    });
+}
+
+
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM загружен, инициализация...');
     
-    // Инициализация авторизации
+
     initAuthSystem();
     
-    // Инициализация навигации
+ 
     initNavigation();
     
-    // Инициализация участников
+ 
     initMembers();
     
-    // Инициализация снега
+ 
     initSnow();
     
-    // Инициализация настроек
+
     initSettings();
     
-    // Инициализация неон-контролов
+   
     initNeonControls();
     
-    // Инициализация модальных окон
+ 
     initModals();
     
-    // Загрузка сохраненных настроек
+
+    initApplyForm();
+    
+
+    initAdminPanel();
+    
+
     loadSavedSettings();
     
-    // Инициализация динамического неона
+
     initDynamicNeon();
     
-    // Инициализация аватаров
+ 
     initAllAvatars();
     
-    // Закрытие выпадающих меню при клике вне их
+
     document.addEventListener('click', function(event) {
         if (!event.target.closest('.profile-dropdown')) {
             closeAllDropdowns();
         }
     });
     
-    // Обработчик для переключения выпадающего меню
+ 
     const profileToggle = document.getElementById('profile-toggle');
     if (profileToggle) {
         profileToggle.addEventListener('click', function(e) {
@@ -571,9 +1122,16 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    
+    const applyBtnInFaq = document.querySelector('.apply-btn-large[data-section="apply"]');
+    if (applyBtnInFaq) {
+        applyBtnInFaq.addEventListener('click', function() {
+            switchSection('apply');
+        });
+    }
 });
 
-// Навигация
+
 function initNavigation() {
     console.log('Инициализация навигации...');
     
@@ -662,497 +1220,56 @@ function initNavigation() {
         });
     }
 }
-// Инициализация формы заявки
-function initApplyForm() {
-    const applyForm = document.getElementById('apply-form');
-    if (!applyForm) return;
-    
-    applyForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Собираем данные формы
-        const formData = {
-            nickname: document.getElementById('apply-nickname').value.trim(),
-            telegram: document.getElementById('apply-telegram').value.trim(),
-            category: document.getElementById('apply-category').value,
-            description: document.getElementById('apply-description').value.trim(),
-            links: document.getElementById('apply-links').value.trim().split('\n').filter(link => link),
-            contacts: document.getElementById('apply-contacts').value.trim(),
-            date: new Date().toISOString(),
-            timestamp: Date.now()
-        };
-        
-        // Проверка заполнения обязательных полей
-        if (!formData.nickname || !formData.telegram || !formData.category || !formData.description) {
-            showNotification('Заполните все обязательные поля!', 'error');
-            return;
-        }
-        
-        // Сохраняем заявку в localStorage (в реальном проекте отправляем на сервер)
-        saveApplication(formData);
-        
-        // Показываем подтверждение
-        showApplicationSuccess(formData);
-        
-        // Очищаем форму
-        applyForm.reset();
-    });
-}
 
-// Сохранение заявки
-function saveApplication(formData) {
-    try {
-        // Получаем существующие заявки или создаем новый массив
-        let applications = JSON.parse(localStorage.getItem('fame_applications') || '[]');
-        
-        // Добавляем новую заявку
-        applications.push(formData);
-        
-        // Сохраняем (максимум 50 заявок)
-        if (applications.length > 50) {
-            applications = applications.slice(-50);
-        }
-        
-        localStorage.setItem('fame_applications', JSON.stringify(applications));
-        
-        console.log('Заявка сохранена:', formData);
-        return true;
-    } catch (error) {
-        console.error('Ошибка сохранения заявки:', error);
-        return false;
-    }
-}
 
-// Показать сообщение об успешной отправке
-function showApplicationSuccess(formData) {
-    // Создаем модальное окно
-    const modal = document.createElement('div');
-    modal.className = 'modal active apply-success-modal';
-    modal.id = 'apply-success-modal';
-    
-    modal.innerHTML = `
-        <div class="modal-content neon-flow">
-            <div class="modal-header">
-                <h2 class="text-neon-flow">Заявка отправлена!</h2>
-                <button class="close-modal">&times;</button>
-            </div>
-            <div class="modal-body" style="padding: 40px 30px; text-align: center;">
-                <div class="success-icon">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <h3 style="color: #fff; margin-bottom: 20px;">Спасибо за заявку, ${formData.nickname}!</h3>
-                <p style="color: #aaa; margin-bottom: 25px; line-height: 1.6;">
-                    Ваша заявка принята и отправлена на модерацию.<br>
-                    Мы свяжемся с вами в Telegram в течение 24 часов.
-                </p>
-                <div style="background: rgba(0, 170, 0, 0.1); padding: 15px; border-radius: 10px; border: 1px solid rgba(0, 170, 0, 0.3); margin: 20px 0;">
-                    <p style="color: #0f0; margin: 5px 0;">
-                        <strong>Telegram для связи:</strong><br>
-                        <a href="https://t.me/NOOLSHY" target="_blank" style="color: #0af;">@NOOLSHY</a>
-                    </p>
-                </div>
-                <button class="action-btn telegram" onclick="copyTelegramLink()" style="margin-top: 20px;">
-                    <i class="fab fa-telegram"></i> Скопировать ссылку
-                </button>
-            </div>
-        </div>
-    `;
-    
-    // Добавляем в DOM
-    document.body.appendChild(modal);
-    document.body.style.overflow = 'hidden';
-    
-    // Обработчик закрытия
-    const closeBtn = modal.querySelector('.close-modal');
-    closeBtn.addEventListener('click', () => {
-        modal.remove();
-        document.body.style.overflow = 'auto';
-    });
-    
-    // Закрытие при клике вне модалки
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.remove();
-            document.body.style.overflow = 'auto';
-        }
-    });
-}
-
-// Копирование ссылки на Telegram
-function copyTelegramLink() {
-    const link = 'https://t.me/NOOLSHY';
-    navigator.clipboard.writeText(link).then(() => {
-        showNotification('Ссылка скопирована в буфер обмена!', 'success');
-    });
-}
-
-// Участники
 const members = [
     {
         id: 1,
-        nickname: "Зорф",
-        username: "@tgzorf",
+        nickname: "шот",
+        username: "@metllos",
         category: "Владелец",
-        role: "Владелец",
-        description: "Владелец NoolShy Fame. Вход 50 зв, галочка 30зв, закреп 50зв.",
+        role: "Кодер",
+        description: "Владелец dark Fame",
         avatar: "img/avatar1.png",
         verified: true,
         pinned: true,
-        project: "https://t.me/NOOLSHY",
-        telegram: "tgzorf",
-        price: "https://noolshy.github.io/market/",
-        chat: "https://t.me/NOOLSHY_CHAT",
-        market: "https://noolshy.github.io/market/",
-        fameList: "https://noolshy.github.io/fame/",
-        github: "https://github.com/noolshy",
-        joinDate: "2026-01-08",
+        project: "https://t.me/+fCRs1L3q7G8yYTg8",
+        telegram: "metllos",
+        forum: "https://t.me/+mAY-S9nUa_o2NDI0",
+        joinDate: "2026-01-24",
         activity: "Постоянная",
-        posts: 150,
-        followers: 2500,
-        priceEntry: "50 зв",
-        priceVerified: "30 зв",
-        pricePinned: "50 зв",
-        details: "Создатель и владелец NoolShy Fame. Занимаюсь развитием сообщества и модерацией.",
-        skills: ["Администрирование", "Модерация", "Развитие сообщества"],
+        details: "Создатель и владелец dark Fame.занимаюсь кодингом",
+        skills: ["кодинг"],
         socials: {
-            telegram: "@tgzorf",
-            project: "https://t.me/NOOLSHY",
-            price: "https://noolshy.github.io/market/"
+            telegram: "@metllos",
+           forum: "https://t.me/+mAY-S9nUa_o2NDI0",
+
+        }
+    },
+    {
+            id: 2,
+        nickname: "Виолетта",
+        username: "@violettamap",
+        category: "Владелец",
+        role: "Владелец",
+        description: "Владелец dark Fame",
+        avatar: "img/avatar2.png",
+        verified: true,
+        pinned: true,
+        project: "https://t.me/+M8N6Cah1socyY2Q6",
+        telegram: "violettamap",
+        joinDate: "2026-01-24",
+        activity: "Постоянная",
+        details: "Создатель и владелец dark Fame.занимаюсь развитием",
+        skills: ["кодинг"],
+        socials: {
+            telegram: "@violettamap",
+           project: "https://t.me/+M8N6Cah1socyY2Q6",
+
         }
     },
 ];
 
-function initMembers() {
-    loadMembers();
-    
-    const filterBtns = document.querySelectorAll('.filter-btn');
-    filterBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            filterMembers(this.dataset.category);
-        });
-    });
-    
-    const searchInput = document.getElementById('search-input');
-    if (searchInput) {
-        searchInput.addEventListener('input', function(e) {
-            searchMembers(e.target.value.toLowerCase());
-        });
-    }
-}
-
-function loadMembers() {
-    const container = document.getElementById('members-container');
-    if (!container) return;
-    
-    container.innerHTML = '';
-    
-    members.forEach(member => {
-        const card = createMemberCard(member);
-        container.appendChild(card);
-    });
-    
-    document.querySelectorAll('.member-card').forEach(card => {
-        card.addEventListener('click', function() {
-            const memberId = this.dataset.id;
-            showProfile(memberId);
-        });
-    });
-}
-
-function createMemberCard(member) {
-    const card = document.createElement('div');
-    card.className = 'member-card';
-    card.dataset.id = member.id;
-    card.dataset.category = member.category;
-    
-    if (member.scam) card.classList.add('scam');
-    else if (member.pinned) card.classList.add('pinned');
-    if (member.verified && !member.scam) card.classList.add('verified');
-    
-    const avatarId = `avatar-${member.id}`;
-    
-    card.innerHTML = `
-        <div class="member-avatar">
-            <img id="${avatarId}" 
-                 src="img/avatar${member.id}.png" 
-                 alt="${member.nickname}"
-                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9IiMzMzMiPjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiByeD0iNTAiLz48dGV4dCB4PSI1MCIgeT0iNTUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSI0MCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+${member.nickname.charAt(0)}</dGV4dD48L3N2Zz4='">
-        </div>
-        
-        <div class="member-info">
-            <h3>${member.nickname} ${member.scam ? '⚠️' : (member.verified ? '✓' : '')}</h3>
-            <div class="member-role">${member.role}</div>
-            <p class="member-description">${member.description}</p>
-            <div class="member-badges">
-                ${member.scam ? '⚠️ ' : ''}${member.pinned ? '📍 ' : ''}${member.verified ? '✓ ' : ''}${member.category}
-            </div>
-        </div>
-    `;
-    
-    return card;
-}
-
-function filterMembers(category) {
-    const cards = document.querySelectorAll('.member-card');
-    
-    cards.forEach(card => {
-        if (category === 'all' || card.dataset.category === category) {
-            card.style.display = 'block';
-            card.style.opacity = '1';
-        } else {
-            card.style.opacity = '0';
-            setTimeout(() => {
-                card.style.display = 'none';
-            }, 300);
-        }
-    });
-}
-
-function searchMembers(term) {
-    const cards = document.querySelectorAll('.member-card');
-    const activeFilter = document.querySelector('.filter-btn.active')?.dataset.category || 'all';
-    
-    cards.forEach(card => {
-        const nickname = card.querySelector('h3').textContent.toLowerCase();
-        const description = card.querySelector('.member-description').textContent.toLowerCase();
-        
-        const matchesSearch = nickname.includes(term) || description.includes(term);
-        const matchesFilter = activeFilter === 'all' || card.dataset.category === activeFilter;
-        
-        if (matchesSearch && matchesFilter) {
-            card.style.display = 'block';
-            card.style.opacity = '1';
-        } else {
-            card.style.opacity = '0';
-            setTimeout(() => {
-                card.style.display = 'none';
-            }, 300);
-        }
-    });
-}
-
-function showProfile(memberId) {
-    const member = members.find(m => m.id == memberId);
-    if (!member) return;
-    
-    const container = document.getElementById('profile-content');
-    if (!container) return;
-    
-    let badgesHtml = '';
-    if (member.scam) {
-        badgesHtml += '<span class="badge scam">⚠️ Скам (Осторожно!)</span>';
-    } else if (member.verified) {
-        badgesHtml += '<span class="badge verified">✓ Верифицирован</span>';
-    }
-    if (member.pinned) badgesHtml += '<span class="badge pinned">📌 Закреплён</span>';
-    badgesHtml += `<span class="badge category">${member.category}</span>`;
-    
-    const mainButtons = `
-        <a href="https://t.me/${member.telegram}" class="action-btn telegram" target="_blank">
-            <i class="fab fa-telegram"></i> Написать в ЛС
-        </a>
-        <a href="${member.project}" class="action-btn" target="_blank">
-            <i class="fas fa-external-link-alt"></i> Основной канал
-        </a>
-        <button class="action-btn" onclick="copyProfileLink('${member.nickname}')">
-            <i class="fas fa-share"></i> Поделиться
-        </button>
-    `;
-    
-    container.innerHTML = `
-        <div class="profile-header">
-            <div class="profile-avatar">
-                <img src="img/avatar${member.id}.png" alt="${member.nickname}"
-                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9IiMzMzMiPjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiByeD0iNTAiLz48dGV4dCB4PSI1MCIgeT0iNTUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSI0MCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+${member.nickname.charAt(0)}</dGV4dD48L3N2Zz4='">
-            </div>
-            
-            <h1 class="profile-title">${member.nickname}</h1>
-            <p class="profile-username">${member.username}</p>
-            
-            <div class="profile-badges">
-                ${badgesHtml}
-            </div>
-            
-            <div class="profile-actions">
-                ${mainButtons}
-            </div>
-        </div>
-        
-        <div class="profile-content">
-            <div class="profile-description">
-                <h3>Описание</h3>
-                <p>${member.description || 'Нет описания'}</p>
-                
-                ${member.details ? `
-                    <h3 style="margin-top: 30px;">Детали</h3>
-                    <p>${member.details}</p>
-                ` : ''}
-            </div>
-            
-            <div class="profile-stats">
-                <h3>Статистика</h3>
-                <div class="stat-item">
-                    <span class="stat-label">Статус:</span>
-                    <span class="stat-value">${member.role}</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Верификация:</span>
-                    <span class="stat-value">${member.verified ? '✓ Подтверждён' : '✗ Не подтверждён'}</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">ID:</span>
-                    <span class="stat-value">${member.id}</span>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    switchSection('profile-details');
-}
-
-// Снег
-function initSnow() {
-    const snowContainer = document.querySelector('.snow-container');
-    if (!snowContainer) return;
-    
-    createSnowflakes();
-}
-
-function createSnowflakes() {
-    const snowContainer = document.querySelector('.snow-container');
-    if (!snowContainer) return;
-    
-    snowContainer.innerHTML = '';
-    
-    for (let i = 0; i < 60; i++) {
-        const snowflake = document.createElement('div');
-        snowflake.className = 'snowflake';
-        
-        const size = Math.random() * 4 + 2;
-        const startX = Math.random() * 100;
-        const duration = Math.random() * 5 + 5;
-        const opacity = Math.random() * 0.5 + 0.3;
-        
-        snowflake.style.width = `${size}px`;
-        snowflake.style.height = `${size}px`;
-        snowflake.style.left = `${startX}vw`;
-        snowflake.style.opacity = opacity;
-        snowflake.style.animationDuration = `${duration}s`;
-        snowflake.style.animationDelay = `${Math.random() * 5}s`;
-        snowflake.style.backgroundColor = `rgba(255, 255, 255, ${opacity})`;
-        
-        snowContainer.appendChild(snowflake);
-    }
-}
-
-// Настройки
-function initSettings() {
-    const settingsTabs = document.querySelectorAll('.settings-tab');
-    const tabContents = document.querySelectorAll('.tab-content');
-    
-    settingsTabs.forEach(tab => {
-        tab.addEventListener('click', function() {
-            const tabId = this.dataset.tab + '-tab';
-            
-            settingsTabs.forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-            
-            tabContents.forEach(content => {
-                content.classList.remove('active');
-                if (content.id === tabId) {
-                    content.classList.add('active');
-                }
-            });
-        });
-    });
-}
-
-// Неон
-function initNeonControls() {
-    const applyNeonBtn = document.getElementById('apply-neon');
-    if (applyNeonBtn) {
-        applyNeonBtn.addEventListener('click', function() {
-            const color = document.getElementById('neon-color').value;
-            const intensity = parseInt(document.getElementById('neon-intensity').value) / 100;
-            const speed = parseInt(document.getElementById('neon-speed').value);
-            
-            applyNeonSettings(color, intensity, speed);
-        });
-    }
-}
-
-function applyNeonSettings(color, intensity, speed) {
-    localStorage.setItem('fame_neon_color', color);
-    localStorage.setItem('fame_neon_intensity', intensity);
-    localStorage.setItem('fame_neon_speed', speed);
-    
-    initDynamicNeon();
-}
-
-function initDynamicNeon() {
-    // Реализация неона
-}
-
-// Модальные окна
-function initModals() {
-    document.querySelectorAll('.close-modal').forEach(btn => {
-        btn.addEventListener('click', function() {
-            closeModal(this.closest('.modal'));
-        });
-    });
-    
-    window.addEventListener('click', function(event) {
-        if (event.target.classList.contains('modal')) {
-            closeModal(event.target);
-        }
-    });
-}
-
-function openModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
-}
-
-function closeModal(modal) {
-    if (modal) {
-        modal.classList.remove('active');
-        document.body.style.overflow = 'auto';
-    }
-}
-
-// Загрузка настроек
-function loadSavedSettings() {
-    const savedTheme = localStorage.getItem('fame_theme') || 'black';
-    applyTheme(savedTheme);
-}
-
-function applyTheme(theme) {
-    const themeClasses = ['dark-theme', 'black-theme', 'red-theme', 'red-black-theme', 
-                         'red-gray-theme', 'purple-theme', 'blue-theme', 'green-theme', 
-                         'orange-theme', 'pink-theme'];
-    
-    document.body.classList.remove(...themeClasses);
-    document.body.classList.add(theme + '-theme');
-    
-    localStorage.setItem('fame_theme', theme);
-}
-
-// Вспомогательные функции
-function copyProfileLink(username) {
-    const link = `https://t.me/NOOLSHY?text=Профиль%20${encodeURIComponent(username)}%20на%20NoolShy%20Fame`;
-    navigator.clipboard.writeText(link).then(() => {
-        alert('Ссылка на профиль скопирована в буфер обмена!');
-    });
-}
-
-function initAllAvatars() {
-    // Инициализация аватаров
-}
 function initMembers() {
     console.log('Инициализация участников...');
     loadMembers();
@@ -1256,14 +1373,6 @@ card.innerHTML = `
         </div>
     </div>
 `;
-    
-  
-    setTimeout(() => {
-        const img = card.querySelector(`#${avatarId}`);
-        if (img) {
-            loadAvatarWithFallback(img, `img/avatar${member.id}.png`, member.nickname);
-        }
-    }, 10);
     
     return card;
 }
@@ -1475,14 +1584,6 @@ badgesHtml += `<span class="badge category">${member.category}</span>`;
         </div>
     `;
     
-
-    setTimeout(() => {
-        const img = document.getElementById(profileAvatarId);
-        if (img) {
-            loadAvatarWithFallback(img, `img/avatar${member.id}.png`, member.nickname);
-        }
-    }, 10);
-    
     switchSection('profile-details');
 }
 
@@ -1661,10 +1762,6 @@ function initNeonControls() {
 
 
 function applyNeonSettings(color, intensity, speed) {
-    currentNeonColor = color;
-    currentNeonIntensity = intensity;
-    currentNeonSpeed = speed;
-    
     localStorage.setItem('fame_neon_color', color);
     localStorage.setItem('fame_neon_intensity', intensity);
     localStorage.setItem('fame_neon_speed', speed);
@@ -1674,145 +1771,11 @@ function applyNeonSettings(color, intensity, speed) {
 
 
 function initDynamicNeon() {
-    const oldStyle = document.getElementById('dynamic-neon-style');
-    if (oldStyle) oldStyle.remove();
-    
-    const hex = currentNeonColor;
-    const r = parseInt(hex.slice(1,3), 16);
-    const g = parseInt(hex.slice(3,5), 16);
-    const b = parseInt(hex.slice(5,7), 16);
-    
-    const duration = (11 - currentNeonSpeed) + 's';
-    
-    const style = document.createElement('style');
-    style.id = 'dynamic-neon-style';
-    
-    style.textContent = `
-        @keyframes neonFlow {
-            0%, 100% { 
-                box-shadow: 0 0 ${10 * currentNeonIntensity}px rgba(${r}, ${g}, ${b}, ${0.8 * currentNeonIntensity}),
-                          0 0 ${20 * currentNeonIntensity}px rgba(${r}, ${g}, ${b}, ${0.6 * currentNeonIntensity}),
-                          0 0 ${30 * currentNeonIntensity}px rgba(${r}, ${g}, ${b}, ${0.4 * currentNeonIntensity}),
-                          inset 0 0 ${10 * currentNeonIntensity}px rgba(${r}, ${g}, ${b}, ${0.5 * currentNeonIntensity}); 
-            }
-            50% { 
-                box-shadow: 0 0 ${15 * currentNeonIntensity}px rgba(${r}, ${g}, ${b}, ${0.9 * currentNeonIntensity}),
-                          0 0 ${25 * currentNeonIntensity}px rgba(${r}, ${g}, ${b}, ${0.7 * currentNeonIntensity}),
-                          0 0 ${35 * currentNeonIntensity}px rgba(${r}, ${g}, ${b}, ${0.5 * currentNeonIntensity}),
-                          inset 0 0 ${15 * currentNeonIntensity}px rgba(${r}, ${g}, ${b}, ${0.6 * currentNeonIntensity}); 
-            }
-        }
-        
-        @keyframes textNeonFlow {
-            0%, 100% { 
-                text-shadow: 0 0 ${5 * currentNeonIntensity}px rgba(${r}, ${g}, ${b}, ${0.8 * currentNeonIntensity}),
-                           0 0 ${10 * currentNeonIntensity}px rgba(${r}, ${g}, ${b}, ${0.6 * currentNeonIntensity}); 
-            }
-            50% { 
-                text-shadow: 0 0 ${8 * currentNeonIntensity}px rgba(${r}, ${g}, ${b}, ${0.9 * currentNeonIntensity}),
-                           0 0 ${15 * currentNeonIntensity}px rgba(${r}, ${g}, ${b}, ${0.7 * currentNeonIntensity}); 
-            }
-        }
-        
-        .neon-flow {
-            animation: neonFlow ${duration} ease-in-out infinite !important;
-        }
-        
-        .text-neon-flow {
-            animation: textNeonFlow ${duration} ease-in-out infinite !important;
-        }
-    `;
-    
-    document.head.appendChild(style);
-    
-    const neonFlowEffect = document.getElementById('neon-flow-effect');
-    if (neonFlowEffect && neonFlowEffect.checked) {
-        applyNeonToElements();
-    }
-}
 
-
-function applyNeonToElements() {
-    document.querySelectorAll('.member-card').forEach(card => {
-        card.classList.add('neon-flow');
-    });
-    
-    document.querySelectorAll('.modal-content').forEach(modal => {
-        modal.classList.add('neon-flow');
-    });
-    
-    document.querySelectorAll('.upload-btn').forEach(btn => {
-        btn.classList.add('neon-flow');
-    });
-    
-    const profileHeader = document.querySelector('.profile-header');
-    if (profileHeader) {
-        profileHeader.classList.add('neon-flow');
-    }
-}
-
-function removeNeonFlow() {
-    document.querySelectorAll('.neon-flow').forEach(el => {
-        el.classList.remove('neon-flow');
-    });
-    document.querySelectorAll('.text-neon-flow').forEach(el => {
-        el.classList.remove('text-neon-flow');
-    });
-}
-
-function initAnimatedBg() {
-    const bgSpeed = document.getElementById('bg-speed');
-    const bgOpacity = document.getElementById('bg-opacity');
-    const applyBgBtn = document.getElementById('apply-animated-bg');
-    
-    if (bgSpeed) {
-        bgSpeed.addEventListener('input', function() {
-            currentBgSpeed = parseInt(this.value);
-        });
-    }
-    
-    if (bgOpacity) {
-        bgOpacity.addEventListener('input', function() {
-            currentBgOpacity = parseInt(this.value) / 100;
-        });
-    }
-    
-    if (applyBgBtn) {
-        applyBgBtn.addEventListener('click', applyAnimatedBg);
-    }
-}
-
-
-function applyAnimatedBg() {
-    const bgElement = document.getElementById('animated-bg');
-    if (!bgElement) return;
-
-    allBackgrounds.forEach(bg => {
-        bgElement.classList.remove(`${bg}-bg`);
-    });
-    
-    
-    bgElement.classList.add(`${currentAnimatedBg}-bg`);
-    
-
-    const speed = currentBgSpeed / 10;
-    bgElement.style.animationDuration = `${20 / speed}s`;
-    
-    
-    bgElement.style.opacity = currentBgOpacity;
-    
- 
-    localStorage.setItem('fame_animated_bg', currentAnimatedBg);
-    localStorage.setItem('fame_bg_speed', currentBgSpeed);
-    localStorage.setItem('fame_bg_opacity', currentBgOpacity);
-    
-    console.log('Фон применен:', currentAnimatedBg);
 }
 
 
 function initModals() {
-    console.log('Инициализация модальных окон...');
-    
     document.querySelectorAll('.close-modal').forEach(btn => {
         btn.addEventListener('click', function() {
             closeModal(this.closest('.modal'));
@@ -1824,101 +1787,30 @@ function initModals() {
             closeModal(event.target);
         }
     });
-    
-    console.log('Модальные окна инициализированы');
 }
-
 
 function openModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
-        console.log('Модальное окно открыто:', modalId);
-    } else {
-        console.error('Модальное окно не найдено:', modalId);
     }
 }
-
 
 function closeModal(modal) {
     if (modal) {
         modal.classList.remove('active');
         document.body.style.overflow = 'auto';
-        console.log('Модальное окно закрыто');
     }
 }
 
 
 function loadSavedSettings() {
-    console.log('Загрузка сохраненных настроек...');
-   
-    const savedTheme = localStorage.getItem('fame_theme') || 'black'; 
-    if (savedTheme) {
-        const themeOption = document.querySelector(`.theme-option[data-theme="${savedTheme}"]`);
-        if (themeOption) {
-            themeOption.click();
-        } else {
-          
-            applyTheme('black');
-        }
-    } else {
-     
-        applyTheme('black');
-    }
-    
-   
-    const savedBg = localStorage.getItem('fame_background');
-    if (savedBg) {
-        document.body.style.backgroundImage = `url(${savedBg})`;
-        document.body.style.backgroundSize = 'cover';
-        document.body.style.backgroundAttachment = 'fixed';
-        document.body.style.backgroundPosition = 'center';
-    }
-    
-   
-    const savedNeonColor = localStorage.getItem('fame_neon_color') || '#808080';
-    const savedNeonIntensity = parseFloat(localStorage.getItem('fame_neon_intensity')) || 0.5;
-    const savedNeonSpeed = parseInt(localStorage.getItem('fame_neon_speed')) || 5;
-    
-    const neonColor = document.getElementById('neon-color');
-    const neonIntensity = document.getElementById('neon-intensity');
-    const neonSpeed = document.getElementById('neon-speed');
-    
-    if (neonColor) neonColor.value = savedNeonColor;
-    if (neonIntensity) neonIntensity.value = savedNeonIntensity * 100;
-    if (neonSpeed) neonSpeed.value = savedNeonSpeed;
-    
-    applyNeonSettings(savedNeonColor, savedNeonIntensity, savedNeonSpeed);
-         
-    const savedNeonFlow = localStorage.getItem('fame_neon_flow');
-    const neonFlowCheckbox = document.getElementById('neon-flow-effect');
-    if (neonFlowCheckbox) {
-        if (savedNeonFlow === 'disabled') {
-            neonFlowCheckbox.checked = false;
-            removeNeonFlow();
-        } else {
-            neonFlowCheckbox.checked = true;
-        }
-    }
-    
-   
-    const savedSnow = localStorage.getItem('fame_snow');
-    const snowCheckbox = document.getElementById('snow-effect');
-    if (snowCheckbox) {
-        if (savedSnow === 'disabled') {
-            snowCheckbox.checked = false;
-            const snowContainer = document.querySelector('.snow-container');
-            if (snowContainer) snowContainer.style.display = 'none';
-        } else {
-            snowCheckbox.checked = true;
-        }
-    }
+    const savedTheme = localStorage.getItem('fame_theme') || 'black';
+    applyTheme(savedTheme);
 }
 
 function applyTheme(theme) {
-    currentTheme = theme;
-    
     const themeClasses = ['dark-theme', 'black-theme', 'red-theme', 'red-black-theme', 
                          'red-gray-theme', 'purple-theme', 'blue-theme', 'green-theme', 
                          'orange-theme', 'pink-theme'];
@@ -1930,26 +1822,17 @@ function applyTheme(theme) {
 }
 
 
-window.copyProfileLink = function(username) {
+function copyProfileLink(username) {
     const link = `https://t.me/NOOLSHY?text=Профиль%20${encodeURIComponent(username)}%20на%20NoolShy%20Fame`;
     navigator.clipboard.writeText(link).then(() => {
-        alert('Ссылка на профиль скопирована в буфер обмена!');
+        showNotification('Ссылка на профиль скопирована в буфер обмена!', 'success');
     });
-};
+}
 
+function initAllAvatars() {
 
-document.getElementById('snow-effect')?.addEventListener('change', function() {
-    localStorage.setItem('fame_snow', this.checked ? 'enabled' : 'disabled');
-});
+}
 
-document.getElementById('neon-flow-effect')?.addEventListener('change', function() {
-    localStorage.setItem('fame_neon_flow', this.checked ? 'enabled' : 'disabled');
-    if (this.checked) {
-        initDynamicNeon();
-    } else {
-        removeNeonFlow();
-    }
-});
 
 function switchSection(sectionId) {
     console.log('Переключение секции:', sectionId);
@@ -1969,4 +1852,14 @@ function switchSection(sectionId) {
             tab.classList.add('active');
         }
     });
+    
+    document.querySelectorAll('.menu-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.section === sectionId) {
+            item.classList.add('active');
+        }
+    });
+    
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }

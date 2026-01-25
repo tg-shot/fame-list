@@ -891,12 +891,23 @@ async function loadApplications() {
         
         try {
             applications = await getTelegramApplications();
-            console.log('Заявки из Telegram:', applications.length);
             
-            if (applications.length === 0) {
-                applications = JSON.parse(localStorage.getItem('fame_applications') || '[]');
+            const cache = {
+                data: applications,
+                timestamp: Date.now()
+            };
+            localStorage.setItem('fame_applications_cache', JSON.stringify(cache));
+        } catch (telegramError) {
+            const cache = localStorage.getItem('fame_applications_cache');
+            if (cache) {
+                const cacheData = JSON.parse(cache);
+                if (Date.now() - cacheData.timestamp < 5 * 60 * 1000) {
+                    applications = cacheData.data;
+                }
             }
-        } catch (globalError) {
+        }
+        
+        if (applications.length === 0) {
             applications = JSON.parse(localStorage.getItem('fame_applications') || '[]');
         }
         
@@ -934,7 +945,10 @@ async function loadApplications() {
             document.querySelectorAll('.application-card').forEach(card => {
                 card.addEventListener('click', function() {
                     const appId = this.dataset.id;
-                    const application = applications.find(app => app.telegram_message_id.toString() === appId);
+                    const application = applications.find(app => 
+                        app.telegram_message_id && 
+                        app.telegram_message_id.toString() === appId.toString()
+                    );
                     if (application) showApplicationDetails(application);
                 });
             });
@@ -943,7 +957,19 @@ async function loadApplications() {
                 btn.addEventListener('click', function(e) {
                     e.stopPropagation();
                     const appId = this.dataset.id;
-                    approveApplication(appId);
+                    const application = applications.find(app => 
+                        app.telegram_message_id && 
+                        app.telegram_message_id.toString() === appId.toString()
+                    );
+                    if (application) {
+                        approveApplication(
+                            application.telegram_message_id,
+                            application.user_id,
+                            application.nickname,
+                            application.telegram,
+                            application.category
+                        );
+                    }
                 });
             });
             
@@ -951,7 +977,19 @@ async function loadApplications() {
                 btn.addEventListener('click', function(e) {
                     e.stopPropagation();
                     const appId = this.dataset.id;
-                    rejectApplication(appId);
+                    const application = applications.find(app => 
+                        app.telegram_message_id && 
+                        app.telegram_message_id.toString() === appId.toString()
+                    );
+                    if (application) {
+                        rejectApplication(
+                            application.telegram_message_id,
+                            application.user_id,
+                            application.nickname,
+                            application.telegram,
+                            application.category
+                        );
+                    }
                 });
             });
             
@@ -959,7 +997,10 @@ async function loadApplications() {
                 btn.addEventListener('click', function(e) {
                     e.stopPropagation();
                     const appId = this.dataset.id;
-                    const application = applications.find(app => app.telegram_message_id.toString() === appId);
+                    const application = applications.find(app => 
+                        app.telegram_message_id && 
+                        app.telegram_message_id.toString() === appId.toString()
+                    );
                     if (application) showApplicationDetails(application);
                 });
             });
@@ -1153,10 +1194,10 @@ function showApplicationDetails(application) {
             
             <div class="modal-actions">
                 ${application.status === 'pending' ? `
-                    <button class="action-btn approve-btn" data-id="${application.telegram_message_id}" onclick="approveApplication('${application.telegram_message_id}', '${application.user_id}', '${application.nickname}', '${application.telegram}', '${application.category}')">
+                    <button class="action-btn approve-btn" onclick="approveApplication('${application.telegram_message_id}', '${application.user_id}', '${application.nickname}', '${application.telegram}', '${application.category}')">
                         <i class="fas fa-check"></i> Принять заявку
                     </button>
-                    <button class="action-btn reject-btn" data-id="${application.telegram_message_id}" onclick="rejectApplication('${application.telegram_message_id}', '${application.user_id}', '${application.nickname}', '${application.telegram}', '${application.category}')">
+                    <button class="action-btn reject-btn" onclick="rejectApplication('${application.telegram_message_id}', '${application.user_id}', '${application.nickname}', '${application.telegram}', '${application.category}')">
                         <i class="fas fa-times"></i> Отклонить заявку
                     </button>
                 ` : ''}

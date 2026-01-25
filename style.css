@@ -1,2872 +1,1770 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-body {
-    background: #121212;
-    color: #e0e0e0;
-    min-height: 100vh;
-    overflow-x: hidden;
-    transition: background 0.3s ease;
-}
-
-
-.snow-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: -1;
-}
-
-.snowflake {
-    position: absolute;
-    background: white;
-    border-radius: 50%;
-    opacity: 0.8;
-    animation: snowfall linear infinite;
-}
-
-@keyframes snowfall {
-    to { transform: translateY(100vh); }
-}
-
-.top-nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 30px;
-    background: rgba(18, 18, 18, 0.95);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid #333;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-}
-
-.nav-left, .nav-center, .nav-right {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-.menu-btn, .nav-icon {
-    background: none;
-    border: none;
-    color: #e0e0e0;
-    font-size: 1.2rem;
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 5px;
-    transition: all 0.3s;
-}
-
-.menu-btn:hover, .nav-icon:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: scale(1.1);
-}
-
-.logo {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #fff;
-}
-
-.nav-center {
-    flex: 1;
-    justify-content: center;
-}
-
-.nav-tab {
-    background: none;
-    border: none;
-    color: #888;
-    padding: 12px 25px;
-    cursor: pointer;
-    border-radius: 25px;
-    transition: all 0.3s;
-    font-size: 1rem;
-    border: 1px solid transparent;
-}
-
-.nav-tab.active {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-    border-color: #666;
-}
-
-.nav-tab:hover:not(.active) {
-    background: rgba(255, 255, 255, 0.05);
-    color: #aaa;
-    border-color: #444;
-}
-
-.channel-link {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    color: #888;
-    padding: 12px 25px;
-    border-radius: 25px;
-    transition: all 0.3s;
-    border: 1px solid transparent;
-}
-
-.channel-link:hover {
-    background: rgba(0, 136, 204, 0.1);
-    color: #0088cc;
-    border-color: rgba(0, 136, 204, 0.3);
-}
-
-
-.apply-btn {
-    padding: 10px 20px;
-    background: linear-gradient(135deg, #2a2a2a, #3a3a3a);
-    border: 1px solid #444;
-    border-radius: 25px;
-    color: #e0e0e0;
-    text-decoration: none;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s;
-    font-size: 0.9rem;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-}
-
-.apply-btn:hover {
-    background: linear-gradient(135deg, #3a3a3a, #4a4a3a);
-    transform: translateY(-3px);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
-    color: #fff;
-    border-color: #666;
-}
-
-.apply-btn-large {
-    padding: 15px 30px;
-    background: linear-gradient(135deg, #2a2a2a, #3a3a3a);
-    border: 1px solid #444;
-    border-radius: 30px;
-    color: #e0e0e0;
-    text-decoration: none;
-    font-weight: bold;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    transition: all 0.3s;
-    font-size: 1.1rem;
-    margin-top: 20px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-}
-
-.apply-btn-large:hover {
-    background: linear-gradient(135deg, #3a3a3a, #4a4a4a);
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-    color: #fff;
-    border-color: #666;
-}
-
-
-.side-menu {
-    position: fixed;
-    top: 0;
-    left: -300px;
-    width: 280px;
-    height: 100vh;
-    background: rgba(20, 20, 20, 0.98);
-    backdrop-filter: blur(20px);
-    z-index: 1000;
-    transition: left 0.3s ease;
-    border-right: 1px solid #333;
-    padding: 20px;
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
-}
-
-.side-menu.active {
-    left: 0;
-}
-
-.menu-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #333;
-}
-
-.menu-header h3 {
-    color: #fff;
-}
-
-.close-menu {
-    background: none;
-    border: none;
-    color: #aaa;
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 5px;
-    transition: all 0.3s;
-}
-
-.close-menu:hover {
-    color: #fff;
-    transform: rotate(90deg);
-}
-
-.menu-items {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.menu-item {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    padding: 15px;
-    color: #aaa;
-    text-decoration: none;
-    border-radius: 10px;
-    transition: all 0.3s;
-    border: none;
-    background: none;
-    cursor: pointer;
-    font-size: 1rem;
-}
-
-.menu-item:hover, .menu-item.active {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-    transform: translateX(5px);
-}
-
-
-.section {
-    display: none;
-    padding: 30px;
-    min-height: calc(100vh - 70px);
-}
-
-.section.active-section {
-    display: block;
-    animation: fadeIn 0.5s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-
-.search-container {
-    background: rgba(25, 25, 25, 0.9);
-    border-radius: 15px;
-    padding: 25px;
-    margin-bottom: 30px;
-    border: 1px solid #333;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-}
-
-.search-box {
-    position: relative;
-    margin-bottom: 20px;
-}
-
-.search-box i {
-    position: absolute;
-    left: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #666;
-}
-
-.search-box input {
-    width: 100%;
-    padding: 15px 15px 15px 50px;
-    background: #1a1a1a;
-    border: 1px solid #333;
-    border-radius: 25px;
-    color: #fff;
-    font-size: 1rem;
-    transition: all 0.3s;
-}
-
-.search-box input:focus {
-    outline: none;
-    border-color: #666;
-    box-shadow: 0 0 15px rgba(102, 102, 102, 0.3);
-}
-
-.filter-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.filter-btn {
-    padding: 10px 20px;
-    background: #1a1a1a;
-    border: 1px solid #333;
-    border-radius: 25px;
-    color: #888;
-    cursor: pointer;
-    transition: all 0.3s;
-    font-size: 0.9rem;
-}
-
-.filter-btn.active, .filter-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-    border-color: #666;
-    transform: translateY(-2px);
-}
-
-
-.members-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 20px;
-}
-
-.member-card {
-    background: rgba(25, 25, 25, 0.9);
-    border-radius: 15px;
-    padding: 25px;
-    border: 1px solid #333;
-    transition: all 0.4s;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-}
-
-.member-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, #666, transparent);
-}
-
-.member-card:hover {
-    transform: translateY(-10px) scale(1.02);
-    border-color: #666;
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
-}
-
-.member-card.pinned::after {
-    content: '📌';
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    font-size: 1rem;
-    opacity: 0.7;
-}
-
-.member-card.verified::before {
-    content: '✓';
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    width: 25px;
-    height: 25px;
-    background: rgba(0, 170, 0, 0.2);
-    color: #0f0;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.9rem;
-    font-weight: bold;
-    border: 1px solid #0f0;
-}
-
-.member-card.scam {
-    border-color: #ff4444;
-    background: rgba(255, 50, 50, 0.05);
-}
-
-.member-card.scam::before {
-    content: '⚠️';
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    width: 25px;
-    height: 25px;
-    background: rgba(255, 50, 50, 0.2);
-    color: #ff4444;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.9rem;
-    font-weight: bold;
-    border: 1px solid #ff4444;
-    animation: warningPulse 1.5s infinite;
-}
-
-.member-card.scam .member-role {
-    background: rgba(255, 50, 50, 0.1);
-    color: #ff6666;
-    border-color: #ff4444;
-}
-
-.member-card.scam .member-badges {
-    color: #ff6666;
-}
-
-.member-avatar {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    background: #2a2a2a;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 20px;
-    overflow: hidden;
-    border: 2px solid #333;
-    transition: all 0.3s;
-    position: relative;
-}
-
-.member-avatar img,
-.profile-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: all 0.3s;
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-    -ms-interpolation-mode: bicubic;
-}
-
-.member-card:hover .member-avatar {
-    border-color: #666;
-}
-
-.member-card:hover .member-avatar img {
-    transform: scale(1.1);
-}
-
-.member-avatar::after,
-.profile-avatar::after {
-    content: attr(data-initial);
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 60%;
-    height: 60%;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-weight: bold;
-    font-size: 1.5rem;
-    z-index: -1;
-    opacity: 0;
-    transition: opacity 0.3s;
-}
-
-.member-card:hover .member-avatar::after,
-.profile-header:hover .profile-avatar::after {
-    opacity: 1;
-}
-
-img.avatar-fallback {
-    background: linear-gradient(135deg, #2a2a2a, #3a3a3a) !important;
-}
-
-@keyframes avatarPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-}
-
-.member-card.loading .member-avatar,
-.profile-header.loading .profile-avatar {
-    animation: avatarPulse 2s ease-in-out infinite;
-}
-
-.member-info h3 {
-    color: #fff;
-    margin-bottom: 10px;
-    font-size: 1.3rem;
-}
-
-.member-role {
-    display: inline-block;
-    padding: 5px 15px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 15px;
-    font-size: 0.85rem;
-    color: #aaa;
-    margin-bottom: 15px;
-    border: 1px solid #333;
-}
-
-.member-description {
-    color: #888;
-    font-size: 0.9rem;
-    line-height: 1.6;
-    margin-bottom: 20px;
-    max-height: 70px;
-    overflow: hidden;
-}
-
-.member-badges {
-    margin-top: 10px;
-    font-size: 12px;
-    color: #666;
-}
-
-
-.profile-header {
-    background: rgba(25, 25, 25, 0.95);
-    border-radius: 20px;
-    padding: 40px;
-    margin-bottom: 30px;
-    border: 1px solid #333;
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
-    position: relative;
-    overflow: hidden;
-}
-
-.profile-header::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, #666, transparent);
-}
-
-.profile-avatar {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    background: #2a2a2a;
-    margin-bottom: 25px;
-    overflow: hidden;
-    border: 3px solid #333;
-    position: relative;
-}
-
-.profile-title {
-    color: #fff;
-    font-size: 1.8rem;
-    margin-bottom: 10px;
-}
-
-.profile-username {
-    color: #888;
-    font-size: 1.1rem;
-    margin-bottom: 20px;
-}
-
-.profile-badges {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-}
-
-.badge {
-    padding: 6px 15px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    font-size: 0.85rem;
-    color: #aaa;
-    border: 1px solid #333;
-}
-
-.badge.verified {
-    background: rgba(0, 170, 0, 0.1);
-    color: #0f0;
-    border-color: #0f0;
-}
-
-.badge.pinned {
-    background: rgba(170, 85, 0, 0.1);
-    color: #fa0;
-    border-color: #fa0;
-}
-
-.badge.category {
-.badge.scam {
-    background: rgba(255, 50, 50, 0.15);
-    color: #ff4444;
-    border-color: #ff4444;
-    position: relative;
-    overflow: hidden;
-}
-
-.badge.scam::after {
-    content: '⚠️';
-    margin-left: 5px;
-    animation: warningPulse 1.5s infinite;
-}
-
-@keyframes warningPulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-}
-    background: rgba(102, 102, 255, 0.1);
-    color: #66f;
-    border-color: #66f;
-}
-
-.profile-actions {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-    margin-top: 30px;
-}
-
-.action-btn {
-    padding: 12px 25px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid #333;
-    border-radius: 25px;
-    color: #fff;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    transition: all 0.3s;
-    font-size: 0.95rem;
-    cursor: pointer;
-    font-family: inherit;
-}
-
-.action-btn.telegram {
-    background: rgba(0, 136, 204, 0.1);
-    border-color: rgba(0, 136, 204, 0.3);
-    color: #0088cc;
-}
-
-.action-btn.telegram:hover {
-    background: rgba(0, 136, 204, 0.2);
-}
-
-.action-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: #666;
-    transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-}
-
-.profile-content {
-    display: grid;
-    grid-template-columns: 1fr 300px;
-    gap: 30px;
-}
-
-.profile-description {
-    background: rgba(25, 25, 25, 0.95);
-    border-radius: 20px;
-    padding: 40px;
-    margin-bottom: 30px;
-    border: 1px solid #333;
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
-}
-
-.profile-description h3 {
-    color: #fff;
-    margin-bottom: 20px;
-    font-size: 1.4rem;
-}
-
-.profile-description p {
-    color: #888;
-    line-height: 1.8;
-    font-size: 1rem;
-}
-
-.profile-stats {
-    background: rgba(25, 25, 25, 0.95);
-    border-radius: 20px;
-    padding: 30px;
-    border: 1px solid #333;
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
-    height: fit-content;
-}
-
-.stat-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 0;
-    border-bottom: 1px solid #333;
-}
-
-.stat-item:last-child {
-    border-bottom: none;
-}
-
-.stat-label {
-    color: #aaa;
-}
-
-.stat-value {
-    color: #fff;
-    font-weight: bold;
-}
-
-
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.9);
-    z-index: 2000;
-    align-items: center;
-    justify-content: center;
-}
-
-.modal.active {
-    display: flex;
-    animation: fadeIn 0.3s ease;
-}
-
-.modal-content {
-    background: rgba(20, 20, 20, 0.98);
-    backdrop-filter: blur(20px);
-    border-radius: 20px;
-    width: 90%;
-    max-width: 900px;
-    max-height: 90vh;
-    overflow-y: auto;
-    border: 1px solid #333;
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 25px 30px;
-    border-bottom: 1px solid #333;
-}
-
-.modal-header h2 {
-    color: #fff;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.close-modal {
-    background: none;
-    border: none;
-    color: #aaa;
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 5px;
-    transition: all 0.3s;
-}
-
-.close-modal:hover {
-    color: #fff;
-    transform: rotate(90deg);
-}
-
-
-.settings-tabs {
-    display: flex;
-    padding: 0 30px;
-    border-bottom: 1px solid #333;
-    flex-wrap: wrap;
-}
-
-.settings-tab {
-    padding: 15px 25px;
-    background: none;
-    border: none;
-    color: #888;
-    cursor: pointer;
-    border-bottom: 3px solid transparent;
-    transition: all 0.3s;
-    font-size: 0.95rem;
-    white-space: nowrap;
-}
-
-.settings-tab.active {
-    color: #fff;
-    border-bottom-color: #666;
-}
-
-.settings-content {
-    padding: 30px;
-}
-
-.tab-content {
-    display: none;
-}
-
-.tab-content.active {
-    display: block;
-}
-
-
-.neon-controls {
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-    margin-top: 20px;
-}
-
-.control-group {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.control-group label {
-    color: #aaa;
-    font-size: 0.95rem;
-}
-
-#neon-color {
-    width: 100%;
-    height: 40px;
-    border: 1px solid #333;
-    border-radius: 8px;
-    background: #1a1a1a;
-    cursor: pointer;
-}
-
-.color-preview {
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
-    border: 2px solid #333;
-    margin-top: 5px;
-    align-self: flex-start;
-}
-
-input[type="range"] {
-    width: 100%;
-    height: 8px;
-    background: #1a1a1a;
-    border-radius: 4px;
-    outline: none;
-    -webkit-appearance: none;
-}
-
-input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 20px;
-    height: 20px;
-    background: #666;
-    border-radius: 50%;
-    cursor: pointer;
-    border: 2px solid #888;
-}
-
-input[type="range"]::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    background: #666;
-    border-radius: 50%;
-    cursor: pointer;
-    border: 2px solid #888;
-}
-
-.neon-apply-btn {
-    padding: 15px 30px;
-    background: rgba(102, 102, 255, 0.1);
-    border: 1px solid rgba(102, 102, 255, 0.3);
-    border-radius: 25px;
-    color: #66f;
-    cursor: pointer;
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: all 0.3s;
-    margin-top: 10px;
-}
-
-.neon-apply-btn:hover {
-    background: rgba(102, 102, 255, 0.2);
-    transform: translateY(-3px);
-}
-
-
-.theme-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 15px;
-    margin-top: 20px;
-}
-
-.theme-option {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    padding: 15px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.3s;
-    border: 2px solid transparent;
-}
-
-.theme-option.active, .theme-option:hover {
-    border-color: #666;
-    background: rgba(255, 255, 255, 0.1);
-    transform: translateY(-5px);
-}
-
-.theme-preview {
-    width: 100%;
-    height: 60px;
-    border-radius: 5px;
-    border: 1px solid #333;
-}
-
-.dark-theme { background: linear-gradient(135deg, #1a1a1a, #2a2a2a); }
-.black-theme { background: linear-gradient(135deg, #000, #111); }
-.red-theme { background: linear-gradient(135deg, #330000, #440000); }
-.red-black-theme { background: linear-gradient(135deg, #330000, #000); }
-.red-gray-theme { background: linear-gradient(135deg, #330000, #333); }
-.purple-theme { background: linear-gradient(135deg, #330033, #440044); }
-.blue-theme { background: linear-gradient(135deg, #000033, #000044); }
-.green-theme { background: linear-gradient(135deg, #003300, #004400); }
-.orange-theme { background: linear-gradient(135deg, #331a00, #442200); }
-.pink-theme { background: linear-gradient(135deg, #330033, #440044); }
-
-
-.background-upload {
-    margin-top: 20px;
-}
-
-.upload-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 15px 30px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid #333;
-    border-radius: 25px;
-    color: #fff;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.upload-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: #666;
-    transform: translateY(-3px);
-}
-
-.bg-preview {
-    margin-top: 20px;
-    width: 100%;
-    height: 200px;
-    background: #1a1a1a;
-    border-radius: 10px;
-    overflow: hidden;
-    display: none;
-    border: 1px solid #333;
-}
-
-.bg-preview img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-
-.effect-option {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-    margin-top: 15px;
-    border: 1px solid #333;
-}
-
-.effect-info h4 {
-    color: #fff;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 5px;
-}
-
-.effect-info p {
-    color: #888;
-    font-size: 0.9rem;
-}
-
-.switch {
-    position: relative;
-    display: inline-block;
-    width: 60px;
-    height: 30px;
-}
-
-.switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #333;
-    transition: .4s;
-    border-radius: 34px;
-    border: 1px solid #444;
-}
-
-.slider:before {
-    position: absolute;
-    content: "";
-    height: 22px;
-    width: 22px;
-    left: 4px;
-    bottom: 3px;
-    background-color: #888;
-    transition: .4s;
-    border-radius: 50%;
-}
-
-input:checked + .slider {
-    background-color: rgba(102, 102, 102, 0.3);
-}
-
-input:checked + .slider:before {
-    transform: translateX(26px);
-    background-color: #fff;
-}
-
-
-.faq-content {
-    background: rgba(25, 25, 25, 0.95);
-    border-radius: 20px;
-    padding: 40px;
-    text-align: center;
-    border: 1px solid #333;
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
-}
-
-.faq-content h2 {
-    margin-bottom: 20px;
-}
-
-.faq-content p {
-    color: #888;
-    margin-bottom: 30px;
-    font-size: 1.1rem;
-}
-
-.profile-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 15px 30px;
-    background: rgba(0, 136, 204, 0.1);
-    color: #0088cc;
-    text-decoration: none;
-    border-radius: 25px;
-    transition: all 0.3s;
-    border: 1px solid rgba(0, 136, 204, 0.3);
-    font-size: 1.1rem;
-}
-
-.profile-link:hover {
-    background: rgba(0, 136, 204, 0.2);
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 136, 204, 0.2);
-}
-
-.price-info {
-    margin-top: 30px;
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 15px;
-    border: 1px solid #333;
-}
-
-.price-info h3 {
-    color: #fff;
-    margin-bottom: 15px;
-}
-
-.price-info p {
-    margin: 10px 0;
-    font-size: 1rem;
-}
-
-.price-info strong {
-    color: #0f0;
-}
-
-.apply-section {
-    margin-top: 30px;
-    padding: 25px;
-    background: rgba(255, 51, 102, 0.1);
-    border-radius: 15px;
-    border: 1px solid rgba(255, 51, 102, 0.3);
-    text-align: center;
-}
-
-.apply-section h3 {
-    color: #ff6699;
-    margin-bottom: 20px;
-    font-size: 1.3rem;
-}
-
-
-@media (max-width: 1100px) {
-    .profile-content {
-        grid-template-columns: 1fr;
+let currentUser = null;
+const ADMIN_ID = '287265398';
+
+const ENCRYPT_MAP = {
+    '1': 'A', '2': 'B', '3': 'C', '4': 'D', '5': 'E',
+    '6': 'F', '7': 'G', '8': 'H', '9': 'I', '0': 'J',
+    'a': 'K', 'b': 'L', 'c': 'M', 'd': 'N', 'e': 'O',
+    'f': 'P', 'g': 'Q', 'h': 'R', 'i': 'S', 'j': 'T',
+    'k': 'U', 'l': 'V', 'm': 'W', 'n': 'X', 'o': 'Y',
+    'p': 'Z', 'q': '1', 'r': '2', 's': '3', 't': '4',
+    'u': '5', 'v': '6', 'w': '7', 'x': '8', 'y': '9',
+    'z': '0'
+};
+
+const DECRYPT_MAP = {};
+for (const [key, value] of Object.entries(ENCRYPT_MAP)) {
+    DECRYPT_MAP[value] = key;
+    DECRYPT_MAP[value.toLowerCase()] = key;
+}
+
+function encryptText(text) {
+    let encrypted = "";
+    for (let char of text) {
+        const lowerChar = char.toLowerCase();
+        if (ENCRYPT_MAP[lowerChar]) {
+            let encryptedChar = ENCRYPT_MAP[lowerChar];
+            if (char === char.toUpperCase() && char !== char.toLowerCase()) {
+                encrypted += encryptedChar.toUpperCase();
+            } else {
+                encrypted += encryptedChar;
+            }
+        } else {
+            encrypted += char;
+        }
+    }
+    return encrypted;
+}
+
+function decryptText(encryptedText) {
+    let decrypted = "";
+    for (let char of encryptedText) {
+        if (DECRYPT_MAP[char]) {
+            let decryptedChar = DECRYPT_MAP[char];
+            if (char === char.toUpperCase() && char !== char.toLowerCase()) {
+                decrypted += decryptedChar.toUpperCase();
+            } else {
+                decrypted += decryptedChar;
+            }
+        } else {
+            decrypted += char;
+        }
+    }
+    return decrypted;
+}
+
+function decodeSecureToken(encodedToken) {
+    try {
+        const decoded = atob(encodedToken);
+        const decrypted = decryptText(decoded);
+        const userData = JSON.parse(decrypted);
+        return userData;
+    } catch (error) {
+        console.error('Ошибка декодирования защищенного токена:', error);
+        try {
+            const decrypted = decryptText(encodedToken);
+            const parts = decrypted.split('_');
+            if (parts.length >= 2) {
+                return {
+                    id: parts[0],
+                    username: parts[1] || '',
+                    first_name: parts[2] || '',
+                    last_name: parts[3] || '',
+                    timestamp: parts[4] || new Date().toISOString()
+                };
+            }
+        } catch (e) {
+            console.error('Ошибка обработки старого формата:', e);
+        }
+        return null;
     }
 }
 
-@media (max-width: 768px) {
-    .nav-center {
-        display: none;
+function testEncryption() {
+    console.log('Тестирование системы шифрования:');
+    const testCases = [
+        { input: '287265398', expected: 'BHGBFECIH' },
+        { input: 'tooIku', expected: '4YYIU5' },
+        { input: 'test123', expected: '4O34ABC' },
+        { input: 'hello', expected: 'ROVVY' }
+    ];
+    
+    testCases.forEach(test => {
+        const encrypted = encryptText(test.input);
+        const passed = encrypted === test.expected;
+        console.log(`"${test.input}" → "${encrypted}" ${passed ? '✅' : '❌'}`);
+    });
+    
+    const fullExample = '287265398_tooIku_шот_';
+    const encryptedFull = encryptText(fullExample);
+    console.log(`Пример: "${fullExample}" → "${encryptedFull}"`);
+    console.log(`Совпадает: ${encryptedFull === 'BHGBFECIH_4YYIU5_шот_' ? '✅' : '❌'}`);
+}
+
+function initAuthSystem() {
+    console.log('Инициализация системы авторизации с шифрованием...');
+    testEncryption();
+    checkUrlToken();
+    
+    const savedUser = localStorage.getItem('fame_current_user');
+    if (savedUser) {
+        try {
+            currentUser = JSON.parse(savedUser);
+            updateUserInterface();
+        } catch (e) {
+            console.error('Ошибка загрузки пользователя:', e);
+            localStorage.removeItem('fame_current_user');
+        }
     }
     
-    .top-nav {
-        padding: 15px;
+    const authBtn = document.getElementById('auth-btn');
+    if (authBtn) authBtn.addEventListener('click', openAuthModal);
+    
+    const tokenSubmitBtn = document.getElementById('token-submit-btn');
+    if (tokenSubmitBtn) tokenSubmitBtn.addEventListener('click', loginWithToken);
+    
+    const demoLoginBtn = document.getElementById('demo-login-btn');
+    if (demoLoginBtn) demoLoginBtn.addEventListener('click', demoLogin);
+    
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) logoutBtn.addEventListener('click', logout);
+    
+    const sideLogout = document.getElementById('side-logout');
+    if (sideLogout) sideLogout.addEventListener('click', logout);
+    
+    const myProfileBtn = document.getElementById('my-profile-btn');
+    if (myProfileBtn) myProfileBtn.addEventListener('click', showMyProfile);
+    
+    const sideMyProfile = document.getElementById('side-my-profile');
+    if (sideMyProfile) sideMyProfile.addEventListener('click', showMyProfile);
+    
+    const settingsProfileBtn = document.getElementById('settings-profile-btn');
+    if (settingsProfileBtn) settingsProfileBtn.addEventListener('click', openProfileSettings);
+    
+    const sideSettings = document.getElementById('side-settings');
+    if (sideSettings) sideSettings.addEventListener('click', openProfileSettings);
+    
+    const adminPanelBtn = document.getElementById('admin-panel-btn');
+    if (adminPanelBtn) adminPanelBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        showAdminPanel();
+    });
+    
+    const sideAdminPanel = document.getElementById('side-admin-panel');
+    if (sideAdminPanel) sideAdminPanel.addEventListener('click', function(e) {
+        e.preventDefault();
+        showAdminPanel();
+        const sideMenu = document.getElementById('side-menu');
+        if (sideMenu) sideMenu.classList.remove('active');
+    });
+    
+    const saveProfileBtn = document.getElementById('save-profile-btn');
+    if (saveProfileBtn) saveProfileBtn.addEventListener('click', saveProfileSettings);
+    
+    const profileToggle = document.getElementById('profile-toggle');
+    if (profileToggle) {
+        profileToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const dropdown = document.getElementById('dropdown-menu');
+            if (dropdown) dropdown.classList.toggle('show');
+        });
     }
     
-    .section {
-        padding: 15px;
+    document.addEventListener('click', function(event) {
+        if (!event.target.closest('.profile-dropdown')) {
+            closeAllDropdowns();
+        }
+    });
+}
+
+function isAdmin() {
+    return currentUser && currentUser.id.toString() === ADMIN_ID;
+}
+
+function checkUrlToken() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    if (token) {
+        console.log('Найден токен в URL:', token.substring(0, 30) + '...');
+        processTelegramLogin(token);
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+    }
+}
+
+function loginWithToken() {
+    const tokenInput = document.getElementById('token-input');
+    const token = tokenInput.value.trim();
+    if (!token) {
+        showNotification('Введите токен из Telegram бота', 'error');
+        return;
+    }
+    console.log('Ввод токена:', token.substring(0, 30) + '...');
+    processTelegramLogin(token);
+    tokenInput.value = '';
+}
+
+function processTelegramLogin(token) {
+    try {
+        console.log('Обработка токена...');
+        let userData = null;
+        userData = decodeSecureToken(token);
+        
+        if (!userData) {
+            const decrypted = decryptText(token);
+            const parts = decrypted.split('_');
+            if (parts.length >= 2) {
+                userData = {
+                    id: parts[0],
+                    username: parts[1] || '',
+                    first_name: parts[2] || '',
+                    last_name: parts[3] || ''
+                };
+            } else {
+                const oldParts = token.split('_');
+                if (oldParts.length >= 2) {
+                    userData = {
+                        id: oldParts[0],
+                        username: oldParts[1] || '',
+                        first_name: oldParts[2] || '',
+                        last_name: oldParts[3] || ''
+                    };
+                } else {
+                    throw new Error('Неверный формат токена');
+                }
+            }
+        }
+        
+        console.log('Данные пользователя:', userData);
+        currentUser = {
+            id: userData.id,
+            first_name: userData.first_name || '',
+            last_name: userData.last_name || '',
+            username: userData.username || '',
+            auth_date: Math.floor(Date.now() / 1000),
+            hash: token,
+            token_type: userData.timestamp ? 'secure' : (decryptText(token) !== token ? 'encrypted' : 'plain'),
+            profile: {
+                nickname: (userData.first_name || '') + (userData.last_name ? ' ' + userData.last_name : ''),
+                bio: '',
+                notifications: true,
+                joined: new Date().toISOString().split('T')[0]
+            }
+        };
+        
+        getTelegramAvatar(userData.id, userData.username).then(avatarUrl => {
+            if (avatarUrl) currentUser.photo_url = avatarUrl;
+            completeLogin();
+        }).catch(() => {
+            completeLogin();
+        });
+        
+    } catch (error) {
+        console.error('Ошибка обработки токена:', error);
+        showNotification('Неверный формат токена. Получите новый через @noolshy_test_bot', 'error');
+    }
+}
+
+async function getTelegramAvatar(userId, username) {
+    try {
+        if (username) {
+            return `https://t.me/i/userpic/320/${username.replace('@', '')}.jpg`;
+        }
+        return null;
+    } catch (error) {
+        return null;
+    }
+}
+
+function completeLogin() {
+    generateColorAvatar(currentUser);
+    saveUser();
+    updateUserInterface();
+    closeModal(document.getElementById('auth-modal'));
+    const tokenType = currentUser.token_type === 'secure' ? 'защищенный' : 
+                     currentUser.token_type === 'encrypted' ? 'зашифрованный' : 'обычный';
+    showNotification(`Успешный вход! Использован ${tokenType} токен`, 'success');
+}
+
+function generateColorAvatar(user) {
+    if (!user.photo_url) {
+        const name = user.first_name || user.profile?.nickname || 'User';
+        const initials = name.charAt(0).toUpperCase();
+        const colors = [
+            '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+            '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
+        ];
+        let hash = 0;
+        for (let i = 0; i < name.length; i++) {
+            hash = name.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const color = colors[Math.abs(hash) % colors.length];
+        user.generated_avatar = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="${color}" rx="50"/><text x="50" y="55" text-anchor="middle" font-family="Arial" font-size="40" font-weight="bold" fill="#fff">${initials}</text></svg>`;
+    }
+}
+
+function updateUserInterface() {
+    const authBtn = document.getElementById('auth-btn');
+    const userProfile = document.getElementById('user-profile');
+    const menuAuthSection = document.getElementById('menu-auth-section');
+    const adminPanelBtn = document.getElementById('admin-panel-btn');
+    const sideAdminPanel = document.getElementById('side-admin-panel');
+    
+    if (currentUser) {
+        if (authBtn) authBtn.style.display = 'none';
+        if (userProfile) userProfile.style.display = 'block';
+        if (menuAuthSection) menuAuthSection.style.display = 'block';
+        if (isAdmin()) {
+            if (adminPanelBtn) adminPanelBtn.style.display = 'flex';
+            if (sideAdminPanel) sideAdminPanel.style.display = 'flex';
+        } else {
+            if (adminPanelBtn) adminPanelBtn.style.display = 'none';
+            if (sideAdminPanel) sideAdminPanel.style.display = 'none';
+        }
+        updateUserProfileData();
+    } else {
+        if (authBtn) authBtn.style.display = 'flex';
+        if (userProfile) userProfile.style.display = 'none';
+        if (menuAuthSection) menuAuthSection.style.display = 'none';
+        if (adminPanelBtn) adminPanelBtn.style.display = 'none';
+        if (sideAdminPanel) sideAdminPanel.style.display = 'none';
+    }
+}
+
+function updateUserProfileData() {
+    if (!currentUser) return;
+    
+    const userName = document.getElementById('user-name');
+    const dropdownName = document.getElementById('dropdown-name');
+    const dropdownUsername = document.getElementById('dropdown-username');
+    const dropdownId = document.getElementById('dropdown-id');
+    
+    const displayName = currentUser.profile?.nickname || 
+                       `${currentUser.first_name || ''} ${currentUser.last_name || ''}`.trim() || 
+                       'Пользователь';
+    
+    if (userName) userName.textContent = displayName;
+    if (dropdownName) dropdownName.textContent = displayName;
+    if (dropdownUsername) {
+        dropdownUsername.textContent = currentUser.username ? `@${currentUser.username}` : '';
+    }
+    if (dropdownId) dropdownId.textContent = `ID: ${currentUser.id}`;
+    
+    updateUserAvatar();
+}
+
+function updateUserAvatar() {
+    if (!currentUser) return;
+    
+    const userAvatar = document.getElementById('user-avatar');
+    const dropdownAvatar = document.getElementById('dropdown-avatar');
+    
+    if (currentUser.photo_url) {
+        if (userAvatar) userAvatar.src = currentUser.photo_url;
+        if (dropdownAvatar) dropdownAvatar.src = currentUser.photo_url;
+    } else if (currentUser.generated_avatar) {
+        const avatarSrc = 'data:image/svg+xml;base64,' + btoa(currentUser.generated_avatar);
+        if (userAvatar) userAvatar.src = avatarSrc;
+        if (dropdownAvatar) dropdownAvatar.src = avatarSrc;
+    }
+}
+
+function saveUser() {
+    if (currentUser) {
+        localStorage.setItem('fame_current_user', JSON.stringify(currentUser));
+    }
+}
+
+function demoLogin() {
+    currentUser = {
+        id: 287265398,
+        first_name: "Зорф",
+        last_name: "",
+        username: "tgzorf",
+        auth_date: Math.floor(Date.now() / 1000),
+        hash: "demo_hash_secure",
+        token_type: "demo",
+        photo_url: "https://t.me/i/userpic/320/tgzorf.jpg",
+        profile: {
+            nickname: "Зорф",
+            bio: "Владелец dark Fame и разработчик системы шифрования",
+            notifications: true,
+            joined: new Date().toISOString().split('T')[0]
+        }
+    };
+    generateColorAvatar(currentUser);
+    saveUser();
+    updateUserInterface();
+    closeModal(document.getElementById('auth-modal'));
+    showNotification('Демо-вход как Зорф (Администратор)', 'success');
+}
+
+function logout() {
+    if (confirm('Вы уверены, что хотите выйти?')) {
+        currentUser = null;
+        localStorage.removeItem('fame_current_user');
+        updateUserInterface();
+        showNotification('Вы вышли из системы', 'info');
+        switchSection('main');
+    }
+}
+
+function openAuthModal() {
+    openModal('auth-modal');
+}
+
+function openProfileSettings() {
+    if (!currentUser) {
+        openAuthModal();
+        return;
     }
     
-    .members-grid {
-        grid-template-columns: 1fr;
+    const nicknameInput = document.getElementById('profile-nickname');
+    const bioInput = document.getElementById('profile-bio');
+    const notificationsCheckbox = document.getElementById('notifications-enabled');
+    
+    if (nicknameInput) {
+        nicknameInput.value = currentUser.profile?.nickname || 
+                            `${currentUser.first_name || ''} ${currentUser.last_name || ''}`.trim();
     }
     
-    .filter-buttons {
-        overflow-x: auto;
-        padding-bottom: 10px;
+    if (bioInput) {
+        bioInput.value = currentUser.profile?.bio || '';
     }
     
-    .theme-grid {
-        grid-template-columns: repeat(2, 1fr);
+    if (notificationsCheckbox) {
+        notificationsCheckbox.checked = currentUser.profile?.notifications !== false;
     }
     
-    .profile-header, .profile-description {
-        padding: 25px;
+    closeAllDropdowns();
+    openModal('profile-settings-modal');
+}
+
+function saveProfileSettings() {
+    if (!currentUser) return;
+    
+    const nicknameInput = document.getElementById('profile-nickname');
+    const bioInput = document.getElementById('profile-bio');
+    const notificationsCheckbox = document.getElementById('notifications-enabled');
+    
+    if (!currentUser.profile) {
+        currentUser.profile = {};
     }
     
-    .profile-actions {
-        flex-direction: column;
+    currentUser.profile.nickname = nicknameInput?.value.trim() || '';
+    currentUser.profile.bio = bioInput?.value.trim() || '';
+    currentUser.profile.notifications = notificationsCheckbox?.checked || true;
+    
+    if (!currentUser.profile.joined) {
+        currentUser.profile.joined = new Date().toISOString().split('T')[0];
     }
     
-    .action-btn {
-        width: 100%;
-        justify-content: center;
+    saveUser();
+    updateUserProfileData();
+    
+    closeModal(document.getElementById('profile-settings-modal'));
+    showNotification('Настройки профиля сохранены!', 'success');
+}
+
+function showMyProfile() {
+    if (!currentUser) {
+        openAuthModal();
+        return;
     }
     
-    .modal-content {
-        width: 95%;
-        margin: 10px;
+    const container = document.getElementById('user-profile-container');
+    if (!container) return;
+    
+    const displayName = currentUser.profile?.nickname || 
+                       `${currentUser.first_name || ''} ${currentUser.last_name || ''}`.trim() || 
+                       'Пользователь';
+    
+    const joinDate = currentUser.profile?.joined ? new Date(currentUser.profile.joined) : new Date();
+    const formattedDate = joinDate.toLocaleDateString('ru-RU', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    
+    const isAdminUser = isAdmin();
+    const tokenType = currentUser.token_type === 'secure' ? '🛡️ Защищенный' : 
+                     currentUser.token_type === 'encrypted' ? '🔒 Зашифрованный' : 
+                     currentUser.token_type === 'demo' ? '👑 Демо' : '🔑 Обычный';
+    
+    container.innerHTML = `
+        <div class="user-profile-header">
+            <div class="user-profile-avatar">
+                ${currentUser.photo_url ? 
+                    `<img src="${currentUser.photo_url}" alt="${displayName}">` :
+                    currentUser.generated_avatar ? 
+                        `<img src="data:image/svg+xml;base64,${btoa(currentUser.generated_avatar)}" alt="${displayName}">` :
+                        `<div class="avatar-fallback">${displayName.charAt(0)}</div>`
+                }
+            </div>
+            
+            <div class="user-profile-info">
+                <h1>${displayName}</h1>
+                <div class="profile-badges">
+                    ${isAdminUser ? '<span class="badge verified">👑 Администратор</span>' : ''}
+                    <span class="badge" style="background: rgba(108, 99, 255, 0.2); color: #6c63ff;">${tokenType} токен</span>
+                </div>
+                <p><strong>Telegram ID:</strong> ${currentUser.id}</p>
+                <p><strong>Username:</strong> @${currentUser.username || 'не указан'}</p>
+                <p><strong>Дата регистрации:</strong> ${formattedDate}</p>
+                
+                <div class="user-profile-stats">
+                    <div class="stat-box">
+                        <span class="stat-number">🔐</span>
+                        <span class="stat-label">Токен</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">${isAdminUser ? '👑' : '✓'}</span>
+                        <span class="stat-label">${isAdminUser ? 'Админ' : 'Верифицирован'}</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">🛡️</span>
+                        <span class="stat-label">Шифрование</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="user-profile-content">
+            <h3>О себе</h3>
+            <p class="user-profile-bio">${currentUser.profile?.bio || 'Пользователь еще не добавил информацию о себе.'}</p>
+            
+            <div class="profile-settings-info" style="margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                <h4>🔐 Информация о токене:</h4>
+                <p><strong>Тип:</strong> ${tokenType}</p>
+                <p><strong>ID пользователя:</strong> ${currentUser.id}</p>
+                <p><strong>Имя:</strong> ${currentUser.first_name || 'Не указано'}</p>
+                <p><strong>Фамилия:</strong> ${currentUser.last_name || 'Не указана'}</p>
+                <p><strong>Дата входа:</strong> ${new Date(currentUser.auth_date * 1000).toLocaleString('ru-RU')}</p>
+            </div>
+            
+            <div class="profile-actions" style="margin-top: 30px;">
+                <button class="action-btn" onclick="openProfileSettings()">
+                    <i class="fas fa-edit"></i> Редактировать профиль
+                </button>
+                <button class="action-btn" onclick="copyProfileLink('${currentUser.username || currentUser.id}')">
+                    <i class="fas fa-share"></i> Поделиться профилем
+                </button>
+                ${isAdminUser ? `
+                    <button class="action-btn" onclick="showAdminPanel()">
+                        <i class="fas fa-shield-alt"></i> Админ-панель
+                    </button>
+                ` : ''}
+                <button class="action-btn" onclick="testMyToken()" style="background: rgba(108, 99, 255, 0.1); border-color: rgba(108, 99, 255, 0.3);">
+                    <i class="fas fa-key"></i> Тест шифрования
+                </button>
+            </div>
+        </div>
+    `;
+    
+    switchSection('user-profile-section');
+    closeAllDropdowns();
+}
+
+function testMyToken() {
+    if (!currentUser || !currentUser.hash) {
+        showNotification('Нет данных токена для теста', 'error');
+        return;
     }
     
-    .member-avatar {
-        width: 60px !important;
-        height: 60px !important;
+    const token = currentUser.hash;
+    let result = '';
+    
+    if (currentUser.token_type === 'secure') {
+        try {
+            const decoded = atob(token);
+            const decrypted = decryptText(decoded);
+            result = `Защищенный токен → ${decrypted.substring(0, 50)}...`;
+        } catch (e) {
+            result = 'Ошибка декодирования защищенного токена';
+        }
+    } else if (currentUser.token_type === 'encrypted') {
+        const decrypted = decryptText(token);
+        result = `Зашифрованный: "${token}" → "${decrypted}"`;
+    } else {
+        result = `Обычный токен: "${token}"`;
     }
     
-    .profile-avatar {
-        width: 100px !important;
-        height: 100px !important;
-    }
+    alert(`Тест токена:\n\n${result}`);
+}
+
+function closeAllDropdowns() {
+    const dropdowns = document.querySelectorAll('.dropdown-menu');
+    dropdowns.forEach(dropdown => {
+        dropdown.classList.remove('show');
+    });
+}
+
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <span>${message}</span>
+        <button class="notification-close">&times;</button>
+    `;
     
-    .member-avatar::after {
-        font-size: 1.2rem;
-    }
-    
-    .apply-btn {
-        padding: 8px 15px;
-        font-size: 0.8rem;
-    }
-    
-    .nav-right {
-        gap: 10px;
-    }
-}
-
-@media (max-width: 480px) {
-    .logo {
-        font-size: 1.2rem;
-    }
-    
-    .search-container {
-        padding: 20px;
-    }
-    
-    .filter-btn {
-        padding: 8px 15px;
-        font-size: 0.8rem;
-    }
-    
-    .member-card {
-        padding: 20px;
-    }
-    
-    .apply-btn {
-        display: none; 
-    }
-    
-    .apply-btn-large {
-        padding: 12px 25px;
-        font-size: 1rem;
-    }
-}
-
-.members-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr); 
-    gap: 15px;
-    padding: 0 10px; 
-}
-
-
-@media (max-width: 1600px) {
-    .members-grid {
-        grid-template-columns: repeat(4, 1fr); 
-    }
-}
-
-@media (max-width: 1200px) {
-    .members-grid {
-        grid-template-columns: repeat(3, 1fr); 
-    }
-}
-
-@media (max-width: 900px) {
-    .members-grid {
-        grid-template-columns: repeat(2, 1fr); 
-    }
-}
-
-@media (max-width: 600px) {
-    .members-grid {
-        grid-template-columns: repeat(2, 1fr); 
-        gap: 10px;
-        padding: 0 5px;
-    }
-}
-
-@media (max-width: 400px) {
-    .members-grid {
-        grid-template-columns: 1fr; 
-    }
-}
-
-
-.member-card {
-    width: 100%;
-    min-height: 250px;
-    display: flex;
-    flex-direction: column;
-    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    position: relative;
-    overflow: hidden;
-}
-
-
-.container {
-    max-width: 100% !important;
-    padding: 0 15px !important;
-    margin: 0 auto !important;
-}
-
-
-.search-container {
-    margin: 0 10px 30px 10px;
-    width: calc(100% - 20px);
-}
-
-
-.filter-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
-    padding: 0 5px;
-}
-
-.filter-btn {
-    flex: 1 1 auto;
-    min-width: 120px;
-    text-align: center;
-    white-space: nowrap;
-}
-
-.auth-btn {
-    padding: 10px 20px;
-    background: linear-gradient(135deg, #0088cc, #006699);
-    border: 1px solid #0088cc;
-    border-radius: 25px;
-    color: #fff;
-    cursor: pointer;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s;
-    font-size: 0.9rem;
-}
-
-.auth-btn:hover {
-    background: linear-gradient(135deg, #0099dd, #0077aa);
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0, 136, 204, 0.4);
-}
-
-
-.user-profile {
-    position: relative;
-}
-
-.profile-toggle {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: none;
-    border: none;
-    color: #fff;
-    cursor: pointer;
-    padding: 5px 10px;
-    border-radius: 20px;
-    transition: all 0.3s;
-}
-
-.profile-toggle:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 2px solid #666;
-    object-fit: cover;
-}
-
-.user-name {
-    font-size: 0.9rem;
-    max-width: 100px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-
-.dropdown-menu {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background: rgba(25, 25, 25, 0.98);
-    backdrop-filter: blur(20px);
-    border: 1px solid #333;
-    border-radius: 10px;
-    min-width: 250px;
-    z-index: 1000;
-    display: none;
-    margin-top: 10px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-}
-
-.profile-dropdown:hover .dropdown-menu,
-.dropdown-menu.show {
-    display: block;
-}
-
-.dropdown-header {
-    padding: 20px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    border-bottom: 1px solid #333;
-}
-
-.dropdown-avatar {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    border: 2px solid #666;
-    object-fit: cover;
-}
-
-.dropdown-user-info {
-    flex: 1;
-}
-
-.dropdown-user-info strong {
-    display: block;
-    color: #fff;
-    margin-bottom: 5px;
-}
-
-.dropdown-user-info small {
-    display: block;
-    color: #888;
-    font-size: 0.85rem;
-}
-
-.dropdown-divider {
-    height: 1px;
-    background: #333;
-    margin: 10px 0;
-}
-
-.dropdown-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 20px;
-    color: #aaa;
-    text-decoration: none;
-    transition: all 0.3s;
-    border: none;
-    background: none;
-    width: 100%;
-    text-align: left;
-    cursor: pointer;
-    font-size: 0.95rem;
-}
-
-.dropdown-item:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-    padding-left: 25px;
-}
-
-.logout-btn {
-    color: #ff4444;
-}
-
-.logout-btn:hover {
-    background: rgba(255, 68, 68, 0.1);
-}
-
-
-.auth-modal {
-    max-width: 500px;
-}
-
-.auth-content {
-    padding: 30px;
-}
-
-.auth-info {
-    margin-bottom: 30px;
-}
-
-.auth-info p {
-    color: #aaa;
-    margin-bottom: 15px;
-    line-height: 1.6;
-}
-
-.auth-info ul {
-    list-style: none;
-    padding-left: 20px;
-    margin: 15px 0;
-}
-
-.auth-info li {
-    color: #aaa;
-    margin-bottom: 8px;
-    position: relative;
-    padding-left: 25px;
-}
-
-.auth-info li:before {
-    content: "✓";
-    position: absolute;
-    left: 0;
-    color: #0f0;
-}
-
-.auth-buttons {
-    text-align: center;
-}
-
-.auth-telegram-btn {
-    padding: 15px 30px;
-    background: linear-gradient(135deg, #0088cc, #006699);
-    border: none;
-    border-radius: 25px;
-    color: #fff;
-    font-size: 1.1rem;
-    font-weight: bold;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    transition: all 0.3s;
-    margin-bottom: 15px;
-}
-
-.auth-telegram-btn:hover {
-    background: linear-gradient(135deg, #0099dd, #0077aa);
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 136, 204, 0.4);
-}
-
-.auth-note {
-    color: #888;
-    font-size: 0.9rem;
-    font-style: italic;
-    margin-bottom: 30px;
-}
-
-.demo-login {
-    margin-top: 30px;
-    padding-top: 30px;
-    border-top: 1px solid #333;
-}
-
-.demo-title {
-    color: #aaa;
-    margin-bottom: 15px;
-    font-size: 0.9rem;
-}
-
-.demo-login-btn {
-    padding: 12px 25px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid #666;
-    border-radius: 25px;
-    color: #aaa;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    transition: all 0.3s;
-}
-
-.demo-login-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: #fff;
-    border-color: #888;
-}
-
-
-.profile-container {
-    background: rgba(25, 25, 25, 0.95);
-    border-radius: 20px;
-    padding: 40px;
-    border: 1px solid #333;
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
-}
-
-.user-profile-header {
-    display: flex;
-    align-items: center;
-    gap: 30px;
-    margin-bottom: 40px;
-    padding-bottom: 30px;
-    border-bottom: 1px solid #333;
-}
-
-.user-profile-avatar {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    border: 3px solid #666;
-    overflow: hidden;
-    position: relative;
-}
-
-.user-profile-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.user-profile-info h1 {
-    color: #fff;
-    font-size: 1.8rem;
-    margin-bottom: 10px;
-}
-
-.user-profile-info p {
-    color: #888;
-    margin-bottom: 5px;
-}
-
-.user-profile-stats {
-    display: flex;
-    gap: 30px;
-    margin-top: 20px;
-}
-
-.stat-box {
-    text-align: center;
-    padding: 15px 25px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-    border: 1px solid #333;
-}
-
-.stat-number {
-    display: block;
-    color: #fff;
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin-bottom: 5px;
-}
-
-.stat-label {
-    color: #888;
-    font-size: 0.9rem;
-}
-
-
-.menu-auth-section {
-    margin: 10px 0;
-}
-
-.menu-divider {
-    height: 1px;
-    background: #333;
-    margin: 15px 0;
-}
-
-
-.profile-settings-content {
-    padding: 30px;
-}
-
-.form-group {
-    margin-bottom: 25px;
-}
-
-.form-group label {
-    display: block;
-    color: #aaa;
-    margin-bottom: 10px;
-    font-size: 0.95rem;
-}
-
-.form-group input,
-.form-group textarea,
-.form-group select {
-    width: 100%;
-    padding: 12px 15px;
-    background: #1a1a1a;
-    border: 1px solid #333;
-    border-radius: 8px;
-    color: #fff;
-    font-size: 1rem;
-    transition: all 0.3s;
-}
-
-.form-group input:focus,
-.form-group textarea:focus,
-.form-group select:focus {
-    outline: none;
-    border-color: #666;
-    box-shadow: 0 0 10px rgba(102, 102, 102, 0.3);
-}
-
-.switch-group {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.form-actions {
-    text-align: center;
-    margin-top: 30px;
-}
-
-.save-profile-btn {
-    padding: 15px 30px;
-    background: linear-gradient(135deg, #2a2a2a, #3a3a3a);
-    border: 1px solid #444;
-    border-radius: 25px;
-    color: #fff;
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: bold;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    transition: all 0.3s;
-}
-
-.save-profile-btn:hover {
-    background: linear-gradient(135deg, #3a3a3a, #4a4a4a);
-    transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-}
-
-
-@media (max-width: 768px) {
-    .user-profile {
-        display: none; 
-    }
-    
-    .auth-btn {
-        padding: 8px 15px;
-        font-size: 0.8rem;
-    }
-    
-    .user-profile-header {
-        flex-direction: column;
-        text-align: center;
-        gap: 20px;
-    }
-    
-    .user-profile-stats {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-    
-    .dropdown-menu {
+    notification.style.cssText = `
         position: fixed;
-        top: auto;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        width: 100%;
-        border-radius: 20px 20px 0 0;
-        margin-top: 0;
-    }
-}
-
-@media (min-width: 769px) {
-    .mobile-only {
-        display: none;
-    }
-}
-
-.token-form {
-    margin-top: 30px;
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-    border: 1px solid #333;
-}
-
-.token-form h3 {
-    color: #fff;
-    margin-bottom: 15px;
-    font-size: 1.1rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.token-form input {
-    width: 100%;
-    padding: 12px 15px;
-    background: #1a1a1a;
-    border: 1px solid #333;
-    border-radius: 8px;
-    color: #fff;
-    font-size: 1rem;
-    transition: all 0.3s;
-}
-
-.token-form input:focus {
-    outline: none;
-    border-color: #666;
-    box-shadow: 0 0 10px rgba(102, 102, 102, 0.3);
-}
-
-
-.qr-content {
-    text-align: center;
-}
-
-.qr-content #qrcode {
-    margin: 0 auto 20px;
-    width: 200px;
-    height: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: white;
-    border-radius: 10px;
-    padding: 10px;
-}
-
-#telegram-link {
-    color: #0088cc;
-    text-decoration: none;
-    word-break: break-all;
-    display: block;
-    padding: 10px;
-    background: rgba(0, 136, 204, 0.1);
-    border-radius: 8px;
-    border: 1px solid rgba(0, 136, 204, 0.3);
-    transition: all 0.3s;
-}
-
-#telegram-link:hover {
-    background: rgba(0, 136, 204, 0.2);
-    transform: translateY(-2px);
-}
-
-
-@media (max-width: 768px) {
-    .token-form {
-        padding: 15px;
-    }
-    
-    .qr-content #qrcode {
-        width: 150px;
-        height: 150px;
-    }
-}
-
-
-.auth-loading {
-    display: none;
-    text-align: center;
-    padding: 20px;
-}
-
-.auth-loading.active {
-    display: block;
-}
-
-.spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid rgba(255, 255, 255, 0.1);
-    border-left-color: #0088cc;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: 0 auto 20px;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-
-.notification-telegram {
-    background: linear-gradient(135deg, #0088cc, #006699) !important;
-    border-left: 4px solid #00aaff;
-}
-
-.notification-success {
-    background: linear-gradient(135deg, #00a854, #008844) !important;
-    border-left: 4px solid #00ff88;
-}
-
-.notification-error {
-    background: linear-gradient(135deg, #ff4444, #cc3333) !important;
-    border-left: 4px solid #ff6666;
-}
-
-
-.telegram-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 4px 10px;
-    background: rgba(0, 136, 204, 0.2);
-    color: #0088cc;
-    border-radius: 12px;
-    font-size: 0.85rem;
-    margin-left: 10px;
-    border: 1px solid rgba(0, 136, 204, 0.3);
-}
-
-.telegram-badge i {
-    font-size: 0.8rem;
-}
-
-.apply-section-form {
-    background: rgba(25, 25, 25, 0.95);
-    border-radius: 20px;
-    padding: 40px;
-    border: 1px solid #333;
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
-    margin: 0 auto;
-    max-width: 1000px;
-}
-
-.apply-section-form h2 {
-    text-align: center;
-    margin-bottom: 20px;
-    color: #fff;
-}
-
-.apply-description {
-    text-align: center;
-    color: #888;
-    margin-bottom: 40px;
-    font-size: 1.1rem;
-    line-height: 1.6;
-}
-
-
-.apply-form {
-    margin-top: 30px;
-}
-
-.form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 40px;
-    margin-bottom: 30px;
-}
-
-@media (max-width: 768px) {
-    .form-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-}
-
-.form-column {
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-}
-
-
-.form-group {
-    margin-bottom: 25px;
-}
-
-.form-group label {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #aaa;
-    margin-bottom: 15px;
-    font-size: 1rem;
-    font-weight: 500;
-}
-
-.form-group label i {
-    color: #666;
-    width: 20px;
-}
-
-.form-group input,
-.form-group textarea,
-.form-group select {
-    width: 100%;
-    padding: 15px 20px;
-    background: #1a1a1a;
-    border: 1px solid #333;
-    border-radius: 10px;
-    color: #fff;
-    font-size: 1rem;
-    transition: all 0.3s;
-    font-family: inherit;
-}
-
-.form-group input:focus,
-.form-group textarea:focus,
-.form-group select:focus {
-    outline: none;
-    border-color: #666;
-    box-shadow: 0 0 15px rgba(102, 102, 102, 0.3);
-}
-
-.form-group textarea {
-    resize: vertical;
-    min-height: 120px;
-    line-height: 1.5;
-}
-
-
-.avatar-upload {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.avatar-preview {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    border: 3px solid #333;
-    overflow: hidden;
-    margin: 0 auto;
-    background: #2a2a2a;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.avatar-preview:hover {
-    border-color: #666;
-    transform: scale(1.05);
-}
-
-.avatar-preview-placeholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    color: #666;
-    font-size: 0.9rem;
-}
-
-.avatar-preview-placeholder i {
-    font-size: 3rem;
-    color: #444;
-}
-
-.avatar-preview img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: none;
-}
-
-.avatar-preview.has-image img {
-    display: block;
-}
-
-.avatar-preview.has-image .avatar-preview-placeholder {
-    display: none;
-}
-
-.upload-btn {
-    padding: 12px 25px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid #333;
-    border-radius: 25px;
-    color: #fff;
-    cursor: pointer;
-    font-size: 0.95rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: all 0.3s;
-    width: fit-content;
-    margin: 0 auto;
-}
-
-.upload-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: #666;
-    transform: translateY(-3px);
-}
-
-.form-hint {
-    display: block;
-    color: #666;
-    font-size: 0.85rem;
-    margin-top: 8px;
-    font-style: italic;
-}
-
-
-.links-container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-.link-input-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.link-input-group input {
-    flex: 1;
-    padding: 12px 15px;
-    background: #1a1a1a;
-    border: 1px solid #333;
-    border-radius: 8px;
-    color: #fff;
-    font-size: 0.95rem;
-}
-
-.remove-link-btn {
-    padding: 10px 15px;
-    background: rgba(255, 68, 68, 0.1);
-    border: 1px solid rgba(255, 68, 68, 0.3);
-    border-radius: 8px;
-    color: #ff4444;
-    cursor: pointer;
-    transition: all 0.3s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.remove-link-btn:hover {
-    background: rgba(255, 68, 68, 0.2);
-    transform: scale(1.1);
-}
-
-.add-link-btn {
-    padding: 12px 25px;
-    background: rgba(102, 102, 255, 0.1);
-    border: 1px solid rgba(102, 102, 255, 0.3);
-    border-radius: 25px;
-    color: #66f;
-    cursor: pointer;
-    font-size: 0.95rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    transition: all 0.3s;
-}
-
-.add-link-btn:hover {
-    background: rgba(102, 102, 255, 0.2);
-    transform: translateY(-3px);
-}
-
-
-.form-actions {
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-    margin: 40px 0 30px;
-}
-
-@media (max-width: 768px) {
-    .form-actions {
-        flex-direction: column;
-        align-items: center;
-    }
-}
-
-.submit-btn {
-    padding: 18px 40px;
-    background: linear-gradient(135deg, #2a2a2a, #3a3a3a);
-    border: 1px solid #444;
-    border-radius: 30px;
-    color: #fff;
-    cursor: pointer;
-    font-size: 1.1rem;
-    font-weight: bold;
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    transition: all 0.3s;
-    min-width: 200px;
-    justify-content: center;
-}
-
-.submit-btn:hover {
-    background: linear-gradient(135deg, #3a3a3a, #4a4a4a);
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-    border-color: #666;
-}
-
-.reset-btn {
-    padding: 18px 40px;
-    background: rgba(255, 68, 68, 0.1);
-    border: 1px solid rgba(255, 68, 68, 0.3);
-    border-radius: 30px;
-    color: #ff4444;
-    cursor: pointer;
-    font-size: 1.1rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    transition: all 0.3s;
-    min-width: 200px;
-    justify-content: center;
-}
-
-.reset-btn:hover {
-    background: rgba(255, 68, 68, 0.2);
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(255, 68, 68, 0.2);
-    border-color: rgba(255, 68, 68, 0.5);
-}
-
-
-.form-footer {
-    margin-top: 30px;
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-    border: 1px solid #333;
-    text-align: center;
-}
-
-.form-footer p {
-    color: #888;
-    margin: 10px 0;
-    font-size: 0.9rem;
-    line-height: 1.5;
-}
-
-
-.form-group input:invalid:not(:placeholder-shown),
-.form-group textarea:invalid:not(:placeholder-shown),
-.form-group select:invalid {
-    border-color: #ff4444;
-    background: rgba(255, 68, 68, 0.05);
-}
-
-.form-group input:valid:not(:placeholder-shown),
-.form-group textarea:valid:not(:placeholder-shown),
-.form-group select:valid {
-    border-color: #0f0;
-    background: rgba(0, 170, 0, 0.05);
-}
-
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-}
-
-.loading {
-    animation: pulse 1.5s ease-in-out infinite;
-}
-
-
-.apply-success-message {
-    background: rgba(0, 170, 0, 0.1);
-    border: 1px solid rgba(0, 170, 0, 0.3);
-    border-radius: 10px;
-    padding: 20px;
-    margin: 20px 0;
-    text-align: center;
-    display: none;
-}
-
-.apply-success-message.show {
-    display: block;
-    animation: fadeIn 0.5s ease;
-}
-
-.apply-success-message i {
-    font-size: 3rem;
-    color: #0f0;
-    margin-bottom: 15px;
-}
-
-.apply-success-message h3 {
-    color: #fff;
-    margin-bottom: 10px;
-}
-
-.apply-success-message p {
-    color: #aaa;
-    margin-bottom: 15px;
-}
-
-
-.links-counter {
-    display: inline-block;
-    padding: 3px 8px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    font-size: 0.8rem;
-    color: #888;
-    margin-left: 10px;
-}
-
-
-@media (max-width: 576px) {
-    .apply-section-form {
-        padding: 20px;
-    }
-    
-    .avatar-preview {
-        width: 120px;
-        height: 120px;
-    }
-    
-    .submit-btn,
-    .reset-btn {
-        min-width: 100%;
+        top: 20px;
+        right: 20px;
         padding: 15px 20px;
-    }
-    
-    .form-actions {
-        gap: 15px;
-    }
-}
-
-.admin-panel-container {
-    background: rgba(25, 25, 25, 0.95);
-    border-radius: 20px;
-    padding: 40px;
-    border: 1px solid #333;
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
-    margin: 0 auto;
-    max-width: 1200px;
-}
-
-.admin-panel-container h2 {
-    text-align: center;
-    margin-bottom: 10px;
-    color: #fff;
-}
-
-.admin-description {
-    text-align: center;
-    color: #888;
-    margin-bottom: 40px;
-    font-size: 1.1rem;
-}
-
-
-.admin-stats {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
-    margin-bottom: 30px;
-}
-
-@media (max-width: 768px) {
-    .admin-stats {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 480px) {
-    .admin-stats {
-        grid-template-columns: 1fr;
-    }
-}
-
-.stat-card {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 15px;
-    padding: 20px;
-    border: 1px solid #333;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    transition: all 0.3s;
-}
-
-.stat-card:hover {
-    transform: translateY(-5px);
-    border-color: #666;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-}
-
-.stat-icon {
-    width: 50px;
-    height: 50px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-}
-
-.stat-card:nth-child(1) .stat-icon {
-    background: rgba(255, 153, 0, 0.2);
-    color: #ff9900;
-}
-
-.stat-card:nth-child(2) .stat-icon {
-    background: rgba(0, 170, 0, 0.2);
-    color: #0f0;
-}
-
-.stat-card:nth-child(3) .stat-icon {
-    background: rgba(255, 68, 68, 0.2);
-    color: #ff4444;
-}
-
-.stat-card:nth-child(4) .stat-icon {
-    background: rgba(102, 102, 255, 0.2);
-    color: #66f;
-}
-
-.stat-content h3 {
-    color: #fff;
-    font-size: 1.8rem;
-    margin: 0;
-}
-
-.stat-content p {
-    color: #888;
-    margin: 5px 0 0 0;
-    font-size: 0.9rem;
-}
-
-
-.admin-controls {
-    margin-bottom: 30px;
-}
-
-.admin-filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-.admin-filters .filter-btn {
-    padding: 10px 20px;
-    background: #1a1a1a;
-    border: 1px solid #333;
-    border-radius: 25px;
-    color: #888;
-    cursor: pointer;
-    transition: all 0.3s;
-    font-size: 0.9rem;
-}
-
-.admin-filters .filter-btn.active,
-.admin-filters .filter-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-    border-color: #666;
-}
-
-.admin-filters #delete-rejected-btn {
-    background: rgba(255, 68, 68, 0.1);
-    border-color: rgba(255, 68, 68, 0.3);
-    color: #ff4444;
-}
-
-.admin-filters #delete-rejected-btn:hover {
-    background: rgba(255, 68, 68, 0.2);
-}
-
-.admin-search {
-    max-width: 500px;
-    margin: 0 auto;
-}
-
-
-.applications-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    max-height: 600px;
-    overflow-y: auto;
-    padding-right: 10px;
-}
-
-
-.applications-list::-webkit-scrollbar {
-    width: 8px;
-}
-
-.applications-list::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 4px;
-}
-
-.applications-list::-webkit-scrollbar-thumb {
-    background: rgba(102, 102, 102, 0.5);
-    border-radius: 4px;
-}
-
-.applications-list::-webkit-scrollbar-thumb:hover {
-    background: rgba(102, 102, 102, 0.8);
-}
-
-
-.application-card {
-    background: rgba(30, 30, 30, 0.9);
-    border-radius: 15px;
-    padding: 20px;
-    border: 1px solid #333;
-    transition: all 0.3s;
-    cursor: pointer;
-    position: relative;
-}
-
-.application-card:hover {
-    border-color: #666;
-    transform: translateX(5px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-}
-
-.application-card.pending {
-    border-left: 4px solid #ff9900;
-}
-
-.application-card.approved {
-    border-left: 4px solid #0f0;
-}
-
-.application-card.rejected {
-    border-left: 4px solid #ff4444;
-}
-
-.application-header {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 15px;
-}
-
-.application-avatar {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 2px solid #333;
-    flex-shrink: 0;
-}
-
-.application-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.application-info {
-    flex: 1;
-}
-
-.application-name {
-    color: #fff;
-    font-size: 1.2rem;
-    margin: 0 0 5px 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.application-telegram {
-    color: #0088cc;
-    font-size: 0.9rem;
-    margin: 0 0 5px 0;
-}
-
-.application-category {
-    display: inline-block;
-    padding: 4px 12px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    font-size: 0.8rem;
-    color: #aaa;
-    border: 1px solid #333;
-}
-
-.application-description {
-    color: #888;
-    font-size: 0.9rem;
-    line-height: 1.5;
-    margin: 10px 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.application-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: 10px 0;
-}
-
-.link-badge {
-    padding: 4px 10px;
-    background: rgba(0, 136, 204, 0.1);
-    border: 1px solid rgba(0, 136, 204, 0.3);
-    border-radius: 10px;
-    font-size: 0.8rem;
-    color: #0088cc;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.link-badge i {
-    font-size: 0.7rem;
-}
-
-.application-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px solid #333;
-}
-
-.application-date {
-    color: #666;
-    font-size: 0.8rem;
-}
-
-.application-actions {
-    display: flex;
-    gap: 10px;
-}
-
-.application-status {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    font-weight: bold;
-}
-
-.status-pending {
-    background: rgba(255, 153, 0, 0.2);
-    color: #ff9900;
-    border: 1px solid rgba(255, 153, 0, 0.3);
-}
-
-.status-approved {
-    background: rgba(0, 170, 0, 0.2);
-    color: #0f0;
-    border: 1px solid rgba(0, 170, 0, 0.3);
-}
-
-.status-rejected {
-    background: rgba(255, 68, 68, 0.2);
-    color: #ff4444;
-    border: 1px solid rgba(255, 68, 68, 0.3);
-}
-
-.action-btn-small {
-    padding: 6px 15px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid #333;
-    border-radius: 15px;
-    color: #fff;
-    cursor: pointer;
-    font-size: 0.8rem;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    transition: all 0.3s;
-}
-
-.action-btn-small.approve-btn {
-    background: rgba(0, 170, 0, 0.1);
-    border-color: rgba(0, 170, 0, 0.3);
-    color: #0f0;
-}
-
-.action-btn-small.approve-btn:hover {
-    background: rgba(0, 170, 0, 0.2);
-}
-
-.action-btn-small.reject-btn {
-    background: rgba(255, 68, 68, 0.1);
-    border-color: rgba(255, 68, 68, 0.3);
-    color: #ff4444;
-}
-
-.action-btn-small.reject-btn:hover {
-    background: rgba(255, 68, 68, 0.2);
-}
-
-.action-btn-small.view-btn {
-    background: rgba(102, 102, 255, 0.1);
-    border-color: rgba(102, 102, 255, 0.3);
-    color: #66f;
-}
-
-.action-btn-small.view-btn:hover {
-    background: rgba(102, 102, 255, 0.2);
-}
-
-
-.application-modal {
-    max-width: 700px;
-}
-
-.application-modal-body {
-    padding: 30px;
-    max-height: 70vh;
-    overflow-y: auto;
-}
-
-.application-details {
-    background: rgba(30, 30, 30, 0.9);
-    border-radius: 15px;
-    padding: 25px;
-    border: 1px solid #333;
-}
-
-.detail-group {
-    margin-bottom: 20px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #333;
-}
-
-.detail-group:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
-    padding-bottom: 0;
-}
-
-.detail-label {
-    color: #aaa;
-    font-size: 0.9rem;
-    margin-bottom: 8px;
-    display: block;
-}
-
-.detail-value {
-    color: #fff;
-    font-size: 1rem;
-    line-height: 1.5;
-}
-
-.detail-value a {
-    color: #0088cc;
-    text-decoration: none;
-    word-break: break-all;
-}
-
-.detail-value a:hover {
-    text-decoration: underline;
-}
-
-.links-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.link-item {
-    padding: 10px;
-    background: rgba(0, 136, 204, 0.1);
-    border: 1px solid rgba(0, 136, 204, 0.3);
-    border-radius: 8px;
-    transition: all 0.3s;
-}
-
-.link-item:hover {
-    background: rgba(0, 136, 204, 0.2);
-    transform: translateY(-2px);
-}
-
-.link-item a {
-    color: #0088cc;
-    text-decoration: none;
-    display: block;
-    word-break: break-all;
-    font-size: 0.9rem;
-}
-
-.avatar-preview-large {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    border: 3px solid #333;
-    overflow: hidden;
-    margin: 0 auto 20px;
-    background: #2a2a2a;
-}
-
-.avatar-preview-large img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.modal-actions {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid #333;
-}
-
-.no-applications {
-    text-align: center;
-    padding: 60px 20px;
-    color: #888;
-    font-size: 1.1rem;
-}
-
-.no-applications i {
-    font-size: 3rem;
-    color: #444;
-    margin-bottom: 20px;
-    display: block;
-}
-
-
-@media (max-width: 768px) {
-    .admin-panel-container {
-        padding: 20px;
-    }
-    
-    .application-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-    
-    .application-avatar {
-        width: 50px;
-        height: 50px;
-    }
-    
-    .application-footer {
-        flex-direction: column;
-        gap: 10px;
-        align-items: flex-start;
-    }
-    
-    .application-actions {
-        width: 100%;
+        background: ${type === 'success' ? 'rgba(0, 170, 0, 0.9)' : 
+                     type === 'error' ? 'rgba(255, 68, 68, 0.9)' : 
+                     'rgba(102, 102, 102, 0.9)'};
+        color: white;
+        border-radius: 10px;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
         justify-content: space-between;
+        gap: 15px;
+        max-width: 400px;
+        animation: slideIn 0.3s ease;
+        border-left: 4px solid ${type === 'success' ? '#0f0' : 
+                       type === 'error' ? '#ff4444' : '#666'};
+    `;
+    
+    const closeBtn = notification.querySelector('.notification-close');
+    closeBtn.style.cssText = `
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 0;
+        margin: 0;
+    `;
+    
+    closeBtn.addEventListener('click', () => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    });
+    
+    document.body.appendChild(notification);
+    
+    if (!document.querySelector('#notification-styles')) {
+        const style = document.createElement('style');
+        style.id = 'notification-styles';
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
     }
     
-    .links-grid {
-        grid-template-columns: 1fr;
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }
+    }, 5000);
+}
+
+function showAdminPanel() {
+    if (!currentUser) {
+        openAuthModal();
+        return;
     }
     
-    .modal-actions {
-        flex-direction: column;
+    if (!isAdmin()) {
+        showNotification('Доступ запрещен. Только для администратора.', 'error');
+        return;
     }
     
-    .action-btn-small {
-        padding: 8px 20px;
-        font-size: 0.9rem;
+    loadApplications();
+    switchSection('admin-panel');
+}
+
+function loadApplications() {
+    try {
+        const applications = JSON.parse(localStorage.getItem('fame_applications') || '[]');
+        const container = document.getElementById('applications-list');
+        if (!container) return;
+        
+        applications.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        updateAdminStats(applications);
+        
+        const activeFilter = document.querySelector('.admin-filters .filter-btn.active')?.dataset.filter || 'all';
+        const searchQuery = document.getElementById('admin-search-input')?.value.toLowerCase() || '';
+        
+        const filteredApplications = applications.filter(app => {
+            if (activeFilter !== 'all' && app.status !== activeFilter) return false;
+            if (searchQuery) {
+                const searchText = [
+                    app.nickname,
+                    app.telegram,
+                    app.description,
+                    app.category
+                ].join(' ').toLowerCase();
+                if (!searchText.includes(searchQuery)) return false;
+            }
+            return true;
+        });
+        
+        if (filteredApplications.length === 0) {
+            container.innerHTML = `
+                <div class="no-applications">
+                    <i class="fas fa-inbox"></i>
+                    <h3>Заявки не найдены</h3>
+                    <p>${searchQuery ? 'Попробуйте изменить поисковый запрос' : 'Нет заявок для отображения'}</p>
+                </div>
+            `;
+        } else {
+            container.innerHTML = filteredApplications.map(application => createApplicationCard(application)).join('');
+            
+            document.querySelectorAll('.application-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const appId = this.dataset.id;
+                    const application = applications.find(app => app.timestamp.toString() === appId);
+                    if (application) showApplicationDetails(application);
+                });
+            });
+            
+            document.querySelectorAll('.approve-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const appId = this.dataset.id;
+                    approveApplication(appId);
+                });
+            });
+            
+            document.querySelectorAll('.reject-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const appId = this.dataset.id;
+                    rejectApplication(appId);
+                });
+            });
+            
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const appId = this.dataset.id;
+                    const application = applications.find(app => app.timestamp.toString() === appId);
+                    if (application) showApplicationDetails(application);
+                });
+            });
+        }
+    } catch (error) {
+        console.error('Ошибка загрузки заявок:', error);
+        showNotification('Ошибка загрузки заявок', 'error');
     }
 }
+
+function updateAdminStats(applications) {
+    const stats = {
+        pending: applications.filter(app => app.status === 'pending').length,
+        approved: applications.filter(app => app.status === 'approved').length,
+        rejected: applications.filter(app => app.status === 'rejected').length,
+        total: applications.length
+    };
+    
+    document.getElementById('pending-count').textContent = stats.pending;
+    document.getElementById('approved-count').textContent = stats.approved;
+    document.getElementById('rejected-count').textContent = stats.rejected;
+    document.getElementById('total-count').textContent = stats.total;
+}
+
+function createApplicationCard(application) {
+    const statusClass = `status-${application.status}`;
+    const statusText = {
+        pending: 'Ожидает',
+        approved: 'Принята',
+        rejected: 'Отклонена'
+    }[application.status] || 'Неизвестно';
+    
+    const date = new Date(application.timestamp).toLocaleDateString('ru-RU', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    const shortDescription = application.description.length > 100 
+        ? application.description.substring(0, 100) + '...' 
+        : application.description;
+    
+    const telegram = application.telegram.startsWith('@') 
+        ? application.telegram 
+        : `@${application.telegram}`;
+    
+    return `
+        <div class="application-card ${application.status}" data-id="${application.timestamp}">
+            <div class="application-header">
+                <div class="application-avatar">
+                    ${application.avatar_data ? 
+                        `<img src="${application.avatar_data}" alt="${application.nickname}">` :
+                        `<div style="width:100%;height:100%;background:#2a2a2a;display:flex;align-items:center;justify-content:center;color:#666;">
+                            <i class="fas fa-user"></i>
+                        </div>`
+                    }
+                </div>
+                <div class="application-info">
+                    <h3 class="application-name">
+                        ${application.nickname}
+                        <span class="application-category">${application.category}</span>
+                    </h3>
+                    <p class="application-telegram">
+                        <i class="fab fa-telegram"></i> ${telegram}
+                    </p>
+                    <p class="application-description">${shortDescription}</p>
+                    
+                    ${application.extra_links && application.extra_links.length > 0 ? `
+                        <div class="application-links">
+                            <div class="link-badge">
+                                <i class="fas fa-link"></i> ${application.extra_links.length} ссылок
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+            
+            <div class="application-footer">
+                <div class="application-date">
+                    <i class="far fa-clock"></i> ${date}
+                </div>
+                <div class="application-actions">
+                    <span class="application-status ${statusClass}">${statusText}</span>
+                    
+                    ${application.status === 'pending' ? `
+                        <button class="action-btn-small approve-btn" data-id="${application.timestamp}">
+                            <i class="fas fa-check"></i> Принять
+                        </button>
+                        <button class="action-btn-small reject-btn" data-id="${application.timestamp}">
+                            <i class="fas fa-times"></i> Отклонить
+                        </button>
+                    ` : ''}
+                    
+                    <button class="action-btn-small view-btn" data-id="${application.timestamp}">
+                        <i class="fas fa-eye"></i> Просмотр
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function showApplicationDetails(application) {
+    const modalBody = document.getElementById('application-modal-body');
+    if (!modalBody) return;
+    
+    const date = new Date(application.timestamp).toLocaleDateString('ru-RU', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    const telegram = application.telegram.startsWith('@') 
+        ? application.telegram 
+        : `@${application.telegram}`;
+    
+    const statusText = {
+        pending: 'Ожидает рассмотрения',
+        approved: 'Принята',
+        rejected: 'Отклонена'
+    }[application.status] || 'Неизвестно';
+    
+    const statusColor = {
+        pending: '#ff9900',
+        approved: '#0f0',
+        rejected: '#ff4444'
+    }[application.status] || '#888';
+    
+    modalBody.innerHTML = `
+        <div class="application-details">
+            <div class="avatar-preview-large">
+                ${application.avatar_data ? 
+                    `<img src="${application.avatar_data}" alt="${application.nickname}">` :
+                    `<div style="width:100%;height:100%;background:#2a2a2a;display:flex;align-items:center;justify-content:center;color:#666;font-size:3rem;">
+                        <i class="fas fa-user"></i>
+                    </div>`
+                }
+            </div>
+            
+            <div class="detail-group">
+                <span class="detail-label">Статус:</span>
+                <div class="detail-value" style="color: ${statusColor}; font-weight: bold;">${statusText}</div>
+            </div>
+            
+            <div class="detail-group">
+                <span class="detail-label">Никнейм:</span>
+                <div class="detail-value">${application.nickname}</div>
+            </div>
+            
+            <div class="detail-group">
+                <span class="detail-label">Telegram:</span>
+                <div class="detail-value">
+                    <a href="https://t.me/${telegram.replace('@', '')}" target="_blank">
+                        <i class="fab fa-telegram"></i> ${telegram}
+                    </a>
+                </div>
+            </div>
+            
+            <div class="detail-group">
+                <span class="detail-label">Категория:</span>
+                <div class="detail-value">${application.category}</div>
+            </div>
+            
+            <div class="detail-group">
+                <span class="detail-label">Дата подачи:</span>
+                <div class="detail-value">${date}</div>
+            </div>
+            
+            <div class="detail-group">
+                <span class="detail-label">Описание:</span>
+                <div class="detail-value">${application.description}</div>
+            </div>
+            
+            <div class="detail-group">
+                <span class="detail-label">Основная ссылка:</span>
+                <div class="detail-value">
+                    <a href="${application.main_link}" target="_blank">${application.main_link}</a>
+                </div>
+            </div>
+            
+            ${application.extra_links && application.extra_links.length > 0 ? `
+                <div class="detail-group">
+                    <span class="detail-label">Дополнительные ссылки (${application.extra_links.length}):</span>
+                    <div class="links-grid">
+                        ${application.extra_links.map(link => `
+                            <div class="link-item">
+                                <a href="${link}" target="_blank">${link}</a>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : ''}
+            
+            <div class="detail-group">
+                <span class="detail-label">ID пользователя:</span>
+                <div class="detail-value">${application.user_id}</div>
+            </div>
+            
+            <div class="modal-actions">
+                ${application.status === 'pending' ? `
+                    <button class="action-btn approve-btn" data-id="${application.timestamp}" onclick="approveApplication('${application.timestamp}')">
+                        <i class="fas fa-check"></i> Принять заявку
+                    </button>
+                    <button class="action-btn reject-btn" data-id="${application.timestamp}" onclick="rejectApplication('${application.timestamp}')">
+                        <i class="fas fa-times"></i> Отклонить заявку
+                    </button>
+                ` : ''}
+                
+                <button class="action-btn" onclick="closeModal(document.getElementById('application-modal'))">
+                    <i class="fas fa-times"></i> Закрыть
+                </button>
+            </div>
+        </div>
+    `;
+    
+    openModal('application-modal');
+}
+
+function approveApplication(appId) {
+    if (!confirm('Вы уверены, что хотите принять эту заявку?')) return;
+    
+    try {
+        let applications = JSON.parse(localStorage.getItem('fame_applications') || '[]');
+        const application = applications.find(app => app.timestamp.toString() === appId);
+        
+        if (application) {
+            application.status = 'approved';
+            localStorage.setItem('fame_applications', JSON.stringify(applications));
+            showNotification('Заявка принята!', 'success');
+            loadApplications();
+            closeModal(document.getElementById('application-modal'));
+            addApprovedMember(application);
+        }
+    } catch (error) {
+        console.error('Ошибка принятия заявки:', error);
+        showNotification('Ошибка принятия заявки', 'error');
+    }
+}
+
+function rejectApplication(appId) {
+    if (!confirm('Вы уверены, что хотите отклонить эту заявку?')) return;
+    
+    try {
+        let applications = JSON.parse(localStorage.getItem('fame_applications') || '[]');
+        const application = applications.find(app => app.timestamp.toString() === appId);
+        
+        if (application) {
+            application.status = 'rejected';
+            localStorage.setItem('fame_applications', JSON.stringify(applications));
+            showNotification('Заявка отклонена!', 'success');
+            loadApplications();
+            closeModal(document.getElementById('application-modal'));
+        }
+    } catch (error) {
+        console.error('Ошибка отклонения заявки:', error);
+        showNotification('Ошибка отклонения заявки', 'error');
+    }
+}
+
+function addApprovedMember(application) {
+    console.log('Добавление участника:', application);
+    showNotification(`${application.nickname} добавлен в список участников`, 'success');
+}
+
+function deleteRejectedApplications() {
+    if (!confirm('Вы уверены, что хотите удалить все отклоненные заявки? Это действие нельзя отменить.')) return;
+    
+    try {
+        let applications = JSON.parse(localStorage.getItem('fame_applications') || '[]');
+        const filteredApplications = applications.filter(app => app.status !== 'rejected');
+        const deletedCount = applications.length - filteredApplications.length;
+        localStorage.setItem('fame_applications', JSON.stringify(filteredApplications));
+        showNotification(`Удалено ${deletedCount} отклоненных заявок`, 'success');
+        loadApplications();
+    } catch (error) {
+        console.error('Ошибка удаления заявок:', error);
+        showNotification('Ошибка удаления заявок', 'error');
+    }
+}
+
+function initAdminPanel() {
+    console.log('Инициализация админ-панели...');
+    
+    document.querySelectorAll('.admin-filters .filter-btn').forEach(btn => {
+        if (btn.id !== 'delete-rejected-btn') {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.admin-filters .filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                loadApplications();
+            });
+        }
+    });
+    
+    const deleteRejectedBtn = document.getElementById('delete-rejected-btn');
+    if (deleteRejectedBtn) {
+        deleteRejectedBtn.addEventListener('click', deleteRejectedApplications);
+    }
+    
+    const adminSearchInput = document.getElementById('admin-search-input');
+    if (adminSearchInput) {
+        adminSearchInput.addEventListener('input', function() {
+            clearTimeout(this.searchTimeout);
+            this.searchTimeout = setTimeout(() => {
+                loadApplications();
+            }, 300);
+        });
+    }
+}
+
+function initNavigation() {
+    console.log('Инициализация навигации...');
+    
+    const menuToggle = document.getElementById('menu-toggle');
+    const closeMenu = document.getElementById('close-menu');
+    const sideMenu = document.getElementById('side-menu');
+    
+    if (menuToggle) menuToggle.addEventListener('click', () => sideMenu.classList.add('active'));
+    if (closeMenu) closeMenu.addEventListener('click', () => sideMenu.classList.remove('active'));
+    
+    const navTabs = document.querySelectorAll('.nav-tab');
+    const menuItems = document.querySelectorAll('.menu-item');
+    const sections = document.querySelectorAll('.section');
+    
+    function switchSection(sectionId) {
+        sections.forEach(section => section.classList.remove('active-section'));
+        const targetSection = document.getElementById(sectionId);
+        if (targetSection) targetSection.classList.add('active-section');
+        
+        navTabs.forEach(tab => {
+            tab.classList.remove('active');
+            if (tab.dataset.section === sectionId) tab.classList.add('active');
+        });
+        
+        menuItems.forEach(item => {
+            item.classList.remove('active');
+            if (item.dataset.section === sectionId) item.classList.add('active');
+        });
+    }
+    
+    navTabs.forEach(tab => {
+        if (tab.dataset.section) {
+            tab.addEventListener('click', () => switchSection(tab.dataset.section));
+        }
+    });
+    
+    menuItems.forEach(item => {
+        if (item.dataset.section) {
+            item.addEventListener('click', () => {
+                switchSection(item.dataset.section);
+                if (sideMenu) sideMenu.classList.remove('active');
+            });
+        }
+    });
+    
+    const faqBtn = document.getElementById('faq-btn');
+    const settingsBtn = document.getElementById('settings-btn');
+    const menuSettings = document.getElementById('menu-settings');
+    
+    if (faqBtn) faqBtn.addEventListener('click', () => switchSection('faq-section'));
+    if (settingsBtn) settingsBtn.addEventListener('click', () => openModal('settings-modal'));
+    if (menuSettings) {
+        menuSettings.addEventListener('click', () => {
+            openModal('settings-modal');
+            if (sideMenu) sideMenu.classList.remove('active');
+        });
+    }
+}
+
+const members = [
+    {
+        id: 1,
+        nickname: "шот",
+        username: "@metllos",
+        category: "Владелец",
+        role: "Кодер",
+        description: "Владелец dark Fame",
+        avatar: "img/avatar1.png",
+        verified: true,
+        pinned: true,
+        project: "https://t.me/+fCRs1L3q7G8yYTg8",
+        telegram: "metllos",
+        forum: "https://t.me/+mAY-S9nUa_o2NDI0",
+        joinDate: "2026-01-24",
+        activity: "Постоянная",
+        details: "Создатель и владелец dark Fame.занимаюсь кодингом",
+        skills: ["кодинг"],
+        socials: { telegram: "@metllos", forum: "https://t.me/+mAY-S9nUa_o2NDI0" }
+    },
+    {
+        id: 2,
+        nickname: "Виолетта",
+        username: "@violettamap",
+        category: "Владелец",
+        role: "Владелец",
+        description: "Владелец dark Fame",
+        avatar: "img/avatar2.png",
+        verified: true,
+        pinned: true,
+        project: "https://t.me/+M8N6Cah1socyY2Q6",
+        telegram: "violettamap",
+        joinDate: "2026-01-24",
+        activity: "Постоянная",
+        details: "Создатель и владелец dark Fame.занимаюсь развитием",
+        skills: ["кодинг"],
+        socials: { telegram: "@violettamap", project: "https://t.me/+M8N6Cah1socyY2Q6" }
+    },
+];
+
+function initMembers() {
+    console.log('Инициализация участников...');
+    loadMembers();
+    
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    if (filterBtns.length > 0) {
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const category = this.dataset.category;
+                console.log('Фильтр:', category);
+                filterMembers(category);
+            });
+        });
+    } else {
+        console.error('Кнопки фильтра не найдены');
+    }
+    
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            console.log('Поиск:', searchTerm);
+            searchMembers(searchTerm);
+        });
+    } else {
+        console.error('Поле поиска не найдено');
+    }
+}
+
+function loadMembers() {
+    const container = document.getElementById('members-container');
+    if (!container) {
+        console.error('Контейнер участников не найден');
+        return;
+    }
+    
+    container.innerHTML = '';
+    if (members.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #888; padding: 40px;">Нет участников для отображения</p>';
+        console.log('Нет участников для отображения');
+        return;
+    }
+    
+    const sortedMembers = [...members].sort((a, b) => {
+        if (a.pinned && !b.pinned) return -1;
+        if (!a.pinned && b.pinned) return 1;
+        if (a.verified && !b.verified) return -1;
+        if (!a.verified && b.verified) return 1;
+        return 0;
+    });
+    
+    sortedMembers.forEach(member => {
+        const card = createMemberCard(member);
+        container.appendChild(card);
+    });
+    
+    document.querySelectorAll('.member-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const memberId = this.dataset.id;
+            console.log('Клик по участнику:', memberId);
+            showProfile(memberId);
+        });
+    });
+    
+    console.log('Участники загружены:', sortedMembers.length);
+}
+
+function createMemberCard(member) {
+    const card = document.createElement('div');
+    card.className = 'member-card';
+    card.dataset.id = member.id;
+    card.dataset.category = member.category;
+    
+    if (member.scam) card.classList.add('scam');
+    else if (member.pinned) card.classList.add('pinned');
+    if (member.verified && !member.scam) card.classList.add('verified');
+    
+    const avatarId = `avatar-${member.id}`;
+    
+    card.innerHTML = `
+    <div class="member-avatar" data-initial="${member.nickname.charAt(0).toUpperCase()}">
+        <img id="${avatarId}" 
+             src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9IiMzMzMzMzMiPjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiByeD0iNTAiLz48dGV4dCB4PSI5MCIgeT0iNTAiIGR5PSIwLjM1ZW0iIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSI0MCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiNmZmYiPk48L3RleHQ+PC9zdmc+" 
+             alt="${member.nickname}"
+             loading="lazy">
+    </div>
+    
+    <div class="member-info">
+        <h3>${member.nickname} ${member.scam ? '⚠️' : (member.verified ? '✓' : '')}</h3>
+        <div class="member-role">${member.role}</div>
+        <p class="member-description">${member.description}</p>
+        <div class="member-badges">
+            ${member.scam ? '⚠️ ' : ''}${member.pinned ? '📍 ' : ''}${member.verified ? '✓ ' : ''}${member.category}
+        </div>
+    </div>
+`;
+    
+    return card;
+}
+
+function filterMembers(category) {
+    const cards = document.querySelectorAll('.member-card');
+    console.log('Фильтрация участников по категории:', category, 'найдено карточек:', cards.length);
+    
+    cards.forEach(card => {
+        if (category === 'all' || card.dataset.category === category) {
+            card.style.display = 'block';
+            setTimeout(() => card.style.opacity = '1', 10);
+        } else {
+            card.style.opacity = '0';
+            setTimeout(() => card.style.display = 'none', 300);
+        }
+    });
+}
+
+function searchMembers(term) {
+    const cards = document.querySelectorAll('.member-card');
+    const activeFilter = document.querySelector('.filter-btn.active')?.dataset.category || 'all';
+    
+    cards.forEach(card => {
+        const nickname = card.querySelector('h3').textContent.toLowerCase();
+        const description = card.querySelector('.member-description').textContent.toLowerCase();
+        const matchesSearch = nickname.includes(term) || description.includes(term);
+        const matchesFilter = activeFilter === 'all' || card.dataset.category === activeFilter;
+        
+        if (matchesSearch && matchesFilter) {
+            card.style.display = 'block';
+            setTimeout(() => card.style.opacity = '1', 10);
+        } else {
+            card.style.opacity = '0';
+            setTimeout(() => card.style.display = 'none', 300);
+        }
+    });
+}
+
+function createSocialButton(icon, text, url, className = '') {
+    if (!url) return '';
+    return `
+        <a href="${url}" class="action-btn ${className}" target="_blank">
+            <i class="${icon}"></i> ${text}
+        </a>
+    `;
+}
+
+function showProfile(memberId) {
+    const member = members.find(m => m.id == memberId);
+    if (!member) {
+        console.error('Участник не найден:', memberId);
+        return;
+    }
+    
+    const container = document.getElementById('profile-content');
+    if (!container) {
+        console.error('Контейнер профиля не найден');
+        return;
+    }
+    
+    const joinDate = new Date(member.joinDate);
+    const formattedDate = joinDate.toLocaleDateString('ru-RU', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    
+    let badgesHtml = '';
+    if (member.scam) {
+        badgesHtml += '<span class="badge scam">⚠️ Скам (Осторожно!)</span>';
+    } else if (member.verified) {
+        badgesHtml += '<span class="badge verified">✓ Верифицирован</span>';
+    }
+    if (member.pinned) badgesHtml += '<span class="badge pinned">📌 Закреплён</span>';
+    badgesHtml += `<span class="badge category">${member.category}</span>`;
+    
+    let mainButtons = createSocialButton('fab fa-telegram', 'Написать в ЛС', `https://t.me/${member.telegram}`, 'telegram');
+    if (member.project) mainButtons += createSocialButton('fas fa-external-link-alt', 'Основной канал', member.project, 'telegram');
+    if (member.forum) mainButtons += createSocialButton('fas fa-userst', 'Форум', member.forum, 'telegram');
+    if (member.chat) mainButtons += createSocialButton('fas fa-comments', 'Чат', member.chat, 'telegram');
+    if (member.market) mainButtons += createSocialButton('fas fa-shopping-cart', 'Маркет', member.market);
+    if (member.fameList) mainButtons += createSocialButton('fas fa-list', 'Фейм лист', member.fameList);
+    if (member.github) mainButtons += createSocialButton('fab fa-github', 'GitHub', member.github);
+    
+    let extraButtons = '';
+    const allPossibleLinks = {
+        'price': {icon: 'fas fa-tag', text: 'Прайс'},
+        'priceList': {icon: 'fas fa-tags', text: 'Прайс-лист'},
+        'market': {icon: 'fas fa-shopping-cart', text: 'Маркет'},
+        'tiktok': {icon: 'fab fa-tiktok', text: 'TikTok'},
+        'youtube': {icon: 'fab fa-youtube', text: 'YouTube'},
+        'yt': {icon: 'fab fa-youtube', text: 'YouTube'},
+        'discord': {icon: 'fab fa-discord', text: 'Discord'},
+        'vk': {icon: 'fab fa-vk', text: 'VK'},
+        'gift': {icon: 'fas fa-gift', text: 'Подарок'},
+        'website': {icon: 'fas fa-globe', text: 'Сайт'},
+        'reputation': {icon: 'fas fa-star', text: 'Репутация'},
+        'work': {icon: 'fas fa-briefcase', text: 'Ворк'},
+        'forum': {icon: 'fas fa-users', text: 'Форум'},
+        'def': {icon: 'fas fa-shield-alt', text: 'Деф'},
+        'whitelist': {icon: 'fas fa-list', text: 'White List'},
+        'blog': {icon: 'fas fa-blog', text: 'Блог'},
+        'private': {icon: 'fas fa-lock', text: 'Приват'}
+    };
+    
+    Object.keys(allPossibleLinks).forEach(key => {
+        if (member[key]) {
+            extraButtons += createSocialButton(allPossibleLinks[key].icon, allPossibleLinks[key].text, member[key]);
+        }
+    });
+    
+    const stats = {
+        'Статус': member.role,
+        'Верификация': member.verified ? '✓ Подтверждён' : '✗ Не подтверждён',
+        'Закреп': member.pinned ? '📌 Включён' : '✗ Выключен',
+        'Дата регистрации': formattedDate,
+        'Активность': member.activity,
+        'Подписчики': member.followers,
+        'ID': member.id
+    };
+    
+    if (member.priceEntry) stats['Цена входа'] = member.priceEntry;
+    if (member.priceVerified) stats['Цена галочки'] = member.priceVerified;
+    if (member.pricePinned) stats['Цена закрепа'] = member.pricePinned;
+    
+    let statsHtml = '';
+    Object.entries(stats).forEach(([label, value]) => {
+        if (value) {
+            statsHtml += `
+                <div class="stat-item">
+                    <span class="stat-label">${label}:</span>
+                    <span class="stat-value">${value}</span>
+                </div>
+            `;
+        }
+    });
+    
+    const profileAvatarId = `profile-avatar-${member.id}`;
+    
+    container.innerHTML = `
+        <div class="profile-header">
+            <div class="profile-avatar" data-initial="${member.nickname.charAt(0).toUpperCase()}">
+                <img id="${profileAvatarId}" 
+                     src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9IiMzMzMzMzMiPjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiByeD0iNTAiLz48dGV4dCB4PSI1MCIgeT0iNTAiIGR5PSIwLjM1ZW0iIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSI0MCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiNmZmYiPk48L3RleHQ+PC9zdmc+" 
+                     alt="${member.nickname}"
+                     loading="eager">
+            </div>
+            
+            <h1 class="profile-title">${member.nickname}</h1>
+            <p class="profile-username">${member.username}</p>
+            
+            <div class="profile-badges">
+                ${badgesHtml}
+            </div>
+            
+            <div class="profile-actions">
+                ${mainButtons}
+                <button class="action-btn" onclick="copyProfileLink('${member.nickname}')">
+                    <i class="fas fa-share"></i> Поделиться
+                </button>
+            </div>
+        </div>
+        
+        <div class="profile-content">
+            <div class="profile-description">
+                <h3>Описание</h3>
+                <p>${member.description || 'Нет описания'}</p>
+                
+                ${member.details ? `
+                    <h3 style="margin-top: 30px;">Детали</h3>
+                    <p>${member.details}</p>
+                ` : ''}
+                
+                ${member.skills && member.skills.length > 0 ? `
+                    <h3 style="margin-top: 30px;">Навыки и специализация</h3>
+                    <p>${member.skills.join(' • ')}</p>
+                ` : ''}
+                
+                ${extraButtons ? `
+                    <h3 style="margin-top: 30px;">Дополнительные ссылки</h3>
+                    <div class="profile-actions">
+                        ${extraButtons}
+                    </div>
+                ` : ''}
+            </div>
+            
+            <div class="profile-stats">
+                <h3>Статистика</h3>
+                ${statsHtml}
+            </div>
+        </div>
+    `;
+    
+    switchSection('profile-details');
+}
+
+function initSnow() {
+    const snowContainer = document.querySelector('.snow-container');
+    if (!snowContainer) return;
+    
+    createSnowflakes();
+    
+    const snowToggle = document.getElementById('snow-effect');
+    if (snowToggle) {
+        snowToggle.addEventListener('change', function() {
+            if (this.checked) {
+                snowContainer.style.display = 'block';
+                createSnowflakes();
+            } else {
+                snowContainer.style.display = 'none';
+                snowContainer.innerHTML = '';
+            }
+        });
+    }
+}
+
+function createSnowflakes() {
+    const snowContainer = document.querySelector('.snow-container');
+    if (!snowContainer) return;
+    
+    snowContainer.innerHTML = '';
+    
+    for (let i = 0; i < 60; i++) {
+        const snowflake = document.createElement('div');
+        snowflake.className = 'snowflake';
+        
+        const size = Math.random() * 4 + 2;
+        const startX = Math.random() * 100;
+        const duration = Math.random() * 5 + 5;
+        const opacity = Math.random() * 0.5 + 0.3;
+        
+        snowflake.style.width = `${size}px`;
+        snowflake.style.height = `${size}px`;
+        snowflake.style.left = `${startX}vw`;
+        snowflake.style.opacity = opacity;
+        snowflake.style.animationDuration = `${duration}s`;
+        snowflake.style.animationDelay = `${Math.random() * 5}s`;
+        snowflake.style.backgroundColor = `rgba(255, 255, 255, ${opacity})`;
+        
+        snowContainer.appendChild(snowflake);
+    }
+}
+
+function initSettings() {
+    const settingsTabs = document.querySelectorAll('.settings-tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    settingsTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const tabId = this.dataset.tab + '-tab';
+            settingsTabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+                if (content.id === tabId) content.classList.add('active');
+            });
+        });
+    });
+    
+    const themeOptions = document.querySelectorAll('.theme-option');
+    themeOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            const theme = this.dataset.theme;
+            themeOptions.forEach(opt => opt.classList.remove('active'));
+            this.classList.add('active');
+            applyTheme(theme);
+        });
+    });
+    
+    const bgUpload = document.getElementById('bg-upload');
+    const bgPreview = document.getElementById('bg-preview');
+    if (bgUpload) {
+        bgUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    bgPreview.innerHTML = `<img src="${e.target.result}" alt="Фон">`;
+                    bgPreview.style.display = 'block';
+                    localStorage.setItem('fame_background', e.target.result);
+                    document.body.style.backgroundImage = `url(${e.target.result})`;
+                    document.body.style.backgroundSize = 'cover';
+                    document.body.style.backgroundAttachment = 'fixed';
+                    document.body.style.backgroundPosition = 'center';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+    
+    const neonFlowEffect = document.getElementById('neon-flow-effect');
+    if (neonFlowEffect) {
+        neonFlowEffect.addEventListener('change', function() {
+            if (this.checked) {
+                initDynamicNeon();
+            } else {
+                removeNeonFlow();
+            }
+        });
+    }
+}
+
+function initNeonControls() {
+    const neonColor = document.getElementById('neon-color');
+    const neonIntensity = document.getElementById('neon-intensity');
+    const neonSpeed = document.getElementById('neon-speed');
+    const applyNeonBtn = document.getElementById('apply-neon');
+    const intensityValue = document.getElementById('intensity-value');
+    const speedValue = document.getElementById('speed-value');
+    const colorPreview = document.getElementById('neon-color-preview');
+    
+    if (neonColor && colorPreview) {
+        neonColor.addEventListener('input', function() {
+            colorPreview.style.backgroundColor = this.value;
+        });
+        colorPreview.style.backgroundColor = neonColor.value;
+    }
+    
+    if (neonIntensity && intensityValue) {
+        neonIntensity.addEventListener('input', function() {
+            intensityValue.textContent = this.value + '%';
+        });
+        intensityValue.textContent = neonIntensity.value + '%';
+    }
+    
+    if (neonSpeed && speedValue) {
+        const speedLabels = {
+            1: 'Очень медленно',
+            2: 'Медленно',
+            3: 'Немного медленно',
+            4: 'Ниже средней',
+            5: 'Средняя',
+            6: 'Выше средней',
+            7: 'Быстро',
+            8: 'Очень быстро',
+            9: 'Супер быстро',
+            10: 'Максимальная'
+        };
+        
+        neonSpeed.addEventListener('input', function() {
+            speedValue.textContent = speedLabels[this.value] || 'Средняя';
+        });
+        speedValue.textContent = speedLabels[neonSpeed.value] || 'Средняя';
+    }
+    
+    if (applyNeonBtn) {
+        applyNeonBtn.addEventListener('click', function() {
+            const color = neonColor.value;
+            const intensity = parseInt(neonIntensity.value) / 100;
+            const speed = parseInt(neonSpeed.value);
+            applyNeonSettings(color, intensity, speed);
+        });
+    }
+}
+
+function applyNeonSettings(color, intensity, speed) {
+    localStorage.setItem('fame_neon_color', color);
+    localStorage.setItem('fame_neon_intensity', intensity);
+    localStorage.setItem('fame_neon_speed', speed);
+    initDynamicNeon();
+}
+
+function initDynamicNeon() {
+}
+
+function initModals() {
+    document.querySelectorAll('.close-modal').forEach(btn => {
+        btn.addEventListener('click', function() {
+            closeModal(this.closest('.modal'));
+        });
+    });
+    
+    window.addEventListener('click', function(event) {
+        if (event.target.classList.contains('modal')) {
+            closeModal(event.target);
+        }
+    });
+}
+
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeModal(modal) {
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+}
+
+function loadSavedSettings() {
+    const savedTheme = localStorage.getItem('fame_theme') || 'black';
+    applyTheme(savedTheme);
+}
+
+function applyTheme(theme) {
+    const themeClasses = ['dark-theme', 'black-theme', 'red-theme', 'red-black-theme', 
+                         'red-gray-theme', 'purple-theme', 'blue-theme', 'green-theme', 
+                         'orange-theme', 'pink-theme'];
+    document.body.classList.remove(...themeClasses);
+    document.body.classList.add(theme + '-theme');
+    localStorage.setItem('fame_theme', theme);
+}
+
+function copyProfileLink(username) {
+    const link = `https://t.me/NOOLSHY?text=Профиль%20${encodeURIComponent(username)}%20на%20NoolShy%20Fame`;
+    navigator.clipboard.writeText(link).then(() => {
+        showNotification('Ссылка на профиль скопирована в буфер обмена!', 'success');
+    });
+}
+
+function initAllAvatars() {
+}
+
+function switchSection(sectionId) {
+    console.log('Переключение секции:', sectionId);
+    document.querySelectorAll('.section').forEach(section => section.classList.remove('active-section'));
+    const targetSection = document.getElementById(sectionId);
+    if (targetSection) targetSection.classList.add('active-section');
+    
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.classList.remove('active');
+        if (tab.dataset.section === sectionId) tab.classList.add('active');
+    });
+    
+    document.querySelectorAll('.menu-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.section === sectionId) item.classList.add('active');
+    });
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function initApplyForm() {
+}
+
+function saveApplication(formData) {
+    try {
+        let applications = JSON.parse(localStorage.getItem('fame_applications') || '[]');
+        applications.push(formData);
+        if (applications.length > 100) applications = applications.slice(-100);
+        localStorage.setItem('fame_applications', JSON.stringify(applications));
+        console.log('Заявка сохранена:', formData);
+        showNotification('Заявка успешно сохранена и отправлена на модерацию!', 'success');
+        return true;
+    } catch (error) {
+        console.error('Ошибка сохранения заявки:', error);
+        showNotification('Ошибка при сохранении заявки', 'error');
+        return false;
+    }
+}
+
+function showApplicationSuccess(formData) {
+}
+
+function closeApplySuccessModal() {
+}
+
+function copyTelegramLink() {
+    const link = 'https://t.me/NOOLSHY';
+    navigator.clipboard.writeText(link).then(() => {
+        showNotification('Ссылка скопирована в буфер обмена!', 'success');
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM загружен, инициализация...');
+    initAuthSystem();
+    initNavigation();
+    initMembers();
+    initSnow();
+    initSettings();
+    initNeonControls();
+    initModals();
+    initApplyForm();
+    initAdminPanel();
+    loadSavedSettings();
+    initDynamicNeon();
+    initAllAvatars();
+    
+    document.addEventListener('click', function(event) {
+        if (!event.target.closest('.profile-dropdown')) {
+            closeAllDropdowns();
+        }
+    });
+    
+    const profileToggle = document.getElementById('profile-toggle');
+    if (profileToggle) {
+        profileToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const dropdown = document.getElementById('dropdown-menu');
+            if (dropdown) dropdown.classList.toggle('show');
+        });
+    }
+    
+    const applyBtnInFaq = document.querySelector('.apply-btn-large[data-section="apply"]');
+    if (applyBtnInFaq) {
+        applyBtnInFaq.addEventListener('click', function() {
+            switchSection('apply');
+        });
+    }
+});

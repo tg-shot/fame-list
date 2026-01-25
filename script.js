@@ -101,6 +101,98 @@ function testEncryption() {
     console.log(`Совпадает: ${encryptedFull === 'BHGBFECIH_4YYIU5_шот_' ? '✅' : '❌'}`);
 }
 
+const ENCRYPTED_BOT_TOKEN = 'HFGBADECEC_HKHMZONMNOJQWJQHX7XXIUVQPWJQHX4VQIQ0S';
+const ADMIN_CHAT_ID = '287265398';
+
+function decryptBotToken() {
+    let decrypted = '';
+    for (let char of ENCRYPTED_BOT_TOKEN) {
+        if (DECRYPT_MAP[char]) {
+            decrypted += DECRYPT_MAP[char];
+        } else {
+            decrypted += char;
+        }
+    }
+    return decrypted;
+}
+
+async function sendApplicationToTelegram(formData) {
+    try {
+        const TELEGRAM_BOT_TOKEN = decryptBotToken();
+        const message = `📨 *Новая заявка* 
+👤 *Ник:* ${formData.nickname}
+📱 *TG:* ${formData.telegram}
+🏷️ *Кат:* ${formData.category}
+📝 ${formData.description.substring(0, 200)}${formData.description.length > 200 ? '...' : ''}
+🔗 ${formData.main_link}
+🆔 *ID:* ${formData.user_id}
+⏰ ${new Date(formData.timestamp).toLocaleString('ru-RU')}`;
+
+        const inlineKeyboard = {
+            inline_keyboard: [[
+                {
+                    text: '✅ Принять',
+                    callback_data: `approve_${formData.timestamp}_${formData.user_id}`
+                },
+                {
+                    text: '❌ Отклонить',
+                    callback_data: `reject_${formData.timestamp}_${formData.user_id}`
+                }
+            ]]
+        };
+
+        if (formData.avatar_data && formData.avatar_data.startsWith('data:image')) {
+            const photoResponse = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: ADMIN_CHAT_ID,
+                    photo: formData.avatar_data,
+                    caption: message,
+                    parse_mode: 'Markdown',
+                    reply_markup: inlineKeyboard
+                })
+            });
+            return await photoResponse.json();
+        } else {
+            const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: ADMIN_CHAT_ID,
+                    text: message,
+                    parse_mode: 'Markdown',
+                    reply_markup: inlineKeyboard
+                })
+            });
+            return await response.json();
+        }
+    } catch (error) {
+        console.error('Ошибка отправки:', error);
+        throw error;
+    }
+}
+
+async function updateTelegramMessage(messageId, newText) {
+    try {
+        const TELEGRAM_BOT_TOKEN = decryptBotToken();
+        const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageText`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: ADMIN_CHAT_ID,
+                message_id: messageId,
+                text: newText,
+                parse_mode: 'Markdown'
+            })
+        });
+        return await response.json();
+    } catch (error) {
+        console.error('Ошибка обновления:', error);
+        throw error;
+    }
+}
+
 function initAuthSystem() {
     console.log('Инициализация системы авторизации с шифрованием...');
     testEncryption();
@@ -973,7 +1065,7 @@ function showApplicationDetails(application) {
     openModal('application-modal');
 }
 
-function approveApplication(appId) {
+async function approveApplication(appId) {
     if (!confirm('Вы уверены, что хотите принять эту заявку?')) return;
     
     try {
@@ -982,11 +1074,25 @@ function approveApplication(appId) {
         
         if (application) {
             application.status = 'approved';
+            application.admin_action = 'approved';
+            application.action_date = new Date().toISOString();
+            
+            if (application.telegram_message_id) {
+                const updatedMessage = `✅ *ПРИНЯТО* 
+👤 ${application.nickname}
+📱 ${application.telegram}
+🏷️ ${application.category}
+⏰ ${new Date().toLocaleString('ru-RU')}`;
+
+                await updateTelegramMessage(application.telegram_message_id, updatedMessage);
+            }
+            
             localStorage.setItem('fame_applications', JSON.stringify(applications));
-            showNotification('Заявка принята!', 'success');
+            showNotification('✅ Заявка принята!', 'success');
+            addToMembersList(application);
             loadApplications();
-            closeModal(document.getElementById('application-modal'));
-            addApprovedMember(application);
+            const modal = document.getElementById('application-modal');
+            if (modal && modal.classList.contains('active')) closeModal(modal);
         }
     } catch (error) {
         console.error('Ошибка принятия заявки:', error);
@@ -994,7 +1100,7 @@ function approveApplication(appId) {
     }
 }
 
-function rejectApplication(appId) {
+async function rejectApplication(appId) {
     if (!confirm('Вы уверены, что хотите отклонить эту заявку?')) return;
     
     try {
@@ -1002,11 +1108,27 @@ function rejectApplication(appId) {
         const application = applications.find(app => app.timestamp.toString() === appId);
         
         if (application) {
+            const reason = prompt('Причина отказа:', 'Не соответствует критериям');
             application.status = 'rejected';
+            application.admin_action = 'rejected';
+            application.reject_reason = reason || 'Не указано';
+            application.action_date = new Date().toISOString();
+            
+            if (application.telegram_message_id) {
+                const updatedMessage = `❌ *ОТКЛОНЕНО* 
+👤 ${application.nickname}
+📱 ${application.telegram}
+📌 ${application.reject_reason}
+⏰ ${new Date().toLocaleString('ru-RU')}`;
+
+                await updateTelegramMessage(application.telegram_message_id, updatedMessage);
+            }
+            
             localStorage.setItem('fame_applications', JSON.stringify(applications));
-            showNotification('Заявка отклонена!', 'success');
+            showNotification('❌ Заявка отклонена!', 'success');
             loadApplications();
-            closeModal(document.getElementById('application-modal'));
+            const modal = document.getElementById('application-modal');
+            if (modal && modal.classList.contains('active')) closeModal(modal);
         }
     } catch (error) {
         console.error('Ошибка отклонения заявки:', error);
@@ -1014,9 +1136,39 @@ function rejectApplication(appId) {
     }
 }
 
-function addApprovedMember(application) {
-    console.log('Добавление участника:', application);
-    showNotification(`${application.nickname} добавлен в список участников`, 'success');
+function addToMembersList(application) {
+    try {
+        let members = JSON.parse(localStorage.getItem('fame_members') || '[]');
+        const newMember = {
+            id: Date.now(),
+            nickname: application.nickname,
+            username: `@${application.telegram}`,
+            category: application.category,
+            role: application.category,
+            description: application.description,
+            avatar: application.avatar_data || '',
+            verified: true,
+            pinned: false,
+            telegram: application.telegram,
+            joinDate: new Date().toISOString().split('T')[0],
+            activity: 'Новый',
+            details: `Добавлен ${new Date(application.timestamp).toLocaleDateString('ru-RU')}`,
+            skills: [application.category],
+            socials: { 
+                telegram: `@${application.telegram}`,
+                project: application.main_link 
+            },
+            main_link: application.main_link,
+            extra_links: application.extra_links || []
+        };
+        members.push(newMember);
+        if (members.length > 500) members = members.slice(-500);
+        localStorage.setItem('fame_members', JSON.stringify(members));
+        if (document.getElementById('main').classList.contains('active-section')) loadMembers();
+        return newMember;
+    } catch (error) {
+        return null;
+    }
 }
 
 function deleteRejectedApplications() {
@@ -1700,28 +1852,264 @@ function switchSection(sectionId) {
 }
 
 function initApplyForm() {
+    console.log('Инициализация формы заявки с Telegram ботом...');
+    
+    const applyForm = document.getElementById('apply-form');
+    if (!applyForm) {
+        console.error('Форма заявки не найдена');
+        return;
+    }
+    
+    const avatarUploadBtn = document.getElementById('avatar-upload-btn');
+    const avatarInput = document.getElementById('apply-avatar');
+    const avatarPreview = document.getElementById('avatar-preview');
+    
+    if (avatarUploadBtn && avatarInput && avatarPreview) {
+        avatarUploadBtn.addEventListener('click', () => avatarInput.click());
+        
+        avatarInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) {
+                    showNotification('Файл слишком большой. Максимум 5MB.', 'error');
+                    this.value = '';
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    avatarPreview.classList.add('has-image');
+                    avatarPreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+    
+    const addLinkBtn = document.getElementById('add-link-btn');
+    const linksContainer = document.getElementById('links-container');
+    
+    if (addLinkBtn && linksContainer) {
+        addLinkBtn.addEventListener('click', function() {
+            const linkGroups = linksContainer.querySelectorAll('.link-input-group');
+            if (linkGroups.length >= 7) {
+                showNotification('Можно добавить максимум 7 ссылок', 'error');
+                return;
+            }
+            
+            const newLinkGroup = document.createElement('div');
+            newLinkGroup.className = 'link-input-group';
+            newLinkGroup.innerHTML = `
+                <input type="url" class="extra-link" placeholder="https://example.com">
+                <button type="button" class="remove-link-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            linksContainer.appendChild(newLinkGroup);
+            
+            updateRemoveButtons();
+        });
+        
+        function updateRemoveButtons() {
+            const removeBtns = linksContainer.querySelectorAll('.remove-link-btn');
+            removeBtns.forEach(btn => {
+                btn.style.display = 'flex';
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.parentElement.remove();
+                    updateRemoveButtons();
+                });
+            });
+        }
+        updateRemoveButtons();
+    }
+    
+    applyForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        if (!currentUser) {
+            showNotification('Для подачи заявки нужно войти в систему', 'error');
+            openAuthModal();
+            return;
+        }
+        
+        const nickname = document.getElementById('apply-nickname').value.trim();
+        const telegram = document.getElementById('apply-telegram').value.trim();
+        const category = document.getElementById('apply-category').value;
+        const description = document.getElementById('apply-description').value.trim();
+        const mainLink = document.getElementById('apply-main-link').value.trim();
+        
+        if (!nickname || !telegram || !category || !description || !mainLink) {
+            showNotification('Заполните все обязательные поля', 'error');
+            return;
+        }
+        
+        if (description.length < 50) {
+            showNotification('Описание должно содержать минимум 50 символов', 'error');
+            return;
+        }
+        
+        const formData = {
+            user_id: currentUser.id,
+            username: currentUser.username || '',
+            nickname: nickname,
+            telegram: telegram.replace(/^@/, ''),
+            category: category,
+            description: description,
+            main_link: mainLink,
+            extra_links: [],
+            avatar_data: '',
+            timestamp: Date.now(),
+            status: 'pending',
+            admin_action: null,
+            action_date: null
+        };
+        
+        const linkInputs = document.querySelectorAll('.extra-link');
+        linkInputs.forEach(input => {
+            const link = input.value.trim();
+            if (link && link.startsWith('http')) {
+                formData.extra_links.push(link);
+            }
+        });
+        
+        const avatarImg = avatarPreview.querySelector('img');
+        if (avatarImg && avatarImg.src) {
+            formData.avatar_data = avatarImg.src;
+        }
+        
+        const submitBtn = applyForm.querySelector('.submit-btn');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Отправка...';
+        submitBtn.disabled = true;
+        
+        try {
+            const savedData = saveApplication(formData);
+            const telegramResult = await sendApplicationToTelegram(savedData);
+            
+            if (telegramResult.ok) {
+                savedData.telegram_message_id = telegramResult.result.message_id;
+                let applications = JSON.parse(localStorage.getItem('fame_applications') || '[]');
+                const index = applications.findIndex(app => app.timestamp === savedData.timestamp);
+                if (index !== -1) {
+                    applications[index] = savedData;
+                    localStorage.setItem('fame_applications', JSON.stringify(applications));
+                }
+                
+                showNotification('✅ Заявка отправлена администраторам!', 'success');
+                showApplicationSuccess(savedData);
+                applyForm.reset();
+                avatarPreview.classList.remove('has-image');
+                avatarPreview.innerHTML = `
+                    <div class="avatar-preview-placeholder">
+                        <i class="fas fa-user"></i>
+                        <span>Загрузить фото</span>
+                    </div>
+                `;
+                linksContainer.innerHTML = `
+                    <div class="link-input-group">
+                        <input type="url" class="extra-link" placeholder="https://example.com">
+                        <button type="button" class="remove-link-btn" style="display: none;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+                
+                if (document.getElementById('admin-panel').classList.contains('active-section')) {
+                    loadApplications();
+                }
+            } else {
+                showNotification('Заявка сохранена локально', 'warning');
+            }
+        } catch (error) {
+            showNotification('Ошибка при отправке заявки', 'error');
+        } finally {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    });
+    
+    const resetBtn = applyForm.querySelector('.reset-btn');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm('Очистить форму?')) {
+                applyForm.reset();
+                avatarPreview.classList.remove('has-image');
+                avatarPreview.innerHTML = `
+                    <div class="avatar-preview-placeholder">
+                        <i class="fas fa-user"></i>
+                        <span>Загрузить фото</span>
+                    </div>
+                `;
+                linksContainer.innerHTML = `
+                    <div class="link-input-group">
+                        <input type="url" class="extra-link" placeholder="https://example.com">
+                        <button type="button" class="remove-link-btn" style="display: none;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+                showNotification('Форма очищена', 'info');
+            }
+        });
+    }
 }
 
 function saveApplication(formData) {
     try {
         let applications = JSON.parse(localStorage.getItem('fame_applications') || '[]');
+        formData.telegram_message_id = null;
         applications.push(formData);
-        if (applications.length > 100) applications = applications.slice(-100);
+        if (applications.length > 200) applications = applications.slice(-200);
         localStorage.setItem('fame_applications', JSON.stringify(applications));
-        console.log('Заявка сохранена:', formData);
-        showNotification('Заявка успешно сохранена и отправлена на модерацию!', 'success');
-        return true;
+        console.log('Заявка сохранена локально:', formData);
+        return formData;
     } catch (error) {
         console.error('Ошибка сохранения заявки:', error);
-        showNotification('Ошибка при сохранении заявки', 'error');
-        return false;
+        throw error;
     }
 }
 
 function showApplicationSuccess(formData) {
+    const successModal = document.createElement('div');
+    successModal.className = 'modal active';
+    successModal.id = 'application-success-modal';
+    successModal.innerHTML = `
+        <div class="modal-content neon-flow" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2 class="text-neon-flow">✅ Заявка отправлена!</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 30px; text-align: center;">
+                <div style="font-size: 5rem; color: #0f0; margin-bottom: 20px;">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3 style="color: #fff; margin-bottom: 15px;">Заявка успешно отправлена</h3>
+                <p style="color: #aaa; margin-bottom: 25px;">
+                    Ваша заявка на <strong>${formData.category}</strong> отправлена администраторам.
+                </p>
+                <div class="modal-actions">
+                    <button class="action-btn" onclick="closeApplicationSuccessModal()">
+                        <i class="fas fa-check"></i> Понятно
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(successModal);
+    const closeBtn = successModal.querySelector('.close-modal');
+    closeBtn.addEventListener('click', () => successModal.remove());
+    successModal.addEventListener('click', (e) => {
+        if (e.target === successModal) successModal.remove();
+    });
 }
 
-function closeApplySuccessModal() {
+function closeApplicationSuccessModal() {
+    const modal = document.getElementById('application-success-modal');
+    if (modal) modal.remove();
 }
 
 function copyTelegramLink() {

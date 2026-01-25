@@ -60,7 +60,6 @@ function decodeSecureToken(encodedToken) {
         const userData = JSON.parse(decrypted);
         return userData;
     } catch (error) {
-        console.error('Ошибка декодирования защищенного токена:', error);
         try {
             const decrypted = decryptText(encodedToken);
             const parts = decrypted.split('_');
@@ -114,83 +113,6 @@ function decryptBotToken() {
         }
     }
     return decrypted;
-}
-
-async function sendApplicationToTelegram(formData) {
-    try {
-        const TELEGRAM_BOT_TOKEN = decryptBotToken();
-        const message = `📨 *Новая заявка* 
-👤 *Ник:* ${formData.nickname}
-📱 *TG:* ${formData.telegram}
-🏷️ *Кат:* ${formData.category}
-📝 ${formData.description.substring(0, 200)}${formData.description.length > 200 ? '...' : ''}
-🔗 ${formData.main_link}
-🆔 *ID:* ${formData.user_id}
-⏰ ${new Date(formData.timestamp).toLocaleString('ru-RU')}`;
-
-        const inlineKeyboard = {
-            inline_keyboard: [[
-                {
-                    text: '✅ Принять',
-                    callback_data: `approve_${formData.timestamp}_${formData.user_id}`
-                },
-                {
-                    text: '❌ Отклонить',
-                    callback_data: `reject_${formData.timestamp}_${formData.user_id}`
-                }
-            ]]
-        };
-
-        if (formData.avatar_data && formData.avatar_data.startsWith('data:image')) {
-            const photoResponse = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    chat_id: ADMIN_CHAT_ID,
-                    photo: formData.avatar_data,
-                    caption: message,
-                    parse_mode: 'Markdown',
-                    reply_markup: inlineKeyboard
-                })
-            });
-            return await photoResponse.json();
-        } else {
-            const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    chat_id: ADMIN_CHAT_ID,
-                    text: message,
-                    parse_mode: 'Markdown',
-                    reply_markup: inlineKeyboard
-                })
-            });
-            return await response.json();
-        }
-    } catch (error) {
-        console.error('Ошибка отправки:', error);
-        throw error;
-    }
-}
-
-async function updateTelegramMessage(messageId, newText) {
-    try {
-        const TELEGRAM_BOT_TOKEN = decryptBotToken();
-        const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageText`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: ADMIN_CHAT_ID,
-                message_id: messageId,
-                text: newText,
-                parse_mode: 'Markdown'
-            })
-        });
-        return await response.json();
-    } catch (error) {
-        console.error('Ошибка обновления:', error);
-        throw error;
-    }
 }
 
 function initAuthSystem() {
@@ -762,6 +684,189 @@ function showNotification(message, type = 'info') {
     }, 5000);
 }
 
+async function sendApplicationToTelegram(formData) {
+    try {
+        const TELEGRAM_BOT_TOKEN = decryptBotToken();
+        const message = `📨 *Новая заявка* 
+👤 *Ник:* ${formData.nickname}
+📱 *TG:* ${formData.telegram}
+🏷️ *Кат:* ${formData.category}
+📝 ${formData.description.substring(0, 200)}${formData.description.length > 200 ? '...' : ''}
+🔗 ${formData.main_link}
+🆔 *ID:* ${formData.user_id}
+⏰ ${new Date(formData.timestamp).toLocaleString('ru-RU')}`;
+
+        const inlineKeyboard = {
+            inline_keyboard: [[
+                {
+                    text: '✅ Принять',
+                    callback_data: `approve_${formData.timestamp}_${formData.user_id}`
+                },
+                {
+                    text: '❌ Отклонить',
+                    callback_data: `reject_${formData.timestamp}_${formData.user_id}`
+                }
+            ]]
+        };
+
+        if (formData.avatar_data && formData.avatar_data.startsWith('data:image')) {
+            const photoResponse = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: ADMIN_CHAT_ID,
+                    photo: formData.avatar_data,
+                    caption: message,
+                    parse_mode: 'Markdown',
+                    reply_markup: inlineKeyboard
+                })
+            });
+            return await photoResponse.json();
+        } else {
+            const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: ADMIN_CHAT_ID,
+                    text: message,
+                    parse_mode: 'Markdown',
+                    reply_markup: inlineKeyboard
+                })
+            });
+            return await response.json();
+        }
+    } catch (error) {
+        console.error('Ошибка отправки:', error);
+        throw error;
+    }
+}
+
+async function updateTelegramMessage(messageId, newText) {
+    try {
+        const TELEGRAM_BOT_TOKEN = decryptBotToken();
+        const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageText`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: ADMIN_CHAT_ID,
+                message_id: messageId,
+                text: newText,
+                parse_mode: 'Markdown'
+            })
+        });
+        return await response.json();
+    } catch (error) {
+        console.error('Ошибка обновления:', error);
+        throw error;
+    }
+}
+
+async function getTelegramApplications() {
+    try {
+        const TELEGRAM_BOT_TOKEN = decryptBotToken();
+        
+        const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                offset: 0,
+                limit: 100,
+                allowed_updates: ['message', 'callback_query']
+            })
+        });
+        
+        const result = await response.json();
+        if (!result.ok) return [];
+        
+        const applications = [];
+        
+        for (const update of result.result) {
+            if (update.message && update.message.chat.id.toString() === ADMIN_CHAT_ID.toString()) {
+                const message = update.message;
+                
+                if (message.text && message.text.includes('Новая заявка')) {
+                    applications.push(parseTelegramMessage(message));
+                }
+                
+                if (message.photo && message.caption && message.caption.includes('Новая заявка')) {
+                    applications.push(parseTelegramMessage(message, true));
+                }
+            }
+            
+            if (update.callback_query && update.callback_query.message) {
+                const message = update.callback_query.message;
+                if (message.chat.id.toString() === ADMIN_CHAT_ID.toString()) {
+                    applications.push(parseTelegramMessage(message, !!message.photo));
+                }
+            }
+        }
+        
+        return applications;
+    } catch (error) {
+        console.error('Ошибка получения заявок из Telegram:', error);
+        return [];
+    }
+}
+
+function parseTelegramMessage(message, isPhoto = false) {
+    const text = isPhoto ? message.caption : message.text;
+    
+    const nickname = extractValue(text, 'Ник:', 'TG:') || extractValue(text, '*Ник:*', '*TG:*');
+    const telegram = extractValue(text, 'TG:', 'Кат:') || extractValue(text, '*TG:*', '*Кат:*');
+    const category = extractValue(text, 'Кат:', '🔗') || extractValue(text, '*Кат:*', '🔗');
+    const user_id = extractValue(text, 'ID:', '⏰') || extractValue(text, '*ID:*', '⏰');
+    const timestamp = extractValue(text, '⏰', null);
+    
+    let status = 'pending';
+    if (text.includes('✅ *ПРИНЯТО*') || text.includes('✅ ПРИНЯТО')) status = 'approved';
+    if (text.includes('❌ *ОТКЛОНЕНО*') || text.includes('❌ ОТКЛОНЕНО')) status = 'rejected';
+    
+    return {
+        telegram_message_id: message.message_id,
+        nickname: nickname || 'Неизвестно',
+        telegram: telegram || '',
+        category: category || '',
+        description: 'Заявка из Telegram',
+        main_link: '',
+        user_id: user_id || '',
+        timestamp: parseTelegramDate(timestamp) || message.date * 1000,
+        status: status,
+        avatar_data: isPhoto && message.photo ? 
+            `https://api.telegram.org/bot${decryptBotToken()}/getFile?file_id=${message.photo[0].file_id}` : '',
+        extra_links: []
+    };
+}
+
+function extractValue(text, startKey, endKey) {
+    const startIndex = text.indexOf(startKey);
+    if (startIndex === -1) return null;
+    
+    const start = startIndex + startKey.length;
+    const end = endKey ? text.indexOf(endKey, start) : text.length;
+    
+    if (end === -1) return text.substring(start).trim();
+    return text.substring(start, end).trim();
+}
+
+function parseTelegramDate(dateStr) {
+    if (!dateStr) return Date.now();
+    
+    try {
+        const date = new Date(dateStr);
+        if (!isNaN(date.getTime())) return date.getTime();
+        
+        const match = dateStr.match(/(\d{1,2})\.(\d{1,2})\.(\d{4}), (\d{1,2}):(\d{1,2})/);
+        if (match) {
+            const [, day, month, year, hour, minute] = match;
+            return new Date(year, month - 1, day, hour, minute).getTime();
+        }
+        
+        return Date.now();
+    } catch (error) {
+        return Date.now();
+    }
+}
+
 function showAdminPanel() {
     if (!currentUser) {
         openAuthModal();
@@ -777,17 +882,29 @@ function showAdminPanel() {
     switchSection('admin-panel');
 }
 
-function loadApplications() {
+async function loadApplications() {
     try {
-        const applications = JSON.parse(localStorage.getItem('fame_applications') || '[]');
+        const activeFilter = document.querySelector('.admin-filters .filter-btn.active')?.dataset.filter || 'all';
+        const searchQuery = document.getElementById('admin-search-input')?.value.toLowerCase() || '';
+        
+        let applications = [];
+        
+        try {
+            applications = await getTelegramApplications();
+            console.log('Заявки из Telegram:', applications.length);
+            
+            if (applications.length === 0) {
+                applications = JSON.parse(localStorage.getItem('fame_applications') || '[]');
+            }
+        } catch (globalError) {
+            applications = JSON.parse(localStorage.getItem('fame_applications') || '[]');
+        }
+        
         const container = document.getElementById('applications-list');
         if (!container) return;
         
-        applications.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        applications.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
         updateAdminStats(applications);
-        
-        const activeFilter = document.querySelector('.admin-filters .filter-btn.active')?.dataset.filter || 'all';
-        const searchQuery = document.getElementById('admin-search-input')?.value.toLowerCase() || '';
         
         const filteredApplications = applications.filter(app => {
             if (activeFilter !== 'all' && app.status !== activeFilter) return false;
@@ -817,7 +934,7 @@ function loadApplications() {
             document.querySelectorAll('.application-card').forEach(card => {
                 card.addEventListener('click', function() {
                     const appId = this.dataset.id;
-                    const application = applications.find(app => app.timestamp.toString() === appId);
+                    const application = applications.find(app => app.telegram_message_id.toString() === appId);
                     if (application) showApplicationDetails(application);
                 });
             });
@@ -842,7 +959,7 @@ function loadApplications() {
                 btn.addEventListener('click', function(e) {
                     e.stopPropagation();
                     const appId = this.dataset.id;
-                    const application = applications.find(app => app.timestamp.toString() === appId);
+                    const application = applications.find(app => app.telegram_message_id.toString() === appId);
                     if (application) showApplicationDetails(application);
                 });
             });
@@ -892,14 +1009,16 @@ function createApplicationCard(application) {
         : `@${application.telegram}`;
     
     return `
-        <div class="application-card ${application.status}" data-id="${application.timestamp}">
+        <div class="application-card ${application.status}" data-id="${application.telegram_message_id}">
             <div class="application-header">
                 <div class="application-avatar">
-                    ${application.avatar_data ? 
+                    ${application.avatar_data && application.avatar_data.startsWith('https://api.telegram.org') ? 
                         `<img src="${application.avatar_data}" alt="${application.nickname}">` :
-                        `<div style="width:100%;height:100%;background:#2a2a2a;display:flex;align-items:center;justify-content:center;color:#666;">
-                            <i class="fas fa-user"></i>
-                        </div>`
+                        application.avatar_data && application.avatar_data.startsWith('data:image') ?
+                            `<img src="${application.avatar_data}" alt="${application.nickname}">` :
+                            `<div style="width:100%;height:100%;background:#2a2a2a;display:flex;align-items:center;justify-content:center;color:#666;">
+                                <i class="fas fa-user"></i>
+                            </div>`
                     }
                 </div>
                 <div class="application-info">
@@ -930,15 +1049,15 @@ function createApplicationCard(application) {
                     <span class="application-status ${statusClass}">${statusText}</span>
                     
                     ${application.status === 'pending' ? `
-                        <button class="action-btn-small approve-btn" data-id="${application.timestamp}">
+                        <button class="action-btn-small approve-btn" data-id="${application.telegram_message_id}">
                             <i class="fas fa-check"></i> Принять
                         </button>
-                        <button class="action-btn-small reject-btn" data-id="${application.timestamp}">
+                        <button class="action-btn-small reject-btn" data-id="${application.telegram_message_id}">
                             <i class="fas fa-times"></i> Отклонить
                         </button>
                     ` : ''}
                     
-                    <button class="action-btn-small view-btn" data-id="${application.timestamp}">
+                    <button class="action-btn-small view-btn" data-id="${application.telegram_message_id}">
                         <i class="fas fa-eye"></i> Просмотр
                     </button>
                 </div>
@@ -978,11 +1097,13 @@ function showApplicationDetails(application) {
     modalBody.innerHTML = `
         <div class="application-details">
             <div class="avatar-preview-large">
-                ${application.avatar_data ? 
+                ${application.avatar_data && application.avatar_data.startsWith('https://api.telegram.org') ? 
                     `<img src="${application.avatar_data}" alt="${application.nickname}">` :
-                    `<div style="width:100%;height:100%;background:#2a2a2a;display:flex;align-items:center;justify-content:center;color:#666;font-size:3rem;">
-                        <i class="fas fa-user"></i>
-                    </div>`
+                    application.avatar_data && application.avatar_data.startsWith('data:image') ?
+                        `<img src="${application.avatar_data}" alt="${application.nickname}">` :
+                        `<div style="width:100%;height:100%;background:#2a2a2a;display:flex;align-items:center;justify-content:center;color:#666;font-size:3rem;">
+                            <i class="fas fa-user"></i>
+                        </div>`
                 }
             </div>
             
@@ -1021,36 +1142,21 @@ function showApplicationDetails(application) {
             </div>
             
             <div class="detail-group">
-                <span class="detail-label">Основная ссылка:</span>
-                <div class="detail-value">
-                    <a href="${application.main_link}" target="_blank">${application.main_link}</a>
-                </div>
-            </div>
-            
-            ${application.extra_links && application.extra_links.length > 0 ? `
-                <div class="detail-group">
-                    <span class="detail-label">Дополнительные ссылки (${application.extra_links.length}):</span>
-                    <div class="links-grid">
-                        ${application.extra_links.map(link => `
-                            <div class="link-item">
-                                <a href="${link}" target="_blank">${link}</a>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            ` : ''}
-            
-            <div class="detail-group">
                 <span class="detail-label">ID пользователя:</span>
                 <div class="detail-value">${application.user_id}</div>
             </div>
             
+            <div class="detail-group">
+                <span class="detail-label">ID сообщения Telegram:</span>
+                <div class="detail-value">${application.telegram_message_id}</div>
+            </div>
+            
             <div class="modal-actions">
                 ${application.status === 'pending' ? `
-                    <button class="action-btn approve-btn" data-id="${application.timestamp}" onclick="approveApplication('${application.timestamp}')">
+                    <button class="action-btn approve-btn" data-id="${application.telegram_message_id}" onclick="approveApplication('${application.telegram_message_id}', '${application.user_id}', '${application.nickname}', '${application.telegram}', '${application.category}')">
                         <i class="fas fa-check"></i> Принять заявку
                     </button>
-                    <button class="action-btn reject-btn" data-id="${application.timestamp}" onclick="rejectApplication('${application.timestamp}')">
+                    <button class="action-btn reject-btn" data-id="${application.telegram_message_id}" onclick="rejectApplication('${application.telegram_message_id}', '${application.user_id}', '${application.nickname}', '${application.telegram}', '${application.category}')">
                         <i class="fas fa-times"></i> Отклонить заявку
                     </button>
                 ` : ''}
@@ -1065,71 +1171,54 @@ function showApplicationDetails(application) {
     openModal('application-modal');
 }
 
-async function approveApplication(appId) {
+async function approveApplication(messageId, userId, nickname, telegram, category) {
     if (!confirm('Вы уверены, что хотите принять эту заявку?')) return;
     
     try {
-        let applications = JSON.parse(localStorage.getItem('fame_applications') || '[]');
-        const application = applications.find(app => app.timestamp.toString() === appId);
-        
-        if (application) {
-            application.status = 'approved';
-            application.admin_action = 'approved';
-            application.action_date = new Date().toISOString();
-            
-            if (application.telegram_message_id) {
-                const updatedMessage = `✅ *ПРИНЯТО* 
-👤 ${application.nickname}
-📱 ${application.telegram}
-🏷️ ${application.category}
+        const updatedMessage = `✅ *ПРИНЯТО* 
+👤 ${nickname}
+📱 ${telegram}
+🏷️ ${category}
+🆔 ${userId}
 ⏰ ${new Date().toLocaleString('ru-RU')}`;
 
-                await updateTelegramMessage(application.telegram_message_id, updatedMessage);
-            }
-            
-            localStorage.setItem('fame_applications', JSON.stringify(applications));
-            showNotification('✅ Заявка принята!', 'success');
-            addToMembersList(application);
-            loadApplications();
-            const modal = document.getElementById('application-modal');
-            if (modal && modal.classList.contains('active')) closeModal(modal);
-        }
+        await updateTelegramMessage(messageId, updatedMessage);
+        
+        showNotification('✅ Заявка принята!', 'success');
+        addToMembersList({
+            nickname: nickname,
+            telegram: telegram,
+            category: category,
+            user_id: userId
+        });
+        
+        loadApplications();
+        const modal = document.getElementById('application-modal');
+        if (modal && modal.classList.contains('active')) closeModal(modal);
     } catch (error) {
         console.error('Ошибка принятия заявки:', error);
         showNotification('Ошибка принятия заявки', 'error');
     }
 }
 
-async function rejectApplication(appId) {
+async function rejectApplication(messageId, userId, nickname, telegram, category) {
     if (!confirm('Вы уверены, что хотите отклонить эту заявку?')) return;
     
     try {
-        let applications = JSON.parse(localStorage.getItem('fame_applications') || '[]');
-        const application = applications.find(app => app.timestamp.toString() === appId);
-        
-        if (application) {
-            const reason = prompt('Причина отказа:', 'Не соответствует критериям');
-            application.status = 'rejected';
-            application.admin_action = 'rejected';
-            application.reject_reason = reason || 'Не указано';
-            application.action_date = new Date().toISOString();
-            
-            if (application.telegram_message_id) {
-                const updatedMessage = `❌ *ОТКЛОНЕНО* 
-👤 ${application.nickname}
-📱 ${application.telegram}
-📌 ${application.reject_reason}
+        const reason = prompt('Причина отказа:', 'Не соответствует критериям');
+        const updatedMessage = `❌ *ОТКЛОНЕНО* 
+👤 ${nickname}
+📱 ${telegram}
+📌 ${reason || 'Не указано'}
+🆔 ${userId}
 ⏰ ${new Date().toLocaleString('ru-RU')}`;
 
-                await updateTelegramMessage(application.telegram_message_id, updatedMessage);
-            }
-            
-            localStorage.setItem('fame_applications', JSON.stringify(applications));
-            showNotification('❌ Заявка отклонена!', 'success');
-            loadApplications();
-            const modal = document.getElementById('application-modal');
-            if (modal && modal.classList.contains('active')) closeModal(modal);
-        }
+        await updateTelegramMessage(messageId, updatedMessage);
+        
+        showNotification('❌ Заявка отклонена!', 'success');
+        loadApplications();
+        const modal = document.getElementById('application-modal');
+        if (modal && modal.classList.contains('active')) closeModal(modal);
     } catch (error) {
         console.error('Ошибка отклонения заявки:', error);
         showNotification('Ошибка отклонения заявки', 'error');
@@ -1145,21 +1234,21 @@ function addToMembersList(application) {
             username: `@${application.telegram}`,
             category: application.category,
             role: application.category,
-            description: application.description,
-            avatar: application.avatar_data || '',
+            description: 'Добавлен через заявку',
+            avatar: '',
             verified: true,
             pinned: false,
             telegram: application.telegram,
             joinDate: new Date().toISOString().split('T')[0],
             activity: 'Новый',
-            details: `Добавлен ${new Date(application.timestamp).toLocaleDateString('ru-RU')}`,
+            details: `Добавлен ${new Date().toLocaleDateString('ru-RU')}`,
             skills: [application.category],
             socials: { 
                 telegram: `@${application.telegram}`,
-                project: application.main_link 
+                project: '' 
             },
-            main_link: application.main_link,
-            extra_links: application.extra_links || []
+            main_link: '',
+            extra_links: []
         };
         members.push(newMember);
         if (members.length > 500) members = members.slice(-500);
@@ -1852,7 +1941,7 @@ function switchSection(sectionId) {
 }
 
 function initApplyForm() {
-    console.log('Инициализация формы заявки с Telegram ботом...');
+    console.log('Инициализация формы заявки...');
     
     const applyForm = document.getElementById('apply-form');
     if (!applyForm) {
@@ -1962,9 +2051,7 @@ function initApplyForm() {
             extra_links: [],
             avatar_data: '',
             timestamp: Date.now(),
-            status: 'pending',
-            admin_action: null,
-            action_date: null
+            status: 'pending'
         };
         
         const linkInputs = document.querySelectorAll('.extra-link');

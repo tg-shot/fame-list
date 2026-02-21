@@ -392,7 +392,7 @@ function saveUser() {
 function demoLogin() {
     currentUser = {
         id: 287265398,
-        first_name: "Зорф",
+        first_name: "шот",
         last_name: "",
         username: "tgzorf",
         auth_date: Math.floor(Date.now() / 1000),
@@ -400,8 +400,8 @@ function demoLogin() {
         token_type: "demo",
         photo_url: "https://t.me/i/userpic/320/tgzorf.jpg",
         profile: {
-            nickname: "Зорф",
-            bio: "Владелец dark Fame и разработчик системы шифрования",
+            nickname: "шот",
+            bio: "Владелец allovs Fame и разработчик системы шифрования",
             notifications: true,
             joined: new Date().toISOString().split('T')[0]
         }
@@ -410,7 +410,7 @@ function demoLogin() {
     saveUser();
     updateUserInterface();
     closeModal(document.getElementById('auth-modal'));
-    showNotification('Демо-вход как Зорф (Администратор)', 'success');
+    showNotification('Демо-пользователь как шот (Администратор)', 'success');
 }
 
 function logout() {
@@ -418,7 +418,7 @@ function logout() {
         currentUser = null;
         localStorage.removeItem('fame_current_user');
         updateUserInterface();
-        showNotification('Вы вышли из системы', 'info');
+        showNotification('Вы вышли из аккаунта', 'info');
         switchSection('main');
     }
 }
@@ -477,7 +477,7 @@ function saveProfileSettings() {
     updateUserProfileData();
     
     closeModal(document.getElementById('profile-settings-modal'));
-    showNotification('Настройки профиля сохранены!', 'success');
+    showNotification('Сохранено', 'success');
 }
 
 function showMyProfile() {
@@ -565,7 +565,7 @@ function showMyProfile() {
                 </button>
                 ${isAdminUser ? `
                     <button class="action-btn" onclick="showAdminPanel()">
-                        <i class="fas fa-shield-alt"></i> Админ-панель
+                        <i class="fas fa-shield-alt"></i> панель
                     </button>
                 ` : ''}
                 <button class="action-btn" onclick="testMyToken()" style="background: rgba(108, 99, 255, 0.1); border-color: rgba(108, 99, 255, 0.3);">
@@ -1412,7 +1412,7 @@ const members = [
         username: "@aIIovs",
         category: "Владелец",
         role: "Кодер",
-        description: "Владелец allovs.net",
+        description: "Владелец allovs fame",
         avatar: "img/avatar1.png",
         verified: true,
         pinned: true,

@@ -392,9 +392,9 @@ function saveUser() {
 function demoLogin() {
     currentUser = {
         id: 287265398,
-        first_name: "шот",
-        last_name: "",
-        username: "tgzorf",
+        first_name: "мирок",
+        last_name: "мирок",
+        username: "tgmirok",
         auth_date: Math.floor(Date.now() / 1000),
         hash: "demo_hash_secure",
         token_type: "demo",
@@ -1408,21 +1408,21 @@ function initNavigation() {
 const members = [
     {
         id: 1,
-        nickname: "шот",
-        username: "@aIIovs",
+        nickname: "мирок",
+        username: "@tgmirok",
         category: "Владелец",
         role: "Кодер",
-        description: "Владелец allovs fame",
+        description: "Владелец этого fame list",
         avatar: "img/avatar1.png",
         verified: true,
         pinned: true,
         project: "https://t.me/+IWg2rlIG1s4wMWI8",
-        telegram: "aIIovs",
-        joinDate: "2026-01-24",
+        telegram: "tgmirok",
+        joinDate: "2026-02-10",
         activity: "Постоянная",
-        details: "Создатель и владелец allovs.net.занимаюсь кодингом",
+        details: "Создатель.занимаюсь кодингом",
         skills: ["кодинг"],
-        socials: { telegram: "@aIIovs", project: "https://t.me/+IWg2rlIG1s4wMWI8" }
+        socials: { telegram: "@tgmirok", project: "https://t.me/+IWg2rlIG1s4wMWI8" }
     },
 ];
 

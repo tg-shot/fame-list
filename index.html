@@ -6,379 +6,939 @@
     <meta http-equiv="Cache-Control" content="public, max-age=86400">
     <meta name="theme-color" content="#000000">
     <link rel="icon" type="image/png" href="favicon.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <title>Fame List</title>
     
-    <title>allovs.net</title>
-    <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        /* Стили для FAQ */
-        .faq-content {
-            max-width: 1200px;
-            margin: 0 auto;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: #121212;
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background 0.3s ease;
+        }
+        
+        /* Снег */
+        .snow-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .snowflake {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.8;
+            animation: snowfall linear infinite;
+        }
+        
+        @keyframes snowfall {
+            to { transform: translateY(100vh); }
+        }
+        
+        /* Навигация */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(18, 18, 18, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #333;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .nav-left, .nav-center, .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .menu-btn, .nav-icon {
+            background: none;
+            border: none;
+            color: #e0e0e0;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .menu-btn:hover, .nav-icon:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.1);
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .nav-center {
+            flex: 1;
+            justify-content: center;
+        }
+        
+        .nav-tab {
+            background: none;
+            border: none;
+            color: #888;
+            padding: 12px 25px;
+            cursor: pointer;
+            border-radius: 25px;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+        
+        .nav-tab.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+        
+        .nav-tab:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.05);
+            color: #aaa;
+        }
+        
+        /* Боковое меню */
+        .side-menu {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 280px;
+            height: 100vh;
+            background: rgba(20, 20, 20, 0.98);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            transition: left 0.3s ease;
+            border-right: 1px solid #333;
             padding: 20px;
         }
         
-        .faq-categories {
-            display: grid;
-            gap: 30px;
-            margin-top: 30px;
+        .side-menu.active {
+            left: 0;
         }
         
-        .faq-category {
-            background: rgba(20, 20, 30, 0.8);
-            border-radius: 15px;
-            padding: 25px;
-            border: 1px solid rgba(100, 100, 255, 0.2);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-        
-        .faq-category h3 {
-            color: #6c63ff;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid rgba(108, 99, 255, 0.3);
+        .menu-header {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 10px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
         }
         
-        .faq-item {
-            margin-bottom: 25px;
-            border-left: 3px solid transparent;
-            padding-left: 15px;
-            transition: all 0.3s ease;
-        }
-        
-        .faq-item:hover {
-            border-left-color: #6c63ff;
-        }
-        
-        .faq-question {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 10px;
+        .close-menu {
+            background: none;
+            border: none;
+            color: #aaa;
+            font-size: 1.5rem;
             cursor: pointer;
         }
         
-        .faq-question h4 {
-            color: #fff;
-            margin: 0;
-            font-size: 1.1em;
+        .menu-items {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
         
-        .badge {
-            display: inline-flex;
+        .menu-item {
+            display: flex;
             align-items: center;
-            gap: 5px;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            font-weight: 600;
-        }
-        
-        .verified-badge {
-            background: rgba(0, 255, 0, 0.1);
-            color: #0f0;
-            border: 1px solid rgba(0, 255, 0, 0.3);
-        }
-        
-        .scam-badge {
-            background: rgba(255, 0, 0, 0.1);
-            color: #f00;
-            border: 1px solid rgba(255, 0, 0, 0.3);
-        }
-        
-        .pinned-badge {
-            background: rgba(255, 215, 0, 0.1);
-            color: #ffd700;
-            border: 1px solid rgba(255, 215, 0, 0.3);
-        }
-        
-        .scamdb-badge {
-            background: rgba(255, 69, 0, 0.1);
-            color: #ff4500;
-            border: 1px solid rgba(255, 69, 0, 0.3);
-        }
-        
-        .faq-answer {
-            color: #ccc;
-            line-height: 1.6;
-            padding-left: 45px;
-        }
-        
-        .faq-criteria, .faq-warning, .faq-note {
-            margin-top: 15px;
+            gap: 15px;
             padding: 15px;
+            color: #aaa;
+            text-decoration: none;
             border-radius: 10px;
+            transition: all 0.3s;
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
         }
         
-        .faq-criteria {
-            background: rgba(30, 30, 45, 0.8);
-            border-left: 4px solid #6c63ff;
+        .menu-item:hover, .menu-item.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
         }
         
-        .faq-warning {
-            background: rgba(255, 69, 0, 0.1);
-            border-left: 4px solid #ff4500;
-            color: #ff8c69;
+        /* Секции */
+        .section {
+            display: none;
+            padding: 30px;
+            min-height: calc(100vh - 70px);
         }
         
-        .faq-note {
-            background: rgba(255, 215, 0, 0.1);
-            border-left: 4px solid #ffd700;
-            color: #ffeb3b;
+        .section.active-section {
+            display: block;
+            animation: fadeIn 0.5s ease;
         }
         
-        .faq-criteria h5, .faq-warning h5, .faq-note h5 {
-            color: inherit;
-            margin-top: 0;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
-        .faq-criteria ul, .faq-warning ul, .faq-note ul {
-            margin: 10px 0;
-            padding-left: 20px;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
         }
         
-        .faq-criteria li, .faq-warning li, .faq-note li {
-            margin-bottom: 8px;
+        /* Поиск и фильтры */
+        .search-container {
+            background: rgba(25, 25, 25, 0.9);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 15px 15px 15px 50px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 25px;
+            color: #fff;
+            font-size: 1rem;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .filter-btn {
+            padding: 10px 20px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 25px;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn.active, .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+        
+        /* Сетка участников */
+        .members-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        
+        .member-card {
+            background: rgba(25, 25, 25, 0.9);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid #333;
+            transition: all 0.4s;
+            cursor: pointer;
             position: relative;
         }
         
-        .faq-criteria li:before, .faq-warning li:before, .faq-note li:before {
-            content: "•";
-            color: inherit;
-            position: absolute;
-            left: -15px;
+        .member-card:hover {
+            transform: translateY(-10px);
+            border-color: #666;
         }
         
-        .fame-levels {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
+        .member-card.verified {
+            border-left: 3px solid #0f0;
         }
         
-        .fame-level-card {
-            background: linear-gradient(145deg, rgba(30, 30, 45, 0.8), rgba(20, 20, 30, 0.8));
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid rgba(108, 99, 255, 0.2);
-            transition: transform 0.3s ease;
+        .member-card.scam {
+            border-left: 3px solid #ff4444;
         }
         
-        .fame-level-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .fame-level-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-        
-        .level-icon {
-            font-size: 2em;
-        }
-        
-        .level-badge {
-            font-size: 0.8em;
-            padding: 3px 10px;
-            border-radius: 12px;
-            background: rgba(108, 99, 255, 0.2);
-            color: #6c63ff;
-        }
-        
-        .level-requirements {
-            color: #aaa;
-            font-size: 0.9em;
-        }
-        
-        .level-requirements ul {
-            margin: 10px 0;
-            padding-left: 20px;
-        }
-        
-        .level-requirements li {
-            margin-bottom: 5px;
-        }
-        
-        .apply-steps {
-            display: grid;
-            gap: 20px;
-            margin: 20px 0;
-        }
-        
-        .apply-step {
-            display: flex;
-            gap: 15px;
-            align-items: flex-start;
-        }
-        
-        .step-number {
-            background: #6c63ff;
-            color: white;
-            width: 30px;
-            height: 30px;
+        .member-avatar {
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            font-weight: bold;
+            background: #2a2a2a;
+            margin-bottom: 20px;
+            overflow: hidden;
         }
         
-        .step-content {
-            flex: 1;
+        .member-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         
-        .step-content h4 {
-            margin: 0 0 10px 0;
+        .member-info h3 {
             color: #fff;
-        }
-        
-        .tips-list {
-            display: grid;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        .tip-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #aaa;
-        }
-        
-        .tip-item i {
-            color: #6c63ff;
-        }
-        
-        .categories-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-        
-        .category-card {
-            background: rgba(30, 30, 45, 0.6);
-            border-radius: 10px;
-            padding: 15px;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-        
-        .category-card:hover {
-            background: rgba(108, 99, 255, 0.1);
-            transform: scale(1.05);
-        }
-        
-        .category-icon {
-            font-size: 2em;
             margin-bottom: 10px;
         }
         
-        .category-card h4 {
-            margin: 0;
-            color: #fff;
-            font-size: 1.1em;
-        }
-        
-        .category-card p {
-            margin: 5px 0 0 0;
-            color: #aaa;
-            font-size: 0.9em;
-        }
-        
-        @media (max-width: 768px) {
-            .faq-content {
-                padding: 10px;
-            }
-            
-            .faq-category {
-                padding: 15px;
-            }
-            
-            .faq-answer {
-                padding-left: 0;
-            }
-            
-            .faq-question {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-            
-            .fame-levels {
-                grid-template-columns: 1fr;
-            }
-            
-            .categories-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        
-        .faq-contact {
-            text-align: center;
-            margin-top: 40px;
-            padding-top: 30px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .faq-contact h3 {
-            color: #6c63ff;
+        .member-role {
+            display: inline-block;
+            padding: 5px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            font-size: 0.85rem;
             margin-bottom: 15px;
         }
         
-        .contact-links {
+        .member-description {
+            color: #888;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        
+        /* Форма заявки */
+        .apply-section-form {
+            background: rgba(25, 25, 25, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+        }
+        
+        .apply-section-form h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+        }
+        
+        .avatar-upload {
             display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .avatar-preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 3px solid #333;
+            overflow: hidden;
+            background: #2a2a2a;
+            display: flex;
+            align-items: center;
             justify-content: center;
+        }
+        
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .upload-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #333;
+            border-radius: 25px;
+            color: #fff;
+            cursor: pointer;
+        }
+        
+        .links-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .link-input-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .link-input-group input {
+            flex: 1;
+        }
+        
+        .remove-link-btn {
+            padding: 10px 15px;
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid rgba(255, 68, 68, 0.3);
+            border-radius: 8px;
+            color: #ff4444;
+            cursor: pointer;
+        }
+        
+        .add-link-btn {
+            padding: 10px 20px;
+            background: rgba(102, 102, 255, 0.1);
+            border: 1px solid rgba(102, 102, 255, 0.3);
+            border-radius: 25px;
+            color: #66f;
+            cursor: pointer;
+        }
+        
+        .form-actions {
+            display: flex;
             gap: 20px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        
+        .submit-btn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #2a2a2a, #3a3a3a);
+            border: 1px solid #444;
+            border-radius: 30px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        
+        .reset-btn {
+            padding: 15px 40px;
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid rgba(255, 68, 68, 0.3);
+            border-radius: 30px;
+            color: #ff4444;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+        
+        /* Админ панель */
+        .admin-panel-container {
+            background: rgba(25, 25, 25, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+        }
+        
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            font-size: 2rem;
+            color: #fff;
+        }
+        
+        .admin-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
+        }
+        
+        .applications-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .application-card {
+            background: rgba(30, 30, 30, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .application-card:hover {
+            transform: translateX(5px);
+        }
+        
+        .application-card.pending {
+            border-left: 4px solid #ff9900;
+        }
+        
+        .application-card.approved {
+            border-left: 4px solid #0f0;
+        }
+        
+        .application-card.rejected {
+            border-left: 4px solid #ff4444;
+        }
+        
+        .application-header {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .application-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+        
+        .application-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .application-info h3 {
+            color: #fff;
+            margin-bottom: 5px;
+        }
+        
+        .application-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+        
+        .status-pending { background: rgba(255, 153, 0, 0.2); color: #ff9900; }
+        .status-approved { background: rgba(0, 170, 0, 0.2); color: #0f0; }
+        .status-rejected { background: rgba(255, 68, 68, 0.2); color: #ff4444; }
+        
+        /* Форум */
+        .forum-container {
+            background: rgba(25, 25, 25, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+        }
+        
+        .forum-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .create-post-btn {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #2a2a2a, #3a3a3a);
+            border: 1px solid #444;
+            border-radius: 25px;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .posts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .post-card {
+            background: rgba(30, 30, 30, 0.9);
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s;
+        }
+        
+        .post-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .post-author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .post-author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #2a2a2a;
+            overflow: hidden;
+        }
+        
+        .post-author-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .post-author-name {
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .post-date {
+            color: #666;
+            font-size: 0.8rem;
+        }
+        
+        .post-title {
+            font-size: 1.3rem;
+            color: #fff;
+            margin-bottom: 15px;
+        }
+        
+        .post-content {
+            color: #aaa;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .post-attachments {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .attachment {
+            padding: 8px 15px;
+            background: rgba(102, 102, 255, 0.1);
+            border: 1px solid rgba(102, 102, 255, 0.3);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #66f;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .post-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #333;
+        }
+        
+        .post-action {
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.3s;
+        }
+        
+        .post-action:hover {
+            color: #66f;
+        }
+        
+        /* Модальные окна */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: rgba(20, 20, 20, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid #333;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .modal-header h2 {
+            color: #fff;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            color: #aaa;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .modal-body {
+            padding: 25px;
+        }
+        
+        /* Профиль пользователя */
+        .profile-container {
+            background: rgba(25, 25, 25, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+        }
+        
+        .user-profile-header {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .user-profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid #666;
+        }
+        
+        .user-profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .user-profile-info h1 {
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        
+        .user-profile-stats {
+            display: flex;
+            gap: 20px;
             margin-top: 20px;
         }
         
-        .contact-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 25px;
-            background: rgba(108, 99, 255, 0.1);
-            border-radius: 25px;
-            color: #fff;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(108, 99, 255, 0.3);
+        .stat-box {
+            text-align: center;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
         }
         
-        .contact-link:hover {
-            background: rgba(108, 99, 255, 0.2);
-            transform: translateY(-3px);
+        /* Кнопка входа */
+        .auth-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #0088cc, #006699);
+            border: none;
+            border-radius: 25px;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .user-profile {
+            position: relative;
+        }
+        
+        .profile-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: rgba(25, 25, 25, 0.98);
+            border: 1px solid #333;
+            border-radius: 10px;
+            min-width: 250px;
+            display: none;
+            z-index: 1000;
+        }
+        
+        .dropdown-menu.show {
+            display: block;
+        }
+        
+        .dropdown-header {
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .dropdown-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+        
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 15px;
+            color: #aaa;
+            text-decoration: none;
+            cursor: pointer;
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+        }
+        
+        .dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+        
+        /* Уведомления */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            z-index: 3000;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .notification-success { background: rgba(0, 170, 0, 0.9); color: white; }
+        .notification-error { background: rgba(255, 68, 68, 0.9); color: white; }
+        .notification-info { background: rgba(102, 102, 102, 0.9); color: white; }
+        
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .nav-center {
+                display: none;
+            }
+            
+            .members-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .admin-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .user-profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
         }
     </style>
 </head>
-<body class="black-theme">
-    
+<body>
     <div class="snow-container"></div>
-
+    
     <nav class="top-nav">
         <div class="nav-left">
             <button class="menu-btn" id="menu-toggle">
                 <i class="fas fa-bars"></i>
             </button>
-            <h1 class="logo text-neon-flow"> fame list</h1>
+            <h1 class="logo">Fame List</h1>
         </div>
         
         <div class="nav-center">
             <button class="nav-tab active" data-section="main">Главная</button>
-            <a href="https://t.me/+mAY-S9nUa_o2NDI0" class="nav-tab channel-link" target="_blank">
-                <i class="fab fa-telegram"></i> Форум
-            </a>
-            <button class="nav-tab" data-section="apply">Отправить заявку</button>
+            <button class="nav-tab" data-section="apply">Заявка</button>
+            <button class="nav-tab" data-section="forum">Форум</button>
         </div>
         
         <div class="nav-right">
@@ -389,42 +949,32 @@
             <div class="user-profile" id="user-profile" style="display: none;">
                 <div class="profile-dropdown">
                     <button class="profile-toggle" id="profile-toggle">
-                        <img id="user-avatar" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9IiMzMzMiPjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiByeD0iNTAiLz48dGV4dCB4PSI1MCIgeT0iNTUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSI0MCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+QTwvdGV4dD48L3N2Zz4=" 
-                             alt="Аватар" class="user-avatar">
+                        <img id="user-avatar" src="" alt="Аватар" class="user-avatar">
                         <span class="user-name" id="user-name">Гость</span>
                     </button>
                     <div class="dropdown-menu" id="dropdown-menu">
                         <div class="dropdown-header">
-                            <img id="dropdown-avatar" src="" alt="Аватар" class="dropdown-avatar">
-                            <div class="dropdown-user-info">
+                            <img id="dropdown-avatar" src="" alt="" class="dropdown-avatar">
+                            <div>
                                 <strong id="dropdown-name">Гость</strong>
-                                <small id="dropdown-username">@username</small>
-                                <small id="dropdown-id">ID: 0</small>
+                                <small id="dropdown-username"></small>
                             </div>
                         </div>
                         <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item" id="my-profile-btn">
-                            <i class="fas fa-user"></i> профиль
-                        </a>
-                        <a href="#" class="dropdown-item" id="settings-profile-btn">
-                            <i class="fas fa-cog"></i> Настройки профиля
-                        </a>
-                     
-                        <a href="#" class="dropdown-item" id="admin-panel-btn" style="display: none;">
+                        <button class="dropdown-item" id="my-profile-btn">
+                            <i class="fas fa-user"></i> Мой профиль
+                        </button>
+                        <button class="dropdown-item" id="admin-panel-btn" style="display: none;">
                             <i class="fas fa-shield-alt"></i> Админ панель
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <button class="dropdown-item logout-btn" id="logout-btn">
+                        </button>
+                        <button class="dropdown-item" id="logout-btn">
                             <i class="fas fa-sign-out-alt"></i> Выйти
                         </button>
                     </div>
                 </div>
             </div>
             
-            <button class="nav-icon" id="faq-btn" title="FAQ">
-                <i class="fas fa-question-circle"></i>
-            </button>
-            <button class="nav-icon" id="settings-btn" title="Настройки">
+            <button class="nav-icon" id="settings-btn">
                 <i class="fas fa-cog"></i>
             </button>
         </div>
@@ -436,48 +986,29 @@
             <button class="close-menu" id="close-menu">&times;</button>
         </div>
         <div class="menu-items">
-            <a href="#main" class="menu-item active" data-section="main">
+            <button class="menu-item active" data-section="main">
                 <i class="fas fa-home"></i> Главная
-            </a>
-            <a href="#apply" class="menu-item" data-section="apply">
-                <i class="fas fa-paper-plane"></i> Отправить заявку
-            </a>
-            <a href="#faq" class="menu-item">
-                <i class="fas fa-question-circle"></i> FAQ
-            </a>
-            
-            <div class="menu-auth-section" id="menu-auth-section" style="display: none;">
-                <div class="menu-divider"></div>
-                <a href="#" class="menu-item" id="side-my-profile">
-                    <i class="fas fa-user-circle"></i> профиль
-                </a>
-                <a href="#" class="menu-item" id="side-settings">
-                    <i class="fas fa-user-cog"></i> Настройки профиля
-                </a>
-        
-                <a href="#" class="menu-item" id="side-admin-panel" style="display: none;">
-                    <i class="fas fa-shield-alt"></i> панель
-                </a>
-                <button class="menu-item" id="side-logout">
-                    <i class="fas fa-sign-out-alt"></i> Выйти
-                </button>
-            </div>
-            
+            </button>
+            <button class="menu-item" data-section="apply">
+                <i class="fas fa-paper-plane"></i> Заявка
+            </button>
+            <button class="menu-item" data-section="forum">
+                <i class="fas fa-comments"></i> Форум
+            </button>
             <div class="menu-divider"></div>
-            <button class="menu-item" id="menu-settings">
-                <i class="fas fa-sliders-h"></i> Настройки
+            <button class="menu-item" id="side-my-profile">
+                <i class="fas fa-user-circle"></i> Мой профиль
+            </button>
+            <button class="menu-item" id="side-admin-panel" style="display: none;">
+                <i class="fas fa-shield-alt"></i> Админ панель
+            </button>
+            <button class="menu-item" id="side-logout">
+                <i class="fas fa-sign-out-alt"></i> Выйти
             </button>
         </div>
     </div>
     
-    <section id="user-profile-section" class="section">
-        <div class="container">
-            <div class="profile-container" id="user-profile-container">
-  
-            </div>
-        </div>
-    </section>
-    
+    <!-- Главная секция -->
     <section id="main" class="section active-section">
         <div class="container">
             <div class="search-container">
@@ -497,61 +1028,47 @@
                     <button class="filter-btn" data-category="Скам">Скам</button>
                 </div>
             </div>
-
-            <div class="members-grid" id="members-container">
-      
-            </div>
+            <div class="members-grid" id="members-container"></div>
         </div>
     </section>
-
+    
+    <!-- Секция заявки -->
     <section id="apply" class="section">
         <div class="container">
             <div class="apply-section-form">
-                <h2 class="text-neon-flow">Отправить заявку</h2>
-                <p class="apply-description">Заполните форму ниже, чтобы попасть в фейм лист. Все поля обязательны для заполнения.</p>
+                <h2>Отправить заявку</h2>
+                <p class="apply-description">Заполните форму, чтобы попасть в фейм лист</p>
                 
-                <form id="apply-form" class="apply-form">
+                <form id="apply-form">
                     <div class="form-grid">
                         <div class="form-column">
                             <div class="form-group">
-                                <label for="apply-avatar">
-                                    <i class="fas fa-image"></i> Аватар
-                                </label>
+                                <label>Аватар</label>
                                 <div class="avatar-upload">
                                     <div class="avatar-preview" id="avatar-preview">
-                                        <div class="avatar-preview-placeholder">
-                                            <i class="fas fa-user"></i>
-                                            <span>Загрузить фото</span>
-                                        </div>
+                                        <i class="fas fa-user" style="font-size: 3rem; color: #666;"></i>
                                     </div>
                                     <input type="file" id="apply-avatar" accept="image/*" style="display: none;">
                                     <button type="button" class="upload-btn" id="avatar-upload-btn">
-                                        <i class="fas fa-upload"></i> Выбрать файл
+                                        <i class="fas fa-upload"></i> Выбрать фото
                                     </button>
-                                    <small class="form-hint">JPG, PNG, GIF. Макс. 5MB</small>
                                 </div>
                             </div>
                             
                             <div class="form-group">
-                                <label for="apply-nickname">
-                                    <i class="fas fa-user"></i> ник *
-                                </label>
-                                <input type="text" id="apply-nickname" placeholder="Введите ваш никнейм" required>
+                                <label>Никнейм *</label>
+                                <input type="text" id="apply-nickname" placeholder="Ваш никнейм" required>
                             </div>
                             
                             <div class="form-group">
-                                <label for="apply-telegram">
-                                    <i class="fab fa-telegram"></i> Telegram *
-                                </label>
-                                <input type="text" id="apply-telegram" placeholder="@username или t.me/username" required>
+                                <label>Telegram *</label>
+                                <input type="text" id="apply-telegram" placeholder="@username" required>
                             </div>
                         </div>
                         
                         <div class="form-column">
                             <div class="form-group">
-                                <label for="apply-category">
-                                    <i class="fas fa-tag"></i> Категория *
-                                </label>
+                                <label>Категория *</label>
                                 <select id="apply-category" required>
                                     <option value="">Выберите категорию</option>
                                     <option value="Владелец">Владелец</option>
@@ -561,35 +1078,26 @@
                                     <option value="Средний фейм">Средний фейм</option>
                                     <option value="Малый фейм">Малый фейм</option>
                                     <option value="Кодеры">Кодеры</option>
-                                    <option value="Другое">Другое</option>
                                 </select>
                             </div>
                             
                             <div class="form-group">
-                                <label for="apply-description">
-                                    <i class="fas fa-file-alt"></i> Описание *
-                                </label>
-                                <textarea id="apply-description" rows="4" placeholder="Расскажите о себе, ваших проектах, достижениях..." required></textarea>
-                                <small class="form-hint">Минимум 50 символов</small>
+                                <label>Описание *</label>
+                                <textarea id="apply-description" rows="4" placeholder="Расскажите о себе, проектах, достижениях..." required></textarea>
                             </div>
                             
                             <div class="form-group">
-                                <label for="apply-main-link">
-                                    <i class="fas fa-link"></i> Ссылка на проект *
-                                </label>
-                                <input type="url" id="apply-main-link" placeholder="https://example.com" required>
-                                <small class="form-hint">Обязательная ссылка на ваш основной проект</small>
+                                <label>Ссылка на проект *</label>
+                                <input type="url" id="apply-main-link" placeholder="https://t.me/..." required>
                             </div>
                         </div>
                     </div>
                     
                     <div class="form-group">
-                        <label for="apply-extra-links">
-                            <i class="fas fa-external-link-alt"></i> Дополнительные ссылки
-                        </label>
+                        <label>Дополнительные ссылки</label>
                         <div class="links-container" id="links-container">
                             <div class="link-input-group">
-                                <input type="url" class="extra-link" placeholder="https://example.com">
+                                <input type="url" class="extra-link" placeholder="https://...">
                                 <button type="button" class="remove-link-btn" style="display: none;">
                                     <i class="fas fa-times"></i>
                                 </button>
@@ -598,702 +1106,157 @@
                         <button type="button" class="add-link-btn" id="add-link-btn">
                             <i class="fas fa-plus"></i> Добавить ссылку
                         </button>
-                        <small class="form-hint">Можно добавить до 7 дополнительных ссылок</small>
                     </div>
                     
                     <div class="form-actions">
                         <button type="submit" class="submit-btn">
-                            <i class="fas fa-paper-plane"></i> Отправить заявку
+                            <i class="fas fa-paper-plane"></i> Отправить
                         </button>
                         <button type="reset" class="reset-btn">
-                            <i class="fas fa-redo"></i> Очистить форму
+                            <i class="fas fa-redo"></i> Очистить
                         </button>
-                    </div>
-                    
-                    <div class="form-footer">
-                        <p><small>* Поля, отмеченные звездочкой, обязательны для заполнения</small></p>
-                        <p><small>Заявка будет отправлена на модерацию. Обычно ответ приходит в течение 7 дней.</small></p>
                     </div>
                 </form>
             </div>
         </div>
     </section>
-  
+    
+    <!-- Секция форума -->
+    <section id="forum" class="section">
+        <div class="container">
+            <div class="forum-container">
+                <div class="forum-header">
+                    <h2><i class="fas fa-comments"></i> Форум</h2>
+                    <button class="create-post-btn" id="create-post-btn">
+                        <i class="fas fa-plus"></i> Создать пост
+                    </button>
+                </div>
+                <div class="posts-list" id="posts-list"></div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Админ панель -->
     <section id="admin-panel" class="section">
         <div class="container">
             <div class="admin-panel-container">
-                <h2 class="text-neon-flow">Админ панель</h2>
-                <p class="admin-description">Управление заявками пользователей</p>
+                <h2>Админ панель</h2>
+                <p class="admin-description">Управление заявками</p>
                 
-                <div class="admin-controls">
-                    <div class="admin-stats">
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-clock"></i>
-                            </div>
-                            <div class="stat-content">
-                                <h3 id="pending-count">0</h3>
-                                <p>Ожидают</p>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                            <div class="stat-content">
-                                <h3 id="approved-count">0</h3>
-                                <p>Принято</p>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-times-circle"></i>
-                            </div>
-                            <div class="stat-content">
-                                <h3 id="rejected-count">0</h3>
-                                <p>Отклонено</p>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-users"></i>
-                            </div>
-                            <div class="stat-content">
-                                <h3 id="total-count">0</h3>
-                                <p>Всего</p>
-                            </div>
-                        </div>
+                <div class="admin-stats">
+                    <div class="stat-card">
+                        <h3 id="pending-count">0</h3>
+                        <p>Ожидают</p>
                     </div>
-                    
-                    <div class="admin-filters">
-                        <button class="filter-btn active" data-filter="all">Все</button>
-                        <button class="filter-btn" data-filter="pending">Ожидают</button>
-                        <button class="filter-btn" data-filter="approved">Принятые</button>
-                        <button class="filter-btn" data-filter="rejected">Отклоненные</button>
-                        <button class="filter-btn" id="delete-rejected-btn">
-                            <i class="fas fa-trash"></i> Удалить отклоненные
-                        </button>
+                    <div class="stat-card">
+                        <h3 id="approved-count">0</h3>
+                        <p>Принято</p>
                     </div>
-                    
-                    <div class="search-box admin-search">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="admin-search-input" placeholder="Поиск по имени, telegram, описанию...">
+                    <div class="stat-card">
+                        <h3 id="rejected-count">0</h3>
+                        <p>Отклонено</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="total-count">0</h3>
+                        <p>Всего</p>
                     </div>
                 </div>
                 
-                <div class="applications-list" id="applications-list">
-          
+                <div class="admin-filters">
+                    <button class="filter-btn active" data-filter="all">Все</button>
+                    <button class="filter-btn" data-filter="pending">Ожидают</button>
+                    <button class="filter-btn" data-filter="approved">Принятые</button>
+                    <button class="filter-btn" data-filter="rejected">Отклоненные</button>
                 </div>
+                
+                <div class="applications-list" id="applications-list"></div>
             </div>
         </div>
     </section>
-
+    
+    <!-- Профиль пользователя -->
     <section id="profile-details" class="section">
-        <div class="container" id="profile-content">
-       
-        </div>
-    </section>
-
-    <section id="faq-section" class="section">
-        <div class="container">
-            <div class="faq-content">
-                <h2 class="text-neon-flow">FAQ - Часто задаваемые вопросы</h2>
-                
-                <div class="faq-categories">
-                 
-                    <div class="faq-category">
-                        <h3><i class="fas fa-tags"></i> Метки на карточках</h3>
-                        
-                        <div class="faq-item">
-                            <div class="faq-question">
-                                <span class="badge verified-badge">✅ Verified</span>
-                                <h4>Метка верификации</h4>
-                            </div>
-                            <div class="faq-answer">
-                                <p>Метка верификации Verified означает, что личность прошла проверку и является официальной/подтверждённой.</p>
-                                <div class="faq-criteria">
-                                    <h5>Критерии для получения метки верификации:</h5>
-                                    <ul>
-                                        <li>Официальное подтверждение личности администрацией</li>
-                                        <li>Проверенная репутация в комьюнити</li>
-                                        <li>Долгосрочное присутствие и активность</li>
-                                        <li>Отсутствие серьёзных нарушений</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="faq-item">
-                            <div class="faq-question">
-                                <span class="badge scam-badge">⚠️ SCAM</span>
-                                <h4>Метка SCAM</h4>
-                            </div>
-                            <div class="faq-answer">
-                                <p>Метка SCAM предупреждает о том, что личность была замечена в мошенничестве или сомнительной деятельности.</p>
-                                <div class="faq-criteria">
-                                    <h5>Когда ставится метка SCAM:</h5>
-                                    <ul>
-                                        <li>Подтверждённые случаи мошенничества</li>
-                                        <li>Обман пользователей комьюнити</li>
-                                        <li>Невыполненные обязательства по сделкам</li>
-                                        <li>Повторяющиеся жалобы на недобросовестное поведение</li>
-                                    </ul>
-                                </div>
-                                <div class="faq-warning">
-                                    <h5>⚠️ Важно:</h5>
-                                    <p>Метка SCAM может быть установлена даже если у личности есть метка верификации. Это означает, что личность проверена, но имеет проблемы с репутацией.</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="faq-item">
-                            <div class="faq-question">
-                                <span class="badge pinned-badge">📌 Закреплён</span>
-                                <h4>Метка закрепления</h4>
-                            </div>
-                            <div class="faq-answer">
-                                <p>Метка Закреплён означает, что анкета закреплена администрацией и отображается в начале списка.</p>
-                                <div class="faq-criteria">
-                                    <h5>Когда ставится метка закрепления:</h5>
-                                    <ul>
-                                        <li>Особо важные или популярные личности</li>
-                                        <li>Официальные каналы и проекты</li>
-                                        <li>Рекомендованные товары и услуги</li>
-                                        <li>Актуальные анкеты, требующие внимания</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="faq-item">
-                            <div class="faq-question">
-                                <span class="badge scamdb-badge">🚫 В скам базе</span>
-                                <h4>Метка "В скам базе"</h4>
-                            </div>
-                            <div class="faq-answer">
-                                <p>Метка В скам базе указывает, что личность занесена в базу данных мошенников и имеет подтверждённые случаи обмана.</p>
-                                <div class="faq-criteria">
-                                    <h5>Критерии для занесения в скам базу:</h5>
-                                    <ul>
-                                        <li>Множественные подтверждённые случаи мошенничества</li>
-                                        <li>Кража средств или данных пользователей</li>
-                                        <li>Систематический обман в сделках</li>
-                                        <li>Создание фейковых проектов для обмана</li>
-                                        <li>Доказанное участие в скам-схемах</li>
-                                    </ul>
-                                </div>
-                                <div class="faq-warning">
-                                    <h5>🚨 Внимание:</h5>
-                                    <p>Взаимодействие с личностями, имеющими метку "В скам базе", крайне не рекомендуется. Эта метка ставится только при наличии серьёзных доказательств мошеннической деятельности.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-            
-                    <div class="faq-category">
-                        <h3><i class="fas fa-list-check"></i> Критерии для подачи заявки</h3>
-                        <p>Критерии для добавления в список медийных личностей (по возрастанию):</p>
-                        
-                        <div class="fame-levels">
-                            <div class="fame-level-card">
-                                <div class="fame-level-header">
-                                    <div class="level-icon">🌱</div>
-                                    <div>
-                                        <h4>Малый фейм</h4>
-                                        <span class="level-badge">От 400 подписчиков</span>
-                                    </div>
-                                </div>
-                                <div class="level-requirements">
-                                    <ul>
-                                        <li>Хоть какая-то узнаваемость хотя бы в рамках форума и в других чатах</li>
-                                        <li>Начальная активность в комьюнити</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            
-                            <div class="fame-level-card">
-                                <div class="fame-level-header">
-                                    <div class="level-icon">📊</div>
-                                    <div>
-                                        <h4>Средний фейм</h4>
-                                        <span class="level-badge">От 1,000 подписчиков</span>
-                                    </div>
-                                </div>
-                                <div class="level-requirements">
-                                    <ul>
-                                        <li>Контакт с феймом (взаимодействие с известными личностями)</li>
-                                        <li>Неплохая узнаваемость в комьюнити</li>
-                                        <li>Регулярная активность</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            
-                            <div class="fame-level-card">
-                                <div class="fame-level-header">
-                                    <div class="level-icon">⭐</div>
-                                    <div>
-                                        <h4>Высокий Фейм</h4>
-                                        <span class="level-badge">От 5,000 подписчиков</span>
-                                    </div>
-                                </div>
-                                <div class="level-requirements">
-                                    <ul>
-                                        <li>Нашумевшие проекты или работы</li>
-                                        <li>Хорошая узнаваемость в комьюнити</li>
-                                        <li>Контакт с медийными личностями</li>
-                                        <li>Значимый вклад в комьюнити</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            
-                            <div class="fame-level-card">
-                                <div class="fame-level-header">
-                                    <div class="level-icon">🏆</div>
-                                    <div>
-                                        <h4>Медиа (Медийки)</h4>
-                                        <span class="level-badge">Топовый уровень</span>
-                                    </div>
-                                </div>
-                                <div class="level-requirements">
-                                    <ul>
-                                        <li>Абсолютная узнаваемость в комьюнити</li>
-                                        <li>Топовые проекты с большой аудиторией</li>
-                                        <li>Влияние на повестку комьюнити</li>
-                                        <li>Признание со стороны других медийных личностей</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="faq-note">
-                            <h5>⚠️ Важно:</h5>
-                            <ul>
-                                <li>Админка в каналах не учитывается (даже с правами co-owner)</li>
-                                <li>Засчитывается только статус владельца (owner)</li>
-                                <li>Удалённые проекты не принимаются в расчёт</li>
-                                <li>Критерии могут меняться со временем</li>
-                            </ul>
-                        </div>
-                    </div>
-                    
-               
-                    <div class="faq-category">
-                        <h3><i class="fas fa-edit"></i> Рекомендации по описанию</h3>
-                        
-                        <div class="faq-item">
-                            <div class="faq-question">
-                                <i class="fas fa-robot" style="color: #6c63ff;"></i>
-                                <h4>💡 ПИСАТЬ В 3 ЛИЦЕ ЛУЧШЕ ЗАКИДЫВАТЬ В ИИ (ИСКУССТВЕННЫЙ ИНТЕЛЛЕКТ)</h4>
-                            </div>
-                            <div class="faq-answer">
-                                <p>При подаче заявки рекомендуется:</p>
-                                <div class="tips-list">
-                                    <div class="tip-item">
-                                        <i class="fas fa-check-circle"></i>
-                                        <span>Использовать описание от третьего лица</span>
-                                    </div>
-                                    <div class="tip-item">
-                                        <i class="fas fa-robot"></i>
-                                        <span>Использовать ИИ для улучшения текста описания</span>
-                                    </div>
-                                    <div class="tip-item">
-                                        <i class="fas fa-bullseye"></i>
-                                        <span>Указывать конкретные факты и достижения</span>
-                                    </div>
-                                    <div class="tip-item">
-                                        <i class="fas fa-chart-line"></i>
-                                        <span>Упоминать проекты, каналы и их статистику</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-              
-                    <div class="faq-category">
-                        <h3><i class="fas fa-folder"></i> Категории</h3>
-                        
-                        <div class="categories-grid">
-                            <div class="category-card">
-                                <div class="category-icon">🏆</div>
-                                <h4>Медийки</h4>
-                                <p>Лидеры Telegram-комьюнити с высоким влиянием и репутацией</p>
-                            </div>
-                            
-                            <div class="category-card">
-                                <div class="category-icon">⭐</div>
-                                <h4>Высокий Фейм</h4>
-                                <p>Популярные личности с активным сообществом и узнаваемостью</p>
-                            </div>
-                            
-                            <div class="category-card">
-                                <div class="category-icon">📊</div>
-                                <h4>Средний фейм</h4>
-                                <p>Известные в узких кругах участники Telegram</p>
-                            </div>
-                            
-                            <div class="category-card">
-                                <div class="category-icon">🌱</div>
-                                <h4>Малый фейм</h4>
-                                <p>Маленькие известные в узких кругах участники Telegram</p>
-                            </div>
-                            
-                            <div class="category-card">
-                                <div class="category-icon">💻</div>
-                                <h4>Кодеры</h4>
-                                <p>Разработчики, создающие инструменты для комьюнити</p>
-                            </div>
-                            
-                            <div class="category-card">
-                                <div class="category-icon">⚠️</div>
-                                <h4>Скам/Бомжи</h4>
-                                <p>Персоны с сомнительной репутацией, связанной с мошенничеством</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                  
-                    <div class="faq-category">
-                        <h3><i class="fas fa-paper-plane"></i> Как подать заявку</h3>
-                        
-                        <div class="apply-steps">
-                            <div class="apply-step">
-                                <div class="step-number">1</div>
-                                <div class="step-content">
-                                    <h4>Шаг 1: Подготовка данных</h4>
-                                    <div class="tips-list">
-                                        <div class="tip-item">
-                                            <i class="fas fa-image"></i>
-                                            <span>Подготовьте качественное фото для аватара (макс. 6 МБ)</span>
-                                        </div>
-                                        <div class="tip-item">
-                                            <i class="fas fa-info-circle"></i>
-                                            <span>Соберите информацию о себе: имя, username, описание</span>
-                                        </div>
-                                        <div class="tip-item">
-                                            <i class="fas fa-link"></i>
-                                            <span>Подготовьте ссылки на ваши каналы/проекты</span>
-                                        </div>
-                                        <div class="tip-item">
-                                            <i class="fas fa-tag"></i>
-                                            <span>Определите подходящую категорию</span>
-                                        </div>
-                                        <div class="tip-item">
-                                            <i class="fas fa-users"></i>
-                                            <span>Подсчитайте количество подписчиков (для категорий "Каналы" и "Товары")</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="apply-step">
-                                <div class="step-number">2</div>
-                                <div class="step-content">
-                                    <h4>Шаг 2: Заполнение формы</h4>
-                                    <div class="tips-list">
-                                        <div class="tip-item">
-                                            <i class="fas fa-mouse-pointer"></i>
-                                            <span>Перейдите на страницу "Заявки" в меню</span>
-                                        </div>
-                                        <div class="tip-item">
-                                            <i class="fas fa-plus-circle"></i>
-                                            <span>Нажмите "Подать заявку"</span>
-                                        </div>
-                                        <div class="tip-item">
-                                            <i class="fas fa-upload"></i>
-                                            <span>Загрузите аватар</span>
-                                        </div>
-                                        <div class="tip-item">
-                                            <i class="fas fa-edit"></i>
-                                            <span>Заполните все обязательные поля</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="apply-step">
-                                <div class="step-number">3</div>
-                                <div class="step-content">
-                                    <h4>Шаг 3: Отправка и ожидание</h4>
-                                    <div class="tips-list">
-                                        <div class="tip-item">
-                                            <i class="fas fa-check-double"></i>
-                                            <span>Проверьте все данные перед отправкой</span>
-                                        </div>
-                                        <div class="tip-item">
-                                            <i class="fas fa-paper-plane"></i>
-                                            <span>Нажмите "Отправить заявку"</span>
-                                        </div>
-                                        <div class="tip-item">
-                                            <i class="fas fa-hourglass-half"></i>
-                                            <span>Дождитесь рассмотрения администрацией</span>
-                                        </div>
-                                        <div class="tip-item">
-                                            <i class="fas fa-history"></i>
-                                            <span>Статус заявки можно отслеживать во вкладке "Мои заявки"</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="faq-note">
-                            <h5>💡 Советы для успешной заявки:</h5>
-                            <ul>
-                                <li>Используйте качественное описание с конкретными фактами</li>
-                                <li>Укажите реальные ссылки на каналы и проекты</li>
-                                <li>Будьте честны с количеством подписчиков</li>
-                                <li>Выберите правильную категорию согласно критериям</li>
-                                <li>Не пытайтесь обмануть систему - это приведёт к отклонению заявки</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="faq-contact">
-                    <h3>Остались вопросы?</h3>
-                    <p>По всем вопросам обращайтесь к администрации</p>
-                    
-                    <div class="contact-links">
-                        <a href="https://t.me/metllos" class="contact-link" target="_blank">
-                            <i class="fab fa-telegram"></i> @metllos
-                        </a>
-                        <a href="#apply" class="contact-link" data-section="apply">
-                            <i class="fas fa-paper-plane"></i> Подать заявку
-                        </a>
-                    </div>
-                    
-                    <div class="price-info" style="margin-top: 30px;">
-                        <h4>Услуги и цены:</h4>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
-                            <div style="background: rgba(0, 255, 0, 0.05); padding: 15px; border-radius: 10px; border: 1px solid rgba(0, 255, 0, 0.2);">
-                                <p>Вход в фейм-лист: <strong style="color: #0f0;">бесплатно зв</strong></p>
-                            </div>
-                            <div style="background: rgba(255, 215, 0, 0.05); padding: 15px; border-radius: 10px; border: 1px solid rgba(255, 215, 0, 0.2);">
-                                <p>Галочка (верификация): <strong style="color: #ffd700;">50 зв</strong></p>
-                            </div>
-                            <div style="background: rgba(108, 99, 255, 0.05); padding: 15px; border-radius: 10px; border: 1px solid rgba(108, 99, 255, 0.2);">
-                                <p>Закреп профиля: <strong style="color: #6c63ff;">50 зв</strong></p>
-                            </div>
-                        </div>
-                        <p style="margin-top: 15px; color: #aaa; font-size: 0.9em;"><em>Оплата только через Telegram</em></p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div class="container" id="profile-content"></div>
     </section>
     
+    <!-- Модальное окно входа -->
     <div class="modal" id="auth-modal">
-        <div class="modal-content neon-flow auth-modal">
+        <div class="modal-content">
             <div class="modal-header">
-                <h2 class="text-neon-flow"><i class="fab fa-telegram"></i> Вход через Telegram</h2>
+                <h2><i class="fab fa-telegram"></i> Вход через Telegram</h2>
                 <button class="close-modal">&times;</button>
             </div>
-            
-            <div class="auth-content">
+            <div class="modal-body">
                 <div class="auth-info">
-                    <p>Для доступа к дополнительным функциям и персонализации требуется авторизация через Telegram.</p>
-                    <p>После входа вы сможете:</p>
-                    <ul>
-                        <li>Создать свой профиль</li>
-                        <li>Сохранять избранные профили</li>
-                        <li>Настраивать внешний вид сайта</li>
-                        <li>Получать уведомления</li>
-                        <li>Комментировать профили</li>
-                    </ul>
+                    <p>Для входа нажмите кнопку ниже и начните диалог с ботом</p>
+                    <p>После нажатия "Start" вы получите токен для входа</p>
                 </div>
-                
-                <div class="auth-buttons">
-                    <a href="https://t.me/noolshy_test_bot" class="auth-telegram-btn" target="_blank">
-                        <i class="fab fa-telegram"></i> Войти через @noolshy_test_bot
+                <div class="auth-buttons" style="text-align: center;">
+                    <a href="https://t.me/FameListAuthBot?start=auth" class="auth-telegram-btn" target="_blank" style="display: inline-flex; align-items: center; gap: 10px; padding: 15px 30px; background: #0088cc; color: white; text-decoration: none; border-radius: 25px; margin-bottom: 20px;">
+                        <i class="fab fa-telegram"></i> Войти через бота
                     </a>
-                    
-                    <p class="auth-note">* Откроется Telegram, нажмите START в боте</p>
-                    
                     <div class="token-form">
-                        <h3><i class="fas fa-key"></i> Уже получили токен?</h3>
-                        <div class="form-group">
-                            <input type="text" id="token-input" placeholder="Вставьте токен из бота...">
-                        </div>
-                        <button class="demo-login-btn" id="token-submit-btn">
-                            <i class="fas fa-sign-in-alt"></i> Войти по токену
-                        </button>
-                    </div>
-                    
-                    <div class="demo-login">
-                        <p class="demo-title">Тестовый режим:</p>
-                        <button class="demo-login-btn" id="demo-login-btn">
-                            <i class="fas fa-user-secret"></i> Быстрый тестовый вход
+                        <h3>Или вставьте токен из бота:</h3>
+                        <input type="text" id="token-input" placeholder="Вставьте токен..." style="width: 100%; padding: 12px; margin: 15px 0;">
+                        <button class="demo-login-btn" id="token-submit-btn" style="padding: 12px 25px; background: #2a2a2a; border: 1px solid #666; color: white; cursor: pointer; border-radius: 25px;">
+                            <i class="fas fa-sign-in-alt"></i> Войти
                         </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <div class="modal" id="application-modal">
-        <div class="modal-content neon-flow application-modal">
-            <div class="modal-header">
-                <h2 class="text-neon-flow"><i class="fas fa-file-alt"></i> Детали заявки</h2>
-                <button class="close-modal">&times;</button>
-            </div>
-            
-            <div class="modal-body" id="application-modal-body">
-        
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="profile-settings-modal">
-        <div class="modal-content neon-flow">
-            <div class="modal-header">
-                <h2 class="text-neon-flow"><i class="fas fa-user-cog"></i> Настройки профиля</h2>
-                <button class="close-modal">&times;</button>
-            </div>
-            
-            <div class="profile-settings-content">
-                <div class="profile-settings-form">
-                    <div class="form-group">
-                        <label for="profile-nickname">Имя для отображения:</label>
-                        <input type="text" id="profile-nickname" placeholder="Введите ваше имя">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="profile-bio">О себе:</label>
-                        <textarea id="profile-bio" rows="4" placeholder="Расскажите о себе..."></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Уведомления:</label>
-                        <div class="switch-group">
-                            <label class="switch">
-                                <input type="checkbox" id="notifications-enabled" checked>
-                                <span class="slider"></span>
-                            </label>
-                            <span>Получать уведомления</span>
-                        </div>
-                    </div>
-                    
-                    <div class="form-actions">
-                        <button class="save-profile-btn" id="save-profile-btn">
-                            <i class="fas fa-save"></i> Сохранить изменения
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="settings-modal">
-        <div class="modal-content neon-flow">
-            <div class="modal-header">
-                <h2 class="text-neon-flow"><i class="fas fa-cog"></i> Настройки</h2>
-                <button class="close-modal">&times;</button>
-            </div>
-            
-            <div class="settings-content">
-                <div class="settings-tabs">
-                    <button class="settings-tab active" data-tab="appearance">Внешний вид</button>
-                    <button class="settings-tab" data-tab="effects">Эффекты</button>
-                    <button class="settings-tab" data-tab="background">Фон</button>
-                </div>
-                
-                <div class="tab-content active" id="appearance-tab">
-             
-                </div>
-                
-                <div class="tab-content" id="effects-tab">
-        
-                </div>
-                
-                <div class="tab-content" id="background-tab">
-               
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
-    <script>
-
-        document.addEventListener('DOMContentLoaded', function() {
-      
-            const faqQuestions = document.querySelectorAll('.faq-question');
-            faqQuestions.forEach(question => {
-                question.addEventListener('click', function() {
-                    const answer = this.nextElementSibling;
-                    answer.style.display = answer.style.display === 'block' ? 'none' : 'block';
-                });
-            });
-            
-       
-            const faqBtn = document.getElementById('faq-btn');
-            const sideFaqLink = document.querySelector('.menu-item[href="#faq"]');
-            
-            const showFaqSection = function(e) {
-                e.preventDefault();
-           
-                document.querySelectorAll('.section').forEach(section => {
-                    section.classList.remove('active-section');
-                });
-     
-                document.getElementById('faq-section').classList.add('active-section');
-          
-                document.querySelectorAll('.nav-tab').forEach(tab => {
-                    tab.classList.remove('active');
-                });
     
-                document.getElementById('side-menu').classList.remove('active');
-            };
-            
-            if (faqBtn) faqBtn.addEventListener('click', showFaqSection);
-            if (sideFaqLink) sideFaqLink.addEventListener('click', showFaqSection);
-            
-
-            document.querySelectorAll('.contact-link[data-section]').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const section = this.getAttribute('data-section');
-                  
-                    document.querySelectorAll('.section').forEach(s => {
-                        s.classList.remove('active-section');
-                    });
-                 
-                    document.getElementById(section).classList.add('active-section');
-                  
-                    document.querySelectorAll('.nav-tab').forEach(tab => {
-                        tab.classList.remove('active');
-                        if (tab.getAttribute('data-section') === section) {
-                            tab.classList.add('active');
-                        }
-                    });
-                });
-            });
-            
-        
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
-            
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.opacity = '1';
-                        entry.target.style.transform = 'translateY(0)';
-                    }
-                });
-            }, observerOptions);
-            
-           
-            document.querySelectorAll('.faq-item, .fame-level-card, .category-card').forEach(el => {
-                el.style.opacity = '0';
-                el.style.transform = 'translateY(20px)';
-                el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                observer.observe(el);
-            });
-        });
-    </script>
+    <!-- Модальное окно создания поста -->
+    <div class="modal" id="create-post-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-pen"></i> Создать пост</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="create-post-form">
+                    <div class="form-group">
+                        <label>Заголовок *</label>
+                        <input type="text" id="post-title" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Содержание *</label>
+                        <textarea id="post-content" rows="6" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Вложения (ссылки)</label>
+                        <div class="attachments-container" id="attachments-container">
+                            <div class="link-input-group">
+                                <input type="url" class="attachment-link" placeholder="https://...">
+                                <button type="button" class="remove-attachment-btn" style="display: none;">✕</button>
+                            </div>
+                        </div>
+                        <button type="button" class="add-attachment-btn" style="margin-top: 10px;">
+                            <i class="fas fa-plus"></i> Добавить вложение
+                        </button>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="submit-btn">Опубликовать</button>
+                        <button type="button" class="reset-btn close-modal">Отмена</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно просмотра заявки -->
+    <div class="modal" id="application-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Детали заявки</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body" id="application-modal-body"></div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
 </body>
 </html>

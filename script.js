@@ -2265,3 +2265,1136 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+// Supabase конфигурация
+const SUPABASE_URL = 'https://your-project.supabase.co';
+const SUPABASE_ANON_KEY = 'your-anon-key';
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Конфигурация
+const ADMIN_ID = '287265398';
+const BOT_USERNAME = 'FameListAuthBot';
+
+// Глобальные переменные
+let currentUser = null;
+let currentMembers = [];
+let currentApplications = [];
+
+// ========== Инициализация ==========
+document.addEventListener('DOMContentLoaded', () => {
+    initAuth();
+    initNavigation();
+    initFilters();
+    initApplyForm();
+    initForum();
+    initSnow();
+    loadMembers();
+    loadApplications();
+    
+    // Проверка токена в URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    if (token) {
+        processLoginToken(token);
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    
+    // Проверка сохраненной сессии
+    const savedUser = localStorage.getItem('fame_user');
+    if (savedUser) {
+        try {
+            currentUser = JSON.parse(savedUser);
+            updateUserInterface();
+            updateRegistrationCount();
+        } catch(e) {}
+    }
+});
+
+// ========== Авторизация ==========
+function initAuth() {
+    const authBtn = document.getElementById('auth-btn');
+    const tokenSubmitBtn = document.getElementById('token-submit-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+    const sideLogout = document.getElementById('side-logout');
+    const myProfileBtn = document.getElementById('my-profile-btn');
+    const sideMyProfile = document.getElementById('side-my-profile');
+    const adminPanelBtn = document.getElementById('admin-panel-btn');
+    const sideAdminPanel = document.getElementById('side-admin-panel');
+    
+    if (authBtn) authBtn.addEventListener('click', () => openModal('auth-modal'));
+    if (tokenSubmitBtn) tokenSubmitBtn.addEventListener('click', () => {
+        const token = document.getElementById('token-input').value.trim();
+        if (token) processLoginToken(token);
+        else showNotification('Введите токен', 'error');
+    });
+    if (logoutBtn) logoutBtn.addEventListener('click', logout);
+    if (sideLogout) sideLogout.addEventListener('click', logout);
+    if (myProfileBtn) myProfileBtn.addEventListener('click', showMyProfile);
+    if (sideMyProfile) sideMyProfile.addEventListener('click', showMyProfile);
+    if (adminPanelBtn) adminPanelBtn.addEventListener('click', showAdminPanel);
+    if (sideAdminPanel) sideAdminPanel.addEventListener('click', () => {
+        showAdminPanel();
+        closeSideMenu();
+    });
+    
+    // Профиль дропдаун
+    const profileToggle = document.getElementById('profile-toggle');
+    if (profileToggle) {
+        profileToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const dropdown = document.getElementById('dropdown-menu');
+            if (dropdown) dropdown.classList.toggle('show');
+        });
+    }
+    
+    document.addEventListener('click', () => {
+        const dropdown = document.getElementById('dropdown-menu');
+        if (dropdown) dropdown.classList.remove('show');
+    });
+}
+
+async function processLoginToken(token) {
+    try {
+        // Декодируем токен (формат: user_id|username|timestamp|signature)
+        const parts = token.split('|');
+        if (parts.length < 2) throw new Error('Неверный формат токена');
+        
+        const userId = parts[0];
+        const username = parts[1] || '';
+        
+        // Проверяем пользователя в Supabase
+        const { data: existingUser, error: fetchError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('telegram_id', userId)
+            .single();
+        
+        if (fetchError && fetchError.code !== 'PGRST116') {
+            throw new Error('Ошибка проверки пользователя');
+        }
+        
+        if (existingUser) {
+            // Обновляем существующего пользователя
+            currentUser = {
+                id: existingUser.id,
+                telegram_id: existingUser.telegram_id,
+                username: username,
+                first_name: existingUser.first_name || '',
+                last_name: existingUser.last_name || '',
+                registered_at: existingUser.registered_at,
+                is_admin: existingUser.telegram_id.toString() === ADMIN_ID
+            };
+            
+            await supabase
+                .from('users')
+                .update({ last_login: new Date().toISOString() })
+                .eq('id', existingUser.id);
+        } else {
+            // Регистрируем нового пользователя
+            const { data: newUser, error: insertError } = await supabase
+                .from('users')
+                .insert({
+                    telegram_id: userId,
+                    username: username,
+                    first_name: '',
+                    last_name: '',
+                    registered_at: new Date().toISOString(),
+                    last_login: new Date().toISOString()
+                })
+                .select()
+                .single();
+            
+            if (insertError) throw new Error('Ошибка регистрации');
+            
+            currentUser = {
+                id: newUser.id,
+                telegram_id: newUser.telegram_id,
+                username: username,
+                first_name: '',
+                last_name: '',
+                registered_at: newUser.registered_at,
+                is_admin: newUser.telegram_id.toString() === ADMIN_ID
+            };
+            
+            // Обновляем счетчик регистраций
+            updateRegistrationCount();
+            showNotification('Добро пожаловать! Вы успешно зарегистрированы!', 'success');
+        }
+        
+        localStorage.setItem('fame_user', JSON.stringify(currentUser));
+        updateUserInterface();
+        closeModal('auth-modal');
+        showNotification('Вход выполнен успешно!', 'success');
+        
+    } catch (error) {
+        console.error('Ошибка входа:', error);
+        showNotification('Ошибка входа: ' + error.message, 'error');
+    }
+}
+
+async function updateRegistrationCount() {
+    const { count, error } = await supabase
+        .from('users')
+        .select('*', { count: 'exact', head: true });
+    
+    if (!error && count !== null) {
+        const stats = document.querySelectorAll('.stat-box');
+        stats.forEach(stat => {
+            if (stat.querySelector('.stat-label')?.textContent === 'Пользователей') {
+                stat.querySelector('.stat-number').textContent = count;
+            }
+        });
+    }
+}
+
+function logout() {
+    if (confirm('Вы уверены, что хотите выйти?')) {
+        currentUser = null;
+        localStorage.removeItem('fame_user');
+        updateUserInterface();
+        showNotification('Вы вышли из аккаунта', 'info');
+        switchSection('main');
+    }
+}
+
+function updateUserInterface() {
+    const authBtn = document.getElementById('auth-btn');
+    const userProfile = document.getElementById('user-profile');
+    const adminPanelBtn = document.getElementById('admin-panel-btn');
+    const sideAdminPanel = document.getElementById('side-admin-panel');
+    const userName = document.getElementById('user-name');
+    const userAvatar = document.getElementById('user-avatar');
+    const dropdownName = document.getElementById('dropdown-name');
+    const dropdownUsername = document.getElementById('dropdown-username');
+    const dropdownAvatar = document.getElementById('dropdown-avatar');
+    
+    if (currentUser) {
+        if (authBtn) authBtn.style.display = 'none';
+        if (userProfile) userProfile.style.display = 'block';
+        
+        const displayName = currentUser.first_name || currentUser.username || `User_${currentUser.telegram_id}`;
+        if (userName) userName.textContent = displayName;
+        if (dropdownName) dropdownName.textContent = displayName;
+        if (dropdownUsername) dropdownUsername.textContent = `@${currentUser.username || 'user'}`;
+        
+        // Генерация аватара
+        const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=0088cc&color=fff&size=40`;
+        if (userAvatar) userAvatar.src = avatarUrl;
+        if (dropdownAvatar) dropdownAvatar.src = avatarUrl;
+        
+        if (currentUser.is_admin) {
+            if (adminPanelBtn) adminPanelBtn.style.display = 'flex';
+            if (sideAdminPanel) sideAdminPanel.style.display = 'flex';
+        } else {
+            if (adminPanelBtn) adminPanelBtn.style.display = 'none';
+            if (sideAdminPanel) sideAdminPanel.style.display = 'none';
+        }
+    } else {
+        if (authBtn) authBtn.style.display = 'flex';
+        if (userProfile) userProfile.style.display = 'none';
+        if (adminPanelBtn) adminPanelBtn.style.display = 'none';
+        if (sideAdminPanel) sideAdminPanel.style.display = 'none';
+    }
+}
+
+// ========== Навигация ==========
+function initNavigation() {
+    const menuToggle = document.getElementById('menu-toggle');
+    const closeMenu = document.getElementById('close-menu');
+    const sideMenu = document.getElementById('side-menu');
+    const navTabs = document.querySelectorAll('.nav-tab');
+    const menuItems = document.querySelectorAll('.menu-item');
+    const settingsBtn = document.getElementById('settings-btn');
+    
+    if (menuToggle) menuToggle.addEventListener('click', () => sideMenu.classList.add('active'));
+    if (closeMenu) closeMenu.addEventListener('click', () => sideMenu.classList.remove('active'));
+    
+    navTabs.forEach(tab => {
+        if (tab.dataset.section) {
+            tab.addEventListener('click', () => {
+                switchSection(tab.dataset.section);
+                updateActiveNav(tab.dataset.section);
+            });
+        }
+    });
+    
+    menuItems.forEach(item => {
+        if (item.dataset.section) {
+            item.addEventListener('click', () => {
+                switchSection(item.dataset.section);
+                closeSideMenu();
+                updateActiveNav(item.dataset.section);
+            });
+        }
+    });
+    
+    if (settingsBtn) settingsBtn.addEventListener('click', () => {
+        showNotification('Настройки в разработке', 'info');
+    });
+}
+
+function switchSection(sectionId) {
+    document.querySelectorAll('.section').forEach(section => {
+        section.classList.remove('active-section');
+    });
+    const targetSection = document.getElementById(sectionId);
+    if (targetSection) targetSection.classList.add('active-section');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateActiveNav(sectionId) {
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.classList.remove('active');
+        if (tab.dataset.section === sectionId) tab.classList.add('active');
+    });
+    document.querySelectorAll('.menu-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.section === sectionId) item.classList.add('active');
+    });
+}
+
+function closeSideMenu() {
+    const sideMenu = document.getElementById('side-menu');
+    if (sideMenu) sideMenu.classList.remove('active');
+}
+
+// ========== Участники ==========
+async function loadMembers() {
+    try {
+        const { data, error } = await supabase
+            .from('members')
+            .select('*')
+            .eq('status', 'approved')
+            .order('pinned', { ascending: false })
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        
+        currentMembers = data || [];
+        renderMembers(currentMembers);
+    } catch (error) {
+        console.error('Ошибка загрузки участников:', error);
+        renderMembers([]);
+    }
+}
+
+function renderMembers(members) {
+    const container = document.getElementById('members-container');
+    if (!container) return;
+    
+    if (!members.length) {
+        container.innerHTML = '<p style="text-align: center; color: #888;">Нет участников для отображения</p>';
+        return;
+    }
+    
+    container.innerHTML = members.map(member => `
+        <div class="member-card ${member.scam ? 'scam' : ''} ${member.verified ? 'verified' : ''}" data-id="${member.id}" data-category="${member.category}">
+            <div class="member-avatar">
+                <img src="${member.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.nickname)}&background=666&color=fff&size=70`}" alt="${member.nickname}">
+            </div>
+            <div class="member-info">
+                <h3>${member.nickname} ${member.scam ? '⚠️' : member.verified ? '✓' : ''}</h3>
+                <div class="member-role">${member.role || member.category}</div>
+                <p class="member-description">${member.description || 'Нет описания'}</p>
+            </div>
+        </div>
+    `).join('');
+    
+    document.querySelectorAll('.member-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const id = parseInt(card.dataset.id);
+            const member = currentMembers.find(m => m.id === id);
+            if (member) showMemberProfile(member);
+        });
+    });
+}
+
+function initFilters() {
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const searchInput = document.getElementById('search-input');
+    
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filterMembers();
+        });
+    });
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', () => filterMembers());
+    }
+}
+
+function filterMembers() {
+    const activeFilter = document.querySelector('.filter-btn.active')?.dataset.category || 'all';
+    const searchTerm = document.getElementById('search-input')?.value.toLowerCase() || '';
+    
+    const filtered = currentMembers.filter(member => {
+        const matchesFilter = activeFilter === 'all' || member.category === activeFilter;
+        const matchesSearch = member.nickname.toLowerCase().includes(searchTerm) ||
+                             (member.description || '').toLowerCase().includes(searchTerm);
+        return matchesFilter && matchesSearch;
+    });
+    
+    renderMembers(filtered);
+}
+
+function showMemberProfile(member) {
+    const container = document.getElementById('profile-content');
+    if (!container) return;
+    
+    const joinDate = new Date(member.created_at).toLocaleDateString('ru-RU');
+    
+    container.innerHTML = `
+        <div class="profile-container">
+            <div class="user-profile-header">
+                <div class="user-profile-avatar">
+                    <img src="${member.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.nickname)}&background=666&color=fff&size=120`}" alt="${member.nickname}">
+                </div>
+                <div class="user-profile-info">
+                    <h1>${member.nickname}</h1>
+                    <p><i class="fab fa-telegram"></i> @${member.telegram || member.username?.replace('@', '') || 'user'}</p>
+                    <div class="profile-badges" style="display: flex; gap: 10px; margin: 15px 0;">
+                        ${member.verified ? '<span class="badge verified">✓ Верифицирован</span>' : ''}
+                        ${member.scam ? '<span class="badge scam">⚠️ Скам</span>' : ''}
+                        <span class="badge">${member.category}</span>
+                    </div>
+                    <div class="user-profile-stats">
+                        <div class="stat-box">
+                            <span class="stat-number">${member.followers || '?'}</span>
+                            <span class="stat-label">Подписчиков</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-number">${joinDate}</span>
+                            <span class="stat-label">Дата</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="profile-description" style="margin-top: 30px;">
+                <h3>Описание</h3>
+                <p>${member.description || 'Нет описания'}</p>
+                ${member.main_link ? `
+                    <div style="margin-top: 20px;">
+                        <a href="${member.main_link}" target="_blank" class="action-btn" style="display: inline-flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-external-link-alt"></i> Перейти на проект
+                        </a>
+                    </div>
+                ` : ''}
+            </div>
+        </div>
+    `;
+    
+    switchSection('profile-details');
+}
+
+// ========== Заявки ==========
+function initApplyForm() {
+    const form = document.getElementById('apply-form');
+    const avatarUploadBtn = document.getElementById('avatar-upload-btn');
+    const avatarInput = document.getElementById('apply-avatar');
+    const avatarPreview = document.getElementById('avatar-preview');
+    const addLinkBtn = document.getElementById('add-link-btn');
+    const linksContainer = document.getElementById('links-container');
+    
+    if (avatarUploadBtn && avatarInput) {
+        avatarUploadBtn.addEventListener('click', () => avatarInput.click());
+        avatarInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file && file.size <= 5 * 1024 * 1024) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    avatarPreview.innerHTML = `<img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                };
+                reader.readAsDataURL(file);
+            } else if (file) {
+                showNotification('Файл слишком большой (макс 5MB)', 'error');
+            }
+        });
+    }
+    
+    if (addLinkBtn && linksContainer) {
+        addLinkBtn.addEventListener('click', () => {
+            const groups = linksContainer.querySelectorAll('.link-input-group');
+            if (groups.length < 7) {
+                const newGroup = document.createElement('div');
+                newGroup.className = 'link-input-group';
+                newGroup.innerHTML = `
+                    <input type="url" class="extra-link" placeholder="https://...">
+                    <button type="button" class="remove-link-btn">✕</button>
+                `;
+                linksContainer.appendChild(newGroup);
+                updateRemoveButtons();
+            } else {
+                showNotification('Максимум 7 ссылок', 'error');
+            }
+        });
+        updateRemoveButtons();
+    }
+    
+    if (form) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUser) {
+                showNotification('Сначала войдите в аккаунт', 'error');
+                openModal('auth-modal');
+                return;
+            }
+            
+            const nickname = document.getElementById('apply-nickname').value.trim();
+            const telegram = document.getElementById('apply-telegram').value.trim().replace('@', '');
+            const category = document.getElementById('apply-category').value;
+            const description = document.getElementById('apply-description').value.trim();
+            const mainLink = document.getElementById('apply-main-link').value.trim();
+            
+            if (!nickname || !telegram || !category || !description || !mainLink) {
+                showNotification('Заполните все обязательные поля', 'error');
+                return;
+            }
+            
+            if (description.length < 50) {
+                showNotification('Описание минимум 50 символов', 'error');
+                return;
+            }
+            
+            const extraLinks = [];
+            document.querySelectorAll('.extra-link').forEach(input => {
+                const val = input.value.trim();
+                if (val && val.startsWith('http')) extraLinks.push(val);
+            });
+            
+            let avatarData = null;
+            const avatarImg = avatarPreview?.querySelector('img');
+            if (avatarImg && avatarImg.src && !avatarImg.src.includes('ui-avatars')) {
+                avatarData = avatarImg.src;
+            }
+            
+            const submitBtn = form.querySelector('.submit-btn');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Отправка...';
+            submitBtn.disabled = true;
+            
+            try {
+                const { data, error } = await supabase
+                    .from('applications')
+                    .insert({
+                        user_id: currentUser.id,
+                        telegram_id: currentUser.telegram_id,
+                        nickname: nickname,
+                        telegram: telegram,
+                        category: category,
+                        description: description,
+                        main_link: mainLink,
+                        extra_links: extraLinks,
+                        avatar_data: avatarData,
+                        status: 'pending',
+                        expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
+                    })
+                    .select()
+                    .single();
+                
+                if (error) throw error;
+                
+                showNotification('Заявка отправлена!', 'success');
+                form.reset();
+                if (avatarPreview) avatarPreview.innerHTML = '<i class="fas fa-user" style="font-size: 3rem; color: #666;"></i>';
+                document.getElementById('links-container').innerHTML = `
+                    <div class="link-input-group">
+                        <input type="url" class="extra-link" placeholder="https://...">
+                        <button type="button" class="remove-link-btn" style="display: none;">✕</button>
+                    </div>
+                `;
+                
+                if (currentUser.is_admin) loadApplications();
+                
+            } catch (error) {
+                console.error('Ошибка:', error);
+                showNotification('Ошибка отправки', 'error');
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+    }
+    
+    const resetBtn = form?.querySelector('.reset-btn');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (confirm('Очистить форму?')) {
+                form.reset();
+                if (avatarPreview) avatarPreview.innerHTML = '<i class="fas fa-user" style="font-size: 3rem; color: #666;"></i>';
+            }
+        });
+    }
+}
+
+function updateRemoveButtons() {
+    document.querySelectorAll('.remove-link-btn').forEach(btn => {
+        btn.style.display = 'flex';
+        btn.onclick = () => btn.parentElement.remove();
+    });
+}
+
+async function loadApplications() {
+    if (!currentUser?.is_admin) return;
+    
+    try {
+        const { data, error } = await supabase
+            .from('applications')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        
+        currentApplications = data || [];
+        updateAdminStats();
+        renderApplications(currentApplications);
+    } catch (error) {
+        console.error('Ошибка загрузки заявок:', error);
+    }
+}
+
+function updateAdminStats() {
+    const pending = currentApplications.filter(a => a.status === 'pending').length;
+    const approved = currentApplications.filter(a => a.status === 'approved').length;
+    const rejected = currentApplications.filter(a => a.status === 'rejected').length;
+    
+    document.getElementById('pending-count').textContent = pending;
+    document.getElementById('approved-count').textContent = approved;
+    document.getElementById('rejected-count').textContent = rejected;
+    document.getElementById('total-count').textContent = currentApplications.length;
+}
+
+function renderApplications(applications) {
+    const container = document.getElementById('applications-list');
+    if (!container) return;
+    
+    const activeFilter = document.querySelector('.admin-filters .filter-btn.active')?.dataset.filter || 'all';
+    const filtered = applications.filter(app => activeFilter === 'all' || app.status === activeFilter);
+    
+    if (!filtered.length) {
+        container.innerHTML = '<div style="text-align: center; padding: 40px; color: #888;">Нет заявок</div>';
+        return;
+    }
+    
+    container.innerHTML = filtered.map(app => `
+        <div class="application-card ${app.status}" data-id="${app.id}">
+            <div class="application-header">
+                <div class="application-avatar">
+                    ${app.avatar_data ? 
+                        `<img src="${app.avatar_data}" alt="${app.nickname}">` :
+                        `<div style="width:100%;height:100%;background:#2a2a2a;display:flex;align-items:center;justify-content:center;">📷</div>`
+                    }
+                </div>
+                <div class="application-info">
+                    <h3>${app.nickname}</h3>
+                    <p><i class="fab fa-telegram"></i> @${app.telegram}</p>
+                    <span class="application-category">${app.category}</span>
+                    <span class="application-status status-${app.status}">${getStatusText(app.status)}</span>
+                </div>
+            </div>
+            <div class="application-footer">
+                <div class="application-date">${new Date(app.created_at).toLocaleDateString()}</div>
+                <div class="application-actions">
+                    ${app.status === 'pending' ? `
+                        <button class="action-btn-small approve-btn" data-id="${app.id}">✅ Принять</button>
+                        <button class="action-btn-small reject-btn" data-id="${app.id}">❌ Отклонить</button>
+                    ` : ''}
+                    <button class="action-btn-small view-btn" data-id="${app.id}">👁️ Просмотр</button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+    
+    document.querySelectorAll('.approve-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            approveApplication(btn.dataset.id);
+        });
+    });
+    
+    document.querySelectorAll('.reject-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            rejectApplication(btn.dataset.id);
+        });
+    });
+    
+    document.querySelectorAll('.view-btn, .application-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+            if (e.target.classList.contains('approve-btn') || e.target.classList.contains('reject-btn')) return;
+            const id = card.dataset.id || card.closest('.application-card')?.dataset.id;
+            if (id) showApplicationDetails(id);
+        });
+    });
+}
+
+function getStatusText(status) {
+    const statuses = { pending: 'Ожидает', approved: 'Принята', rejected: 'Отклонена' };
+    return statuses[status] || status;
+}
+
+async function approveApplication(appId) {
+    if (!confirm('Принять заявку?')) return;
+    
+    try {
+        const { data: app, error: fetchError } = await supabase
+            .from('applications')
+            .select('*')
+            .eq('id', appId)
+            .single();
+        
+        if (fetchError) throw fetchError;
+        
+        const { error: updateError } = await supabase
+            .from('applications')
+            .update({ status: 'approved', reviewed_at: new Date().toISOString() })
+            .eq('id', appId);
+        
+        if (updateError) throw updateError;
+        
+        const { error: memberError } = await supabase
+            .from('members')
+            .insert({
+                nickname: app.nickname,
+                telegram: app.telegram,
+                category: app.category,
+                description: app.description,
+                main_link: app.main_link,
+                extra_links: app.extra_links,
+                avatar: app.avatar_data,
+                user_id: app.user_id,
+                telegram_id: app.telegram_id,
+                status: 'approved',
+                verified: false,
+                scam: false,
+                pinned: false
+            });
+        
+        if (memberError) throw memberError;
+        
+        showNotification('Заявка принята! Участник добавлен', 'success');
+        loadApplications();
+        loadMembers();
+        
+    } catch (error) {
+        console.error('Ошибка:', error);
+        showNotification('Ошибка принятия заявки', 'error');
+    }
+}
+
+async function rejectApplication(appId) {
+    const reason = prompt('Причина отказа (необязательно):');
+    if (!confirm('Отклонить заявку?')) return;
+    
+    try {
+        const { error } = await supabase
+            .from('applications')
+            .update({ 
+                status: 'rejected', 
+                reviewed_at: new Date().toISOString(),
+                rejection_reason: reason || null
+            })
+            .eq('id', appId);
+        
+        if (error) throw error;
+        
+        showNotification('Заявка отклонена', 'info');
+        loadApplications();
+        
+    } catch (error) {
+        console.error('Ошибка:', error);
+        showNotification('Ошибка отклонения заявки', 'error');
+    }
+}
+
+async function showApplicationDetails(appId) {
+    const app = currentApplications.find(a => a.id == appId);
+    if (!app) return;
+    
+    const modalBody = document.getElementById('application-modal-body');
+    if (!modalBody) return;
+    
+    modalBody.innerHTML = `
+        <div class="application-details">
+            <div class="detail-group">
+                <label>Никнейм:</label>
+                <div><strong>${app.nickname}</strong></div>
+            </div>
+            <div class="detail-group">
+                <label>Telegram:</label>
+                <div><a href="https://t.me/${app.telegram}" target="_blank">@${app.telegram}</a></div>
+            </div>
+            <div class="detail-group">
+                <label>Категория:</label>
+                <div>${app.category}</div>
+            </div>
+            <div class="detail-group">
+                <label>Описание:</label>
+                <div>${app.description}</div>
+            </div>
+            <div class="detail-group">
+                <label>Основная ссылка:</label>
+                <div><a href="${app.main_link}" target="_blank">${app.main_link}</a></div>
+            </div>
+            ${app.extra_links?.length ? `
+                <div class="detail-group">
+                    <label>Дополнительные ссылки:</label>
+                    <div>${app.extra_links.map(l => `<a href="${l}" target="_blank">${l}</a><br>`).join('')}</div>
+                </div>
+            ` : ''}
+            <div class="detail-group">
+                <label>Дата подачи:</label>
+                <div>${new Date(app.created_at).toLocaleString()}</div>
+            </div>
+        </div>
+    `;
+    
+    openModal('application-modal');
+}
+
+function showAdminPanel() {
+    if (!currentUser?.is_admin) {
+        showNotification('Доступ запрещен', 'error');
+        return;
+    }
+    loadApplications();
+    
+    document.querySelectorAll('.admin-filters .filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.admin-filters .filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderApplications(currentApplications);
+        });
+    });
+    
+    switchSection('admin-panel');
+}
+
+// ========== Форум ==========
+function initForum() {
+    const createPostBtn = document.getElementById('create-post-btn');
+    const createPostForm = document.getElementById('create-post-form');
+    const addAttachmentBtn = document.querySelector('.add-attachment-btn');
+    const attachmentsContainer = document.getElementById('attachments-container');
+    
+    if (createPostBtn) {
+        createPostBtn.addEventListener('click', () => {
+            if (!currentUser) {
+                showNotification('Сначала войдите в аккаунт', 'error');
+                openModal('auth-modal');
+                return;
+            }
+            openModal('create-post-modal');
+        });
+    }
+    
+    if (addAttachmentBtn && attachmentsContainer) {
+        addAttachmentBtn.addEventListener('click', () => {
+            const groups = attachmentsContainer.querySelectorAll('.link-input-group');
+            if (groups.length < 5) {
+                const newGroup = document.createElement('div');
+                newGroup.className = 'link-input-group';
+                newGroup.innerHTML = `
+                    <input type="url" class="attachment-link" placeholder="https://...">
+                    <button type="button" class="remove-attachment-btn">✕</button>
+                `;
+                attachmentsContainer.appendChild(newGroup);
+                updateAttachmentRemoveButtons();
+            } else {
+                showNotification('Максимум 5 вложений', 'error');
+            }
+        });
+        updateAttachmentRemoveButtons();
+    }
+    
+    if (createPostForm) {
+        createPostForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUser) return;
+            
+            const title = document.getElementById('post-title').value.trim();
+            const content = document.getElementById('post-content').value.trim();
+            
+            if (!title || !content) {
+                showNotification('Заполните заголовок и содержание', 'error');
+                return;
+            }
+            
+            const attachments = [];
+            document.querySelectorAll('.attachment-link').forEach(input => {
+                const val = input.value.trim();
+                if (val && val.startsWith('http')) attachments.push(val);
+            });
+            
+            const submitBtn = createPostForm.querySelector('.submit-btn');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Публикация...';
+            submitBtn.disabled = true;
+            
+            try {
+                const { error } = await supabase
+                    .from('posts')
+                    .insert({
+                        user_id: currentUser.id,
+                        author_name: currentUser.first_name || currentUser.username || 'Пользователь',
+                        author_avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.first_name || 'User')}&background=0088cc&color=fff&size=40`,
+                        title: title,
+                        content: content,
+                        attachments: attachments,
+                        views: 0,
+                        likes: 0
+                    });
+                
+                if (error) throw error;
+                
+                showNotification('Пост опубликован!', 'success');
+                closeModal('create-post-modal');
+                createPostForm.reset();
+                document.getElementById('attachments-container').innerHTML = `
+                    <div class="link-input-group">
+                        <input type="url" class="attachment-link" placeholder="https://...">
+                        <button type="button" class="remove-attachment-btn" style="display: none;">✕</button>
+                    </div>
+                `;
+                loadPosts();
+                
+            } catch (error) {
+                console.error('Ошибка:', error);
+                showNotification('Ошибка публикации', 'error');
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+    }
+    
+    loadPosts();
+}
+
+function updateAttachmentRemoveButtons() {
+    document.querySelectorAll('.remove-attachment-btn').forEach(btn => {
+        btn.style.display = 'flex';
+        btn.onclick = () => btn.parentElement.remove();
+    });
+}
+
+async function loadPosts() {
+    try {
+        const { data, error } = await supabase
+            .from('posts')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        
+        renderPosts(data || []);
+    } catch (error) {
+        console.error('Ошибка загрузки постов:', error);
+        renderPosts([]);
+    }
+}
+
+function renderPosts(posts) {
+    const container = document.getElementById('posts-list');
+    if (!container) return;
+    
+    if (!posts.length) {
+        container.innerHTML = '<div style="text-align: center; padding: 40px; color: #888;">Пока нет постов. Будьте первым!</div>';
+        return;
+    }
+    
+    container.innerHTML = posts.map(post => `
+        <div class="post-card" data-id="${post.id}">
+            <div class="post-header">
+                <div class="post-author">
+                    <div class="post-author-avatar">
+                        <img src="${post.author_avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.author_name || 'User')}&background=666&color=fff&size=40`}" alt="${post.author_name}">
+                    </div>
+                    <span class="post-author-name">${post.author_name || 'Пользователь'}</span>
+                </div>
+                <div class="post-date">${new Date(post.created_at).toLocaleString()}</div>
+            </div>
+            <h3 class="post-title">${escapeHtml(post.title)}</h3>
+            <div class="post-content">${escapeHtml(post.content)}</div>
+            ${post.attachments?.length ? `
+                <div class="post-attachments">
+                    ${post.attachments.map(link => `
+                        <a href="${link}" target="_blank" class="attachment">
+                            <i class="fas fa-link"></i> Вложение
+                        </a>
+                    `).join('')}
+                </div>
+            ` : ''}
+            <div class="post-actions">
+                <button class="post-action like-btn" data-id="${post.id}">
+                    <i class="fas fa-heart"></i> <span class="likes-count">${post.likes || 0}</span>
+                </button>
+                <button class="post-action view-btn" data-id="${post.id}">
+                    <i class="fas fa-eye"></i> <span class="views-count">${post.views || 0}</span>
+                </button>
+                ${currentUser?.is_admin ? `
+                    <button class="post-action delete-btn" data-id="${post.id}">
+                        <i class="fas fa-trash"></i> Удалить
+                    </button>
+                ` : ''}
+            </div>
+        </div>
+    `).join('');
+    
+    document.querySelectorAll('.like-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            if (!currentUser) {
+                showNotification('Войдите чтобы лайкать', 'error');
+                openModal('auth-modal');
+                return;
+            }
+            const postId = btn.dataset.id;
+            const post = posts.find(p => p.id == postId);
+            if (post) {
+                const newLikes = (post.likes || 0) + 1;
+                await supabase.from('posts').update({ likes: newLikes }).eq('id', postId);
+                btn.querySelector('.likes-count').textContent = newLikes;
+                post.likes = newLikes;
+            }
+        });
+    });
+    
+    document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const postId = btn.dataset.id;
+            const post = posts.find(p => p.id == postId);
+            if (post) {
+                const newViews = (post.views || 0) + 1;
+                await supabase.from('posts').update({ views: newViews }).eq('id', postId);
+                btn.querySelector('.views-count').textContent = newViews;
+                post.views = newViews;
+            }
+        });
+    });
+    
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            if (confirm('Удалить пост?')) {
+                await supabase.from('posts').delete().eq('id', btn.dataset.id);
+                loadPosts();
+                showNotification('Пост удален', 'info');
+            }
+        });
+    });
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+        return c;
+    });
+}
+
+function showMyProfile() {
+    if (!currentUser) {
+        openModal('auth-modal');
+        return;
+    }
+    
+    const container = document.getElementById('profile-content');
+    if (!container) return;
+    
+    const registeredDate = currentUser.registered_at ? new Date(currentUser.registered_at).toLocaleDateString() : 'Недавно';
+    
+    container.innerHTML = `
+        <div class="profile-container">
+            <div class="user-profile-header">
+                <div class="user-profile-avatar">
+                    <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.first_name || currentUser.username || 'User')}&background=0088cc&color=fff&size=120" alt="Avatar">
+                </div>
+                <div class="user-profile-info">
+                    <h1>${currentUser.first_name || currentUser.username || 'Пользователь'}</h1>
+                    <p><i class="fab fa-telegram"></i> @${currentUser.username || 'user'}</p>
+                    <div class="user-profile-stats">
+                        <div class="stat-box">
+                            <span class="stat-number">${currentUser.id}</span>
+                            <span class="stat-label">ID</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-number">${registeredDate}</span>
+                            <span class="stat-label">Регистрация</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="profile-description" style="margin-top: 30px;">
+                <h3>О себе</h3>
+                <p>${currentUser.bio || 'Информация не заполнена'}</p>
+            </div>
+        </div>
+    `;
+    
+    switchSection('profile-details');
+}
+
+// ========== Вспомогательные функции ==========
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeModal(modalId) {
+    const modal = typeof modalId === 'string' ? document.getElementById(modalId) : modalId;
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+}
+
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <span>${message}</span>
+        <button style="background: none; border: none; color: white; margin-left: 15px; cursor: pointer;">&times;</button>
+    `;
+    document.body.appendChild(notification);
+    
+    const closeBtn = notification.querySelector('button');
+    closeBtn.addEventListener('click', () => notification.remove());
+    
+    setTimeout(() => notification.remove(), 5000);
+}
+
+function initSnow() {
+    const container = document.querySelector('.snow-container');
+    if (!container) return;
+    
+    for (let i = 0; i < 50; i++) {
+        const snowflake = document.createElement('div');
+        snowflake.className = 'snowflake';
+        snowflake.style.width = `${Math.random() * 6 + 2}px`;
+        snowflake.style.height = snowflake.style.width;
+        snowflake.style.left = `${Math.random() * 100}%`;
+        snowflake.style.animationDuration = `${Math.random() * 5 + 3}s`;
+        snowflake.style.animationDelay = `${Math.random() * 5}s`;
+        snowflake.style.opacity = Math.random() * 0.5 + 0.3;
+        container.appendChild(snowflake);
+    }
+}
+
+// Закрытие модалок по клику вне
+document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('modal')) {
+        closeModal(e.target);
+    }
+})
